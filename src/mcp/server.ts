@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import {
@@ -11,12 +13,20 @@ import { AdversarialVerifier } from '../core/adversarialVerifier.js';
 import { ReportGenerator } from '../core/reportGenerator.js';
 import { ThreatKnowledgeBase } from '../intelligence/threatKnowledgeBase.js';
 import { ReportIngester } from '../intelligence/reportIngester.js';
+import { PatchEngine } from '../core/patchEngine.js';
+import { VulnerabilityExplainer } from '../core/vulnerabilityExplainer.js';
+import { SkillExporter } from '../core/skillExporter.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const auditRoot = path.resolve(__dirname, '../../');
+const auditBin = path.join(auditRoot, 'bin', 'hexora.js');
 
 export async function startMcpServer() {
   const server = new Server(
     {
       name: 'hexora-mcp',
-      version: '1.0.0',
+      version: '1.1.0',
     },
     {
       capabilities: {
@@ -45,6 +55,46 @@ export async function startMcpServer() {
           },
         },
         {
+          name: 'audit_scan_directory',
+          description: 'Run full Hexora security scan on a codebase directory with Threat Intelligence and adversarial verification.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              targetPath: {
+                type: 'string',
+                description: 'Absolute or relative path to the directory to audit',
+              },
+              outputDir: {
+                type: 'string',
+                description: 'Optional output directory for reports and ledgers',
+              },
+            },
+            required: ['targetPath'],
+          },
+        },
+        {
+          name: 'audit_scan_file',
+          description: 'Fast, targeted real-time security scan on a single file or in-memory code buffer (ideal when saving or reviewing code edits).',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              filePath: {
+                type: 'string',
+                description: 'Path to the target file to scan',
+              },
+              content: {
+                type: 'string',
+                description: 'Optional unsaved in-memory file content to audit without saving to disk',
+              },
+              targetRoot: {
+                type: 'string',
+                description: 'Optional repository or project root directory',
+              },
+            },
+            required: ['filePath'],
+          },
+        },
+        {
           name: 'get_findings',
           description: 'Query structured security findings with details, code snippets, safe PoCs, and unified patch fixes.',
           inputSchema: {
@@ -57,11 +107,91 @@ export async function startMcpServer() {
               },
               category: {
                 type: 'string',
-                description: 'Filter by category: SECRET, INJECTION, WEB3, AI_AGENT, AUTH, CONFIG',
+                description: 'Filter by category: SECRET, INJECTION, WEB3, AI_AGENT, AUTH, CONFIG, BUSINESS_LOGIC, SCA',
               },
               targetPath: {
                 type: 'string',
                 description: 'Directory path where audit results are stored (defaults to ".")',
+              },
+            },
+          },
+        },
+        {
+          name: 'apply_fix',
+          description: 'Safely apply an automated patch, unified diff, or string replacement to remediate confirmed security vulnerabilities.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              filePath: {
+                type: 'string',
+                description: 'Target file path to modify',
+              },
+              target: {
+                type: 'string',
+                description: 'Exact original code snippet to replace',
+              },
+              replacement: {
+                type: 'string',
+                description: 'Hardened replacement code',
+              },
+              unifiedDiff: {
+                type: 'string',
+                description: 'Optional standard git unified diff string',
+              },
+              createBackup: {
+                type: 'boolean',
+                description: 'Whether to create a .bak backup file (defaults to true)',
+              },
+            },
+            required: ['filePath'],
+          },
+        },
+        {
+          name: 'audit_explain_vulnerability',
+          description: 'Retrieve deep architectural breakdown, root cause, real-world CVE case studies, CVSS v3.1 metrics, and secure patterns for an issue.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              ruleId: {
+                type: 'string',
+                description: 'Vulnerability Rule ID (e.g., "SEC-001", "SOL-001", "AI-LLM-001")',
+              },
+              findingJson: {
+                type: 'string',
+                description: 'Optional JSON string of the VulnerabilityFinding object',
+              },
+            },
+            required: ['ruleId'],
+          },
+        },
+        {
+          name: 'audit_generate_poc',
+          description: 'Synthesize safe, non-destructive reproduction test harness (CURL, Node.js, Foundry, Anchor, or Python) to safely verify an issue.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              findingJson: {
+                type: 'string',
+                description: 'JSON string of the VulnerabilityFinding candidate',
+              },
+              format: {
+                type: 'string',
+                enum: ['CURL', 'NODE', 'FOUNDRY', 'ANCHOR', 'PYTHON', 'AUTO'],
+                description: 'Target execution harness format (defaults to AUTO)',
+              },
+            },
+            required: ['findingJson'],
+          },
+        },
+        {
+          name: 'audit_get_workspace_posture',
+          description: 'Evaluate overall security health score (A+ to F), threat intelligence match coverage, and real-time posture of the workspace.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              targetPath: {
+                type: 'string',
+                description: 'Workspace root directory (defaults to ".")',
               },
             },
           },
@@ -78,24 +208,6 @@ export async function startMcpServer() {
               },
             },
             required: ['findingJson'],
-          },
-        },
-        {
-          name: 'audit_scan_directory',
-          description: 'Run full Hexora security scan on a codebase directory with Threat Intelligence and adversarial verification.',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              targetPath: {
-                type: 'string',
-                description: 'Absolute or relative path to the directory to audit',
-              },
-              outputDir: {
-                type: 'string',
-                description: 'Optional output directory for reports and ledgers',
-              },
-            },
-            required: ['targetPath'],
           },
         },
         {
@@ -171,17 +283,22 @@ export async function startMcpServer() {
           },
         },
         {
-          name: 'audit_verify_candidate',
-          description: 'Adversarially challenge a vulnerability candidate to filter out false positives and generate safe PoC + minimal diff fix.',
+          name: 'audit_export_skill',
+          description: 'Export Hexora skills, guidelines, and MCP configurations directly to Antigravity, Cursor, Claude Code, Windsurf, or VS Code.',
           inputSchema: {
             type: 'object',
             properties: {
-              findingJson: {
+              platform: {
                 type: 'string',
-                description: 'JSON string of the VulnerabilityFinding object',
+                enum: ['ANTIGRAVITY', 'CURSOR', 'CLAUDE_CODE', 'WINDSURF', 'VSCODE', 'ALL'],
+                description: 'Target platform to integrate with',
+              },
+              workspaceDir: {
+                type: 'string',
+                description: 'Target workspace root (defaults to ".")',
               },
             },
-            required: ['findingJson'],
+            required: ['platform'],
           },
         },
       ],
@@ -245,15 +362,217 @@ export async function startMcpServer() {
       };
     }
 
+    if (name === 'audit_scan_file') {
+      const filePath = (args as any)?.filePath;
+      const content = (args as any)?.content;
+      const targetRoot = (args as any)?.targetRoot || process.cwd();
+
+      const absPath = path.isAbsolute(filePath) ? filePath : path.resolve(targetRoot, filePath);
+      const scanner = new SastScanner();
+      const verifier = new AdversarialVerifier();
+
+      const findings = scanner.scanSingleFile(absPath, targetRoot, content);
+      const verified = findings.map((f) => verifier.verifyFinding(f, content));
+      const confirmed = verified.filter((f) => f.status === 'CONFIRMED');
+      const disproved = verified.filter((f) => f.status === 'DISPROVED');
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                file: path.relative(targetRoot, absPath).replace(/\\/g, '/'),
+                status: confirmed.length === 0 ? 'CLEAN' : 'VULNERABILITIES_FOUND',
+                totalConfirmed: confirmed.length,
+                falsePositivesFiltered: disproved.length,
+                findings: confirmed.map((f) => ({
+                  ruleId: f.ruleId,
+                  title: f.title,
+                  severity: f.severity,
+                  category: f.category,
+                  line: f.location.lineStart,
+                  snippet: f.location.snippet,
+                  remediation: f.remediation?.explanation || f.remediation?.unifiedDiff,
+                  reproductionPoC: f.reproductionPoC,
+                })),
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+
+    if (name === 'apply_fix') {
+      const filePath = (args as any)?.filePath;
+      const target = (args as any)?.target;
+      const replacement = (args as any)?.replacement;
+      const unifiedDiff = (args as any)?.unifiedDiff;
+      const createBackup = (args as any)?.createBackup !== false;
+
+      const result = PatchEngine.apply({
+        filePath,
+        target,
+        replacement,
+        unifiedDiff,
+        createBackup,
+      });
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
+      };
+    }
+
+    if (name === 'audit_explain_vulnerability') {
+      const ruleId = (args as any)?.ruleId;
+      const findingRaw = (args as any)?.findingJson;
+      let findingObj;
+      if (findingRaw) {
+        try {
+          findingObj = typeof findingRaw === 'string' ? JSON.parse(findingRaw) : findingRaw;
+        } catch {}
+      }
+
+      const explanation = VulnerabilityExplainer.explain(ruleId, findingObj);
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(explanation, null, 2),
+          },
+        ],
+      };
+    }
+
+    if (name === 'audit_generate_poc') {
+      const findingRaw = (args as any)?.findingJson;
+      const format = (args as any)?.format || 'AUTO';
+      let findingObj = {};
+      if (findingRaw) {
+        try {
+          findingObj = typeof findingRaw === 'string' ? JSON.parse(findingRaw) : findingRaw;
+        } catch {}
+      }
+
+      const poc = VulnerabilityExplainer.generatePoc(findingObj, format);
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(poc, null, 2),
+          },
+        ],
+      };
+    }
+
+    if (name === 'audit_get_workspace_posture') {
+      const targetPath = (args as any)?.targetPath || '.';
+      const resolved = path.resolve(targetPath);
+      const resultsDir = path.join(resolved, '.hexora-results');
+      const findingsPath = path.join(resultsDir, 'audit-findings.json');
+
+      let findingsList: any[] = [];
+      if (fs.existsSync(findingsPath)) {
+        try {
+          findingsList = JSON.parse(fs.readFileSync(findingsPath, 'utf-8'));
+        } catch {}
+      }
+
+      const confirmed = findingsList.filter((f) => f.status === 'CONFIRMED');
+      const critCount = confirmed.filter((f) => f.severity === 'CRITICAL').length;
+      const highCount = confirmed.filter((f) => f.severity === 'HIGH').length;
+      const medCount = confirmed.filter((f) => f.severity === 'MEDIUM').length;
+
+      let score = 100 - (critCount * 30 + highCount * 15 + medCount * 5);
+      if (score < 0) score = 0;
+
+      let grade = 'A+';
+      if (score < 60) grade = 'F';
+      else if (score < 70) grade = 'D';
+      else if (score < 80) grade = 'C';
+      else if (score < 90) grade = 'B';
+      else if (score < 98) grade = 'A';
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(
+              {
+                workspace: resolved,
+                securityScore: `${score}/100`,
+                grade,
+                postureStatus: critCount > 0 ? 'CRITICAL_RISK' : highCount > 0 ? 'ELEVATED_RISK' : 'HEALTHY',
+                activeFindings: {
+                  critical: critCount,
+                  high: highCount,
+                  medium: medCount,
+                  low: confirmed.filter((f) => f.severity === 'LOW').length,
+                  total: confirmed.length,
+                },
+                threatIntelStats: kb.getStats(),
+                lastScanTimestamp: fs.existsSync(findingsPath) ? fs.statSync(findingsPath).mtime.toISOString() : null,
+              },
+              null,
+              2
+            ),
+          },
+        ],
+      };
+    }
+
+    if (name === 'audit_export_skill') {
+      const platform = ((args as any)?.platform || 'ANTIGRAVITY').toUpperCase();
+      const wsDir = path.resolve((args as any)?.workspaceDir || '.');
+      const homeDir = os.homedir();
+
+      let report;
+      if (platform === 'ANTIGRAVITY') {
+        report = SkillExporter.exportAntigravity(wsDir, homeDir, auditBin);
+      } else if (platform === 'CURSOR') {
+        report = SkillExporter.exportCursor(wsDir, homeDir, auditBin);
+      } else if (platform === 'CLAUDE_CODE') {
+        report = SkillExporter.exportClaudeCode(homeDir, auditBin);
+      } else if (platform === 'WINDSURF') {
+        report = SkillExporter.exportWindsurf(wsDir, homeDir, auditBin);
+      } else if (platform === 'VSCODE') {
+        report = SkillExporter.exportVsCode(wsDir, auditBin);
+      } else {
+        const agy = SkillExporter.exportAntigravity(wsDir, homeDir, auditBin);
+        const cur = SkillExporter.exportCursor(wsDir, homeDir, auditBin);
+        const cld = SkillExporter.exportClaudeCode(homeDir, auditBin);
+        const wnd = SkillExporter.exportWindsurf(wsDir, homeDir, auditBin);
+        const vsc = SkillExporter.exportVsCode(wsDir, auditBin);
+        report = {
+          platform: 'ALL',
+          results: [agy, cur, cld, wnd, vsc],
+          success: true,
+        };
+      }
+
+      return {
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify(report, null, 2),
+          },
+        ],
+      };
+    }
+
     if (name === 'get_findings') {
       const targetPath = (args as any)?.targetPath || '.';
       const severityFilter = (args as any)?.severity;
       const categoryFilter = (args as any)?.category;
 
       let outDir = path.resolve(path.join(process.cwd(), '.hexora-results'));
-      if (!fs.existsSync(outDir) && fs.existsSync(path.resolve(path.join(process.cwd(), '.hexora-results')))) {
-        outDir = path.resolve(path.join(process.cwd(), '.hexora-results'));
-      }
       const findingsFile = path.join(outDir, 'audit-findings.json');
 
       let findingsList: any[] = [];

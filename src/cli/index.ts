@@ -183,6 +183,6 @@ export async function runBenchmark() {
 }
 
 export { startWatchMode } from './watch.js';
-export { runUniversalSetup, installGitHook } from './setup.js';
+export { runUniversalSetup, installGitHook, runSkillCommand } from './setup.js';
 
 

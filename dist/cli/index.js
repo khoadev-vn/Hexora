@@ -159,5 +159,5 @@ export async function runBenchmark() {
     return await runner.runFullBenchmarkSuite();
 }
 export { startWatchMode } from './watch.js';
-export { runUniversalSetup, installGitHook } from './setup.js';
+export { runUniversalSetup, installGitHook, runSkillCommand } from './setup.js';
 //# sourceMappingURL=index.js.map

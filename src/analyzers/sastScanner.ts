@@ -122,15 +122,15 @@ export class SastScanner {
     return { findings, coverage };
   }
 
-  public scanSingleFile(filePath: string, rootDir: string = path.dirname(filePath)): VulnerabilityFinding[] {
+  public scanSingleFile(filePath: string, rootDir: string = path.dirname(filePath), contentOverride?: string): VulnerabilityFinding[] {
     const findings: VulnerabilityFinding[] = [];
     try {
       const relPath = path.relative(rootDir, filePath).replace(/\\/g, '/');
       const ext = path.extname(filePath).slice(1).toLowerCase();
       const isSourceFile = ['js', 'ts', 'jsx', 'tsx', 'py', 'sol', 'rs', 'go', 'php', 'java', 'c', 'cpp', 'html', 'vue', 'svelte', 'json', 'env'].includes(ext);
-      if (!isSourceFile) return [];
+      if (!isSourceFile && !contentOverride) return [];
 
-      const content = fs.readFileSync(filePath, 'utf-8');
+      const content = contentOverride !== undefined ? contentOverride : fs.readFileSync(filePath, 'utf-8');
       const dynamicRules = ZeroDaySyncEngine.getInstance().getDynamicRules();
       const activeRules = [...this.rules, ...dynamicRules];
 

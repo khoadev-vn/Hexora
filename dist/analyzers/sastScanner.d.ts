@@ -17,7 +17,7 @@ export declare class SastScanner {
         findings: VulnerabilityFinding[];
         coverage: CoverageLedger;
     }>;
-    scanSingleFile(filePath: string, rootDir?: string): VulnerabilityFinding[];
+    scanSingleFile(filePath: string, rootDir?: string, contentOverride?: string): VulnerabilityFinding[];
     private evaluateRule;
     /**
      * Scans for deep threat patterns directly learned from reports (Immunefi, CVEs, Cloudflare skills)

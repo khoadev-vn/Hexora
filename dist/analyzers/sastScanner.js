@@ -98,15 +98,15 @@ export class SastScanner {
         };
         return { findings, coverage };
     }
-    scanSingleFile(filePath, rootDir = path.dirname(filePath)) {
+    scanSingleFile(filePath, rootDir = path.dirname(filePath), contentOverride) {
         const findings = [];
         try {
             const relPath = path.relative(rootDir, filePath).replace(/\\/g, '/');
             const ext = path.extname(filePath).slice(1).toLowerCase();
             const isSourceFile = ['js', 'ts', 'jsx', 'tsx', 'py', 'sol', 'rs', 'go', 'php', 'java', 'c', 'cpp', 'html', 'vue', 'svelte', 'json', 'env'].includes(ext);
-            if (!isSourceFile)
+            if (!isSourceFile && !contentOverride)
                 return [];
-            const content = fs.readFileSync(filePath, 'utf-8');
+            const content = contentOverride !== undefined ? contentOverride : fs.readFileSync(filePath, 'utf-8');
             const dynamicRules = ZeroDaySyncEngine.getInstance().getDynamicRules();
             const activeRules = [...this.rules, ...dynamicRules];
             for (const rule of activeRules) {

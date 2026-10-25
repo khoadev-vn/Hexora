@@ -146,11 +146,38 @@ Sau khi quét xong, Hexora sẽ tự động khởi tạo các bản báo cáo t
 
 ---
 
-## 6. Tích hợp 1-Click vào Cursor, Claude Desktop & AI Agents
+## 6. Tích hợp 1-Click vào Google Antigravity, Cursor, Claude & AI Agents
 
-Bạn đang dùng **Cursor IDE**, **Claude Desktop**, **Windsurf**, hay các AI Agent thông minh? Thay vì phải cấu hình file JSON phức tạp:
+Bạn đang dùng **Google Antigravity**, **Cursor IDE**, **Claude Code / Desktop**, **Windsurf**, hay các AI Agent tự hành? Thay vì phải cấu hình thủ công từng file JSON hay viết prompt dài dòng:
 
-Chỉ cần chạy lệnh duy nhất:
+### Cách 1: Xuất Skill & MCP trực tiếp cho Google Antigravity
+Chỉ cần chạy lệnh:
+```bash
+npx hexora skill antigravity
+```
+
+**Màn hình Terminal thực tế:**
+```text
+PS D:\my-app> npx hexora skill antigravity
+
+======================================================
+📦 HEXORA AI AGENT SKILL & MCP INSTALLER
+   Target: ANTIGRAVITY
+   Workspace: D:\my-app
+======================================================
+
+✅ Installed Google Antigravity Skill & MCP server:
+   - C:\Users\user\.gemini\config\mcp_config.json
+   - D:\my-app\.agents\skills\hexora\SKILL.md
+   - C:\Users\user\.gemini\config\skills\hexora\SKILL.md
+   - D:\my-app\.agents\rules\hexora-security.md
+   - D:\my-app\GEMINI.md
+
+✨ Installation complete! Your AI agents are ready to audit code.
+```
+
+### Cách 2: Trình cài đặt đa nền tảng (Universal Setup)
+Chạy lệnh:
 ```bash
 npx hexora init
 ```
@@ -159,37 +186,64 @@ npx hexora init
 ```text
 PS D:\my-app> npx hexora init
 
-Hexora Setup
-
-Where do you want to use Hexora?
-
-  [1] Terminal
-  [2] Cursor
-  [3] Claude Code
-  [4] Claude Desktop
-  [5] VS Code
-  [6] Other MCP-compatible agents
-  [7] All supported integrations
-
-Select an option (1-7): 7
-
 ======================================================
-🚀 HEXORA UNIVERSAL SETUP
+🚀 HEXORA UNIVERSAL AI AGENT & SECURITY SETUP
 ======================================================
 
-✅ [Terminal] Created global shortcut 'hexora' and 'audit' in C:\Users\user\bin
-✅ [Cursor] Configured MCP server in .cursor/mcp.json
-✅ [Claude Code] Configured MCP server in .claude/mcp.json
-✅ [Claude Desktop] Configured claude_desktop_config.json
-✅ [VS Code] Added audit tasks to .vscode/tasks.json
-✅ [Git] Installed pre-commit hook in .git/hooks/pre-commit
+Where do you want to integrate Hexora?
+
+  [1] Google Antigravity (IDE & CLI - MCP & Skills)
+  [2] Cursor (MCP Server & .cursor/rules)
+  [3] Claude Code (CLI ~/.claude.json)
+  [4] Claude Desktop (claude_desktop_config.json)
+  [5] VS Code (Workspace Tasks & Extension)
+  [6] Windsurf (.windsurf & .windsurfrules)
+  [7] Terminal Global Shortcuts & Git Pre-commit Hook
+  [8] All Integrations (Recommended for Full AI Stack)
+
+Select an option (1-8): 8
+
+======================================================
+⚡ INTEGRATING HEXORA SECURITY PROTOCOL
+   Workspace: D:\my-app
+======================================================
+
+✅ Configured Google Antigravity Skill & MCP server
+✅ Configured Cursor MCP (.cursor/mcp.json) & Rules (.cursor/rules/hexora.mdc)
+✅ Configured Claude Code (~/.claude.json)
+✅ Configured Claude Desktop (claude_desktop_config.json)
+✅ Added VS Code tasks (.vscode/tasks.json)
+✅ Created Terminal shortcuts 'hexora' and 'audit'
+✅ Installed pre-commit security hook (.git/hooks/pre-commit)
 
 🎉 Hexora configured successfully across all environments!
 ```
 
-* **Giải thích:** Hexora tự động nhận diện cấu trúc máy tính của bạn và tiêm giao thức chuẩn **Model Context Protocol (MCP)** vào các ứng dụng AI.
-* **Cách sử dụng thực tế:** Sau khi chạy lệnh trên, hãy mở khung chat Cursor hoặc Claude Desktop và gõ:
-  > *"Hãy dùng Hexora audit lại toàn bộ repo này và sinh mã vá tự động cho anh nhé!"*
+---
+
+### 🤖 Danh mục 14 Công cụ MCP Hexora Cung Cấp Cho AI Agent:
+
+Khi tích hợp vào Antigravity, Cursor hay Claude, AI Agent sẽ sở hữu một "kho vũ khí" an ninh chuyên nghiệp:
+
+| MCP Tool | Chức Năng Cốt Lõi | Ví Dụ Prompt Thực Tế |
+| :--- | :--- | :--- |
+| `scan_project` | Quét toàn bộ repository & đối kháng lọc bỏ false positive | *"Hãy scan toàn bộ repo này bằng Hexora"* |
+| `audit_scan_file` | Quét tức thì 1 file hoặc buffer code đang mở trên RAM | *"Kiểm tra an toàn file authController.ts vừa sửa"* |
+| `get_findings` | Lấy danh sách lỗ hổng đã xác minh (phân loại theo mức độ) | *"Liệt kê tất cả lỗi CRITICAL trong project"* |
+| `apply_fix` | Tự động vá code bằng unified diff an toàn 100% | *"Áp dụng bản vá Hexora đề xuất cho lỗi SQLi"* |
+| `audit_explain_vulnerability` | Phân tích kiến trúc, CVSS và nguyên nhân gốc rễ (Root Cause) | *"Giải thích tại sao hàm này bị Reentrancy"* |
+| `audit_generate_poc` | Tự động sinh kịch bản PoC test an toàn để chứng minh lỗ hổng | *"Tạo script PoC chứng minh lỗi bypass quyền"* |
+| `audit_get_workspace_posture` | Chấm điểm an ninh workspace (A+ đến F) và thống kê rủi ro | *"Đánh giá điểm an ninh tổng thể của repo"* |
+| `validate_finding` | Thử thách nghi vấn để loại bỏ cảnh báo giả lập | *"Xác thực xem cảnh báo này có phải false positive không"* |
+| `audit_check_snippet` | Quét nhanh một đoạn code / function trực tiếp | *"Đoạn code regex này có bị ReDoS không?"* |
+| `audit_learn_report` | Nạp CVE mới hoặc writeup bug bounty vào bộ nhớ tri thức | *"Học báo cáo CVE vừa công bố này vào database"* |
+| `audit_search_knowledge` | Tra cứu cơ chế tấn công và cách phòng thủ từ threat database | *"Tìm các biến thể tấn công Solana CPI hijack"* |
+| `audit_get_threat_intel_stats` | Xem thống kê số lượng CVE và attack variants đã học | *"Thống kê tri thức zero-day trong hệ thống"* |
+| `audit_export_skill` | Xuất skill và cấu hình MCP tức thì cho agent khác | *"Xuất skill Hexora sang Cursor workspace"* |
+| `audit_scan_directory` | Quét một thư mục cụ thể và xuất report chi tiết | *"Quét riêng thư mục src/controllers"* |
+
+* **Ví dụ Prompt ra lệnh cho Antigravity / Cursor:**
+  > *"Em ơi, hãy dùng công cụ Hexora MCP kiểm tra toàn bộ workspace, phân tích các lỗ hổng CRITICAL và tự động sinh bản vá chuẩn unified diff giúp anh nhé!"*
 
 ---
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
-import { runScan, learnReport, showThreatIntel, runBenchmark, startWatchMode, runUniversalSetup, installGitHook } from '../dist/cli/index.js';
+import { runScan, learnReport, showThreatIntel, runBenchmark, startWatchMode, runUniversalSetup, installGitHook, runSkillCommand } from '../dist/cli/index.js';
 import { startMcpServer } from '../dist/mcp/server.js';
 
 const rawArgs = process.argv.slice(2);
@@ -20,6 +20,10 @@ async function main() {
   } else if (command === 'setup' || command === 'init') {
     const target = args[1];
     await runUniversalSetup({ target });
+  } else if (command === 'skill' || command === 'skills') {
+    const platform = args[1] || 'all';
+    const targetDir = args[2] || '.';
+    await runSkillCommand(platform, targetDir);
   } else if (command === 'hook' || command === 'precommit') {
     const target = args[1] || '.';
     installGitHook(target);
@@ -42,18 +46,20 @@ async function main() {
     showThreatIntel();
   } else if (command === '--help' || command === '-h') {
     console.log(`
-🛡️  HEXORA — NEXT-GEN UNIVERSAL SECURITY ENGINE
+🛡️  HEXORA — NEXT-GEN UNIVERSAL SECURITY & AI AGENT ENGINE
 -----------------------------------------------------------------------
 Zero-Config Usage:
   npx hexora .                         Scan current directory
   npx hexora ./my-project              Scan target project folder
   npx hexora owner/repo                Scan remote GitHub repository
-  npx hexora init                      1-Click setup for Cursor, Claude, VS Code & Terminal
+  npx hexora init                      1-Click setup for Antigravity, Cursor, Claude & VS Code
+  npx hexora skill [platform]          Export skills to Antigravity, Cursor, Claude, Windsurf
 
 Short Commands (after global install / npx alias):
   audit                                Scan current directory
   audit watch                          Auto-rescan on file save (Ctrl+S)
   audit setup                          Configure AI Agents & IDEs
+  audit skill antigravity              Install Antigravity Skill & MCP
 
 Advanced Commands:
   npx hexora watch                     Auto-rescan on file save (Ctrl+S)
@@ -62,6 +68,7 @@ Advanced Commands:
   npx hexora bench                     Run global vulnerability benchmark arena
   npx hexora intel                     View learned CVEs & attack variants
   npx hexora learn <path>              Ingest CVE report or security writeup
+
 
 Flags:
   --verbose, -v                        Print detailed 4-phase audit execution

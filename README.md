@@ -244,30 +244,76 @@ PS D:\my-project> npx hexora init
 
 Hexora Setup
 
-Where do you want to use Hexora?
+### ⚡ Feature 4: 1-Click AI Agent Integration (Antigravity, Cursor, Claude & Windsurf)
 
-  [1] Terminal (Register global shortcut 'hexora' & 'audit')
-  [2] Cursor (Model Context Protocol - .cursor/mcp.json)
-  [3] Claude Code (.claude/mcp.json)
+Hexora seamlessly integrates with next-generation AI coding agents and IDEs via the **Model Context Protocol (MCP)** and **Native Agent Skills**.
+
+#### 1. Instant Export to Google Antigravity
+```bash
+npx hexora skill antigravity
+```
+Automatically registers:
+* **Global MCP Server**: `~/.gemini/config/mcp_config.json`
+* **Agent Skill Protocol**: `.agents/skills/hexora/SKILL.md` and `~/.gemini/config/skills/hexora/SKILL.md`
+* **Project Security Rules**: `.agents/rules/hexora-security.md` and `GEMINI.md`
+
+#### 2. Universal Interactive Setup
+```bash
+npx hexora init
+```
+
+```text
+PS D:\my-project> npx hexora init
+
+======================================================
+🚀 HEXORA UNIVERSAL AI AGENT & SECURITY SETUP
+======================================================
+
+Where do you want to integrate Hexora?
+
+  [1] Google Antigravity (IDE & CLI - MCP & Skills)
+  [2] Cursor (MCP Server & .cursor/rules)
+  [3] Claude Code (CLI ~/.claude.json)
   [4] Claude Desktop (claude_desktop_config.json)
-  [5] VS Code (Build & Audit Tasks)
-  [6] Other MCP-compatible agents
-  [7] All supported integrations (Recommended)
+  [5] VS Code (Workspace Tasks & Extension)
+  [6] Windsurf (.windsurf & .windsurfrules)
+  [7] Terminal Global Shortcuts & Git Pre-commit Hook
+  [8] All Integrations (Recommended for Full AI Stack)
 
-Select an option (1-7): 7
+Select an option (1-8): 8
 
 ======================================================
-🚀 HEXORA UNIVERSAL SETUP
+⚡ INTEGRATING HEXORA SECURITY PROTOCOL
+   Workspace: D:\my-project
 ======================================================
 
-✅ [Terminal] Created global shortcuts 'hexora' and 'audit' in C:\Users\user\bin
-✅ [Cursor] Configured MCP server in .cursor/mcp.json
-✅ [Claude Code] Configured MCP server in .claude/mcp.json
-✅ [Claude Desktop] Configured claude_desktop_config.json
-✅ [VS Code] Added audit tasks to .vscode/tasks.json
-✅ [Git] Installed pre-commit hook in .git/hooks/pre-commit
+✅ Configured Google Antigravity Skill & MCP server
+✅ Configured Cursor MCP (.cursor/mcp.json) & Rules (.cursor/rules/hexora.mdc)
+✅ Configured Claude Code (~/.claude.json)
+✅ Configured Claude Desktop (claude_desktop_config.json)
+✅ Added VS Code tasks (.vscode/tasks.json)
+✅ Created Terminal shortcuts 'hexora' and 'audit'
+✅ Installed pre-commit security hook (.git/hooks/pre-commit)
 
 🎉 Hexora configured successfully across all environments!
+```
+
+#### 🛠️ Available Hexora MCP Tools for AI Agents:
+AI Agents gain access to 14 native deterministic security tools:
+* `scan_project` — Full repo audit with adversarial dual-agent verification.
+* `audit_scan_file` — Real-time single file / in-memory buffer scanner.
+* `get_findings` — Query findings filtered by severity or CWE category.
+* `apply_fix` — Automated zero-regression code patching via unified diffs.
+* `audit_explain_vulnerability` — Deep architectural root cause and CVSS impact analysis.
+* `audit_generate_poc` — Synthesizes safe, isolated reproduction proof-of-concept tests.
+* `audit_get_workspace_posture` — Real-time security posture scoring (A+ to F).
+* `validate_finding` — Adversarial counter-evidence filter.
+* `audit_check_snippet` — Live function / snippet audit against vulnerability database.
+* `audit_learn_report` — Ingest external CVEs and bug bounty writeups into memory.
+* `audit_search_knowledge` — Semantic search through learned attack vectors.
+* `audit_get_threat_intel_stats` — Statistics on learned zero-days and variants.
+* `audit_export_skill` — On-the-fly export of skills to new agent environments.
+* `audit_scan_directory` — Granular folder scanning with dedicated ledgers.
 ```
 
 **💡 Step-by-Step Hands-On Guide:**

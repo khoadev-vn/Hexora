@@ -18,5 +18,5 @@ export declare function runBenchmark(): Promise<{
     reportPath: string;
 }>;
 export { startWatchMode } from './watch.js';
-export { runUniversalSetup, installGitHook } from './setup.js';
+export { runUniversalSetup, installGitHook, runSkillCommand } from './setup.js';
 //# sourceMappingURL=index.d.ts.map
