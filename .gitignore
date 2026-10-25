@@ -5,7 +5,6 @@ dist/*.map
 .DS_Store
 Thumbs.db
 *.log
-.aevum-audit-results/
 .hexora-results/
 sentinel-report.html
 *.tmp

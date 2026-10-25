@@ -56,10 +56,12 @@ You can use Hexora immediately via direct CLI link or node runner:
 Make the `hexora` command globally accessible from any terminal window on your machine with zero latency:
 
 ```bash
-# 1. Navigate to the Hexora project directory:
-cd D:/aevum-audit
+# 1. Clone & navigate to Hexora:
+git clone https://github.com/khoadev-vn/Hexora.git
+cd Hexora
 
-# 2. Build TypeScript artifacts:
+# 2. Install dependencies & build:
+npm install
 npm run build
 
 # 3. Register global binary link:
