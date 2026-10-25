@@ -1,21 +1,22 @@
-<div align="center">
+﻿<div align="center">
 
 <img src="assets/banner.png" alt="Hexora - Next-Generation Universal Security Engine" width="100%" />
 
 # HEXORA
 ### Next-Generation Universal Security Engine
 
-[![npm version](https://img.shields.io/npm/v/hexora.svg?style=flat-square&color=00F0FF&logo=npm)](https://www.npmjs.com/package/hexora)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-khoadev--vn%2FHexora-00F0FF?style=flat-square&logo=github)](https://github.com/khoadev-vn/Hexora)
+[![GitHub Stars](https://img.shields.io/github/stars/khoadev-vn/Hexora?style=flat-square&color=FFD700&logo=github)](https://github.com/khoadev-vn/Hexora/stargazers)
 [![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-FF5555.svg?style=flat-square)](LICENSE)
 [![AI-Native: MCP](https://img.shields.io/badge/AI--Native-Model%20Context%20Protocol-8A2BE2.svg?style=flat-square&logo=anthropic)](https://modelcontextprotocol.io/)
-[![Zero-Config](https://img.shields.io/badge/Setup-Zero--Config-brightgreen.svg?style=flat-square)](#-quickstart-for-developers)
+[![Zero-Config](https://img.shields.io/badge/Setup-Zero--Config-brightgreen.svg?style=flat-square)](#-quick-start--installation)
 [![False Positive Filter](https://img.shields.io/badge/False%20Positives-0%25%20Filtered-success.svg?style=flat-square)](#-dual-agent-adversarial-verification)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg?style=flat-square)](CONTRIBUTING.md)
 
 **Zero-Friction SAST • Dual-Agent Adversarial Verification • Dynamic PoC & Patch Generation**  
 *One security engine that works seamlessly in your Terminal, IDE, AI Agents, and CI/CD pipelines.*
 
-[🌐 Live Landing Page](https://hexora-security.github.io/hexora) • [📚 Step-by-Step Guide](docs/STEP_BY_STEP_GUIDE.md) • [📖 Documentation](#-universal-modes-of-use) • [⚡ Quickstart](#-quickstart-for-developers) • [🤖 AI Agent MCP](#-mode-2-1-click-ai-agent-setup) • [🏆 Benchmarks](#-global-vulnerability-benchmarks)
+[🌐 Live Landing Page](https://hexora-security.github.io/hexora) • [📚 Step-by-Step Guide](docs/STEP_BY_STEP_GUIDE.md) • [📖 Documentation](#-universal-modes-of-use) • [⚡ Quickstart](#-quick-start--installation) • [🤖 AI Agent MCP](#-mode-2-1-click-ai-agent-setup) • [🏆 Benchmarks](#-global-vulnerability-benchmarks)
 
 ---
 
@@ -50,44 +51,71 @@ Traditional security tools force developers to remember dozens of complex flags,
 
 ---
 
-## 📦 Installation & Quick Setup
+## ⚡ Quick Start & Installation
 
-You can use Hexora immediately via direct CLI link or node runner:
+Dễ dùng tối đa, không cần nhớ những câu lệnh phức tạp hay đường dẫn dài dòng:
 
-### ⚡ Method 1: Global System Link (Recommended)
-Make the `hexora` command globally accessible from any terminal window on your machine with zero latency:
+### 🌟 Cách 1: Cài đặt toàn cầu (Khuyên dùng — Tiện nhất!)
+Cài đặt 1 lần duy nhất qua GitHub, sử dụng vĩnh viễn ở mọi nơi trên máy tính:
 
 ```bash
-# 1. Clone & navigate to Hexora:
-git clone https://github.com/khoadev-vn/Hexora.git
-cd Hexora
-
-# 2. Install dependencies & build:
-npm install
-npm run build
-
-# 3. Register global binary link:
-npm link
-
-# 4. Now run anywhere in any project terminal:
-hexora bench
-hexora .
-hexora init
+npm install -g khoadev-vn/Hexora
 ```
 
-### ⚡ Method 2: Direct Execution from Source
+Sau khi cài xong, bạn chỉ cần gõ lệnh siêu ngắn ở **bất kỳ thư mục dự án nào**:
 ```bash
-# Run benchmark:
-npm run benchmark
-# or:
-node bin/hexora.js bench
-
-# Run audit on current directory:
-node bin/hexora.js .
+hexora .         # 🔍 Quét bảo mật toàn diện (SAST, Secrets, SCA)
+hexora watch     # 👁️ Tự động quét tức thì mỗi khi bấm Ctrl+S
+hexora init      # 🤖 1-Click tích hợp AI (Cursor, Claude, VS Code, Antigravity)
+hexora hook      # 🔒 Cài đặt Git Pre-Commit hook chặn rò rỉ mã bí mật
+hexora bench     # 🏆 Chạy kiểm thử đối kháng (Adversarial Benchmark)
 ```
 
 ---
 
+### 🎁 Cách 2: Trình cài đặt tự động 1 dòng lệnh (One-Line Installer)
+Tự động kiểm tra môi trường Node.js và cài đặt trọn gói không cần nhớ lệnh:
+
+- **Linux / macOS**:
+```bash
+curl -fsSL https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.sh | bash
+```
+
+- **Windows PowerShell**:
+```powershell
+irm https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.ps1 | iex
+```
+
+---
+
+### 🚀 Cách 3: Chạy trực tiếp qua NPX (Không cần cài đặt)
+Nếu bạn chỉ muốn quét nhanh một dự án mà không cần cài đặt:
+
+```bash
+# Quét dự án hiện tại
+npx khoadev-vn/Hexora .
+
+# Chế độ theo dõi realtime
+npx khoadev-vn/Hexora watch
+
+# Cài đặt tự động AI Agents
+npx khoadev-vn/Hexora init
+```
+
+---
+
+### 🛠️ Cách 4: Dành cho Contributor / Local Development
+Dành cho lập trình viên muốn phát triển thêm tính năng cho Hexora:
+
+```bash
+git clone https://github.com/khoadev-vn/Hexora.git
+cd Hexora
+npm install
+npm run build
+npm link
+```
+
+---
 ## 🚀 Comprehensive Feature Guide & Hands-on Demos
 
 Hexora is designed to fit naturally into every stage of your engineering workflow. Below are detailed walkthroughs and live terminal demos for each core capability:
@@ -98,7 +126,7 @@ Hexora is designed to fit naturally into every stage of your engineering workflo
 
 Run a full deterministic audit with deep SAST, dependency vulnerability scanning (SCA), and adversarial false-positive filtering in one simple command.
 
-```bash
+````bash
 # Scan current workspace:
 npx hexora .
 
@@ -153,7 +181,7 @@ Report:
 
 Keep Hexora running in a background terminal. Every time you save a file (`Ctrl+S`), Hexora performs an instantaneous micro-delta scan in milliseconds, alerting you before you even switch windows.
 
-```bash
+````bash
 npx hexora watch
 ```
 
@@ -194,7 +222,7 @@ Found 1 genuine vulnerability:
 
 Prevent secrets and critical bugs from ever entering your Git commit history or remote repository.
 
-```bash
+````bash
 npx hexora hook
 ```
 
@@ -236,7 +264,7 @@ To inspect or fix, run: npx hexora .
 
 Configure Hexora across your entire developer ecosystem in 5 seconds. Connects with Cursor, Claude Desktop, Claude Code, VS Code, and terminal paths automatically.
 
-```bash
+````bash
 npx hexora init
 ```
 
@@ -251,7 +279,7 @@ Hexora Setup
 Hexora seamlessly integrates with next-generation AI coding agents and IDEs via the **Model Context Protocol (MCP)** and **Native Agent Skills**.
 
 #### 1. Instant Export to Google Antigravity
-```bash
+````bash
 npx hexora skill antigravity
 ```
 Automatically registers:
@@ -260,7 +288,7 @@ Automatically registers:
 * **Project Security Rules**: `.agents/rules/hexora-security.md` and `GEMINI.md`
 
 #### 2. Universal Interactive Setup
-```bash
+````bash
 npx hexora init
 ```
 
@@ -330,7 +358,7 @@ AI Agents gain access to 14 native deterministic security tools:
 
 Modern attack vectors evolve rapidly. Hexora includes a live threat intelligence knowledge vault that allows you to feed newly published CVEs, post-mortems, or bug bounty writeups directly into its detection memory.
 
-```bash
+````bash
 # Ingest a security report or writeup:
 npx hexora learn ./reports/cve-2024-solana-cpi.md
 
@@ -370,7 +398,7 @@ Total Attack Variants: 48
 
 Verify Hexora's accuracy and false-positive elimination rate directly against industry security scanners.
 
-```bash
+````bash
 npx hexora bench
 ```
 
@@ -417,7 +445,7 @@ We evaluated Hexora on real-world test suites containing modern vulnerabilities 
 | **Setup Time** | **< 3 seconds** (`npx`) | Minutes | Requires Login | Heavy JVM |
 
 *Run the benchmark yourself directly from source:*
-```bash
+````bash
 npx hexora bench
 ```
 
@@ -466,7 +494,7 @@ To connect Hexora directly to **Cursor**, **Claude Desktop**, **Claude Code**, o
   "mcpServers": {
     "hexora": {
       "command": "npx",
-      "args": ["-y", "hexora", "mcp"]
+      "args": ["-y", "khoadev-vn/Hexora", "mcp"]
     }
   }
 }
@@ -478,7 +506,7 @@ To connect Hexora directly to **Cursor**, **Claude Desktop**, **Claude Code**, o
   "mcpServers": {
     "hexora": {
       "command": "npx",
-      "args": ["-y", "hexora", "mcp"]
+      "args": ["-y", "khoadev-vn/Hexora", "mcp"]
     }
   }
 }
@@ -491,7 +519,7 @@ To connect Hexora directly to **Cursor**, **Claude Desktop**, **Claude Code**, o
   "mcp": {
     "hexora": {
       "type": "local",
-      "command": ["npx", "-y", "hexora", "mcp"],
+      "command": ["npx", "-y", "khoadev-vn/Hexora", "mcp"],
       "enabled": true
     }
   }
@@ -504,7 +532,7 @@ To connect Hexora directly to **Cursor**, **Claude Desktop**, **Claude Code**, o
   "mcpServers": {
     "hexora": {
       "command": "npx",
-      "args": ["-y", "hexora", "mcp"]
+      "args": ["-y", "khoadev-vn/Hexora", "mcp"]
     }
   }
 }

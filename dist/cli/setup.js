@@ -218,7 +218,7 @@ export async function runUniversalSetup(options = {}) {
                 if (!fs.existsSync(hooksDir))
                     fs.mkdirSync(hooksDir, { recursive: true });
                 const hookPath = path.join(hooksDir, 'pre-commit');
-                const hookContent = `#!/bin/sh\n# Hexora Pre-Commit Security Gate\necho "🛡️ [Hexora] Scanning staged files for vulnerabilities & leaked secrets..."\naudit\nif [ $? -ne 0 ]; then\n  echo "❌ [Hexora] Commit aborted due to security vulnerabilities!"\n  exit 1\nfi\n`;
+                const hookContent = `#!/bin/sh\n# Hexora Pre-Commit Security Gate\necho "🛡️ [Hexora] Scanning staged files for vulnerabilities & leaked secrets..."\nif [ -f "./bin/hexora.js" ]; then\n  node ./bin/hexora.js .\nelif command -v hexora > /dev/null 2>&1; then\n  hexora .\nelif command -v audit > /dev/null 2>&1; then\n  audit .\nelse\n  npx --yes hexora .\nfi\nif [ $? -ne 0 ]; then\n  echo "❌ [Hexora] Commit aborted due to security vulnerabilities!"\n  exit 1\nfi\n`;
                 fs.writeFileSync(hookPath, hookContent, 'utf-8');
                 console.log(`✅ [Terminal/Git] Installed pre-commit hook in ${hookPath}`);
                 configuredCount++;

@@ -6,8 +6,9 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "hexora": "./bin/hexora.js",
-    "audit": "./bin/hexora.js"
+    "hexora": "bin/hexora.js",
+    "hexora-vn": "bin/hexora.js",
+    "audit": "bin/hexora.js"
   },
   "files": [
     "dist",
@@ -28,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/khoadev-vn/Hexora.git"
+    "url": "git+https://github.com/khoadev-vn/Hexora.git"
   },
   "homepage": "https://github.com/khoadev-vn/Hexora#readme",
   "bugs": {
@@ -38,6 +39,7 @@
     "access": "public"
   },
   "keywords": [
+    "hexora-vn",
     "hexora",
     "security",
     "audit",
