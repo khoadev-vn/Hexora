@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
@@ -205,9 +205,18 @@ export async function startMcpServer() {
       if (!fs.existsSync(outDir)) fs.mkdirSync(outDir, { recursive: true });
 
       const htmlContent = ReportGenerator.toHtml(report);
-      fs.writeFileSync(path.join(outDir, 'audit-report.md'), ReportGenerator.toMarkdown(report), 'utf-8');
+      const txtContent = ReportGenerator.toStructuredText(report);
+      const pdfBuffer = ReportGenerator.toPdf(report);
+      const mdContent = ReportGenerator.toMarkdown(report);
+
+      fs.writeFileSync(path.join(outDir, 'audit-report.txt'), txtContent, 'utf-8');
+      fs.writeFileSync(path.join(outDir, 'audit-report.pdf'), pdfBuffer);
+      fs.writeFileSync(path.join(outDir, 'audit-report.md'), mdContent, 'utf-8');
       fs.writeFileSync(path.join(outDir, 'audit-report.sarif'), ReportGenerator.toSarif(report), 'utf-8');
       fs.writeFileSync(path.join(outDir, 'hexora-report.html'), htmlContent, 'utf-8');
+      fs.writeFileSync(path.join(process.cwd(), 'hexora-report.txt'), txtContent, 'utf-8');
+      fs.writeFileSync(path.join(process.cwd(), 'hexora-report.pdf'), pdfBuffer);
+      fs.writeFileSync(path.join(process.cwd(), 'hexora-report.md'), mdContent, 'utf-8');
       fs.writeFileSync(path.join(process.cwd(), 'hexora-report.html'), htmlContent, 'utf-8');
       fs.writeFileSync(path.join(outDir, 'audit-findings.json'), JSON.stringify(verifiedFindings, null, 2), 'utf-8');
 
@@ -222,6 +231,9 @@ export async function startMcpServer() {
                 threatIntel: report.threatIntel,
                 confirmedVulnerabilities: report.stats.confirmed,
                 falsePositivesFiltered: report.stats.disproved,
+                textReport: './hexora-report.txt',
+                pdfReport: './hexora-report.pdf',
+                markdownReport: './hexora-report.md',
                 htmlReport: './hexora-report.html',
                 sarifReport: path.join(outDir, 'audit-report.sarif')
               },

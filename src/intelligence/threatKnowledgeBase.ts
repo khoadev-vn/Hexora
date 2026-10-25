@@ -591,6 +591,13 @@ export class ThreatKnowledgeBase {
   }
 
   /**
+   * Synchronously registers an in-memory threat report (e.g. from Zero-Day live stream)
+   */
+  public registerReport(report: ThreatReport): void {
+    this.reports.set(report.id, report);
+  }
+
+  /**
    * Adds or updates a learned threat report in the knowledge base
    */
   public async learnReport(report: ThreatReport): Promise<void> {

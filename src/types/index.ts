@@ -1,4 +1,4 @@
-﻿export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
+export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
 
 export type FindingStatus = 'CANDIDATE' | 'CONFIRMED' | 'DISPROVED' | 'NEEDS_HUMAN';
 
@@ -134,7 +134,7 @@ export interface SASTRule {
   id: string;
   name: string;
   severity: Severity;
-  category: 'INJECTION' | 'AUTH' | 'CRYPTO' | 'WEB3' | 'AI_AGENT' | 'SECRET' | 'RACE_CONDITION' | 'DESERIALIZATION' | 'MISCONFIG' | 'DOS' | 'CLOUD';
+  category: 'INJECTION' | 'AUTH' | 'CRYPTO' | 'WEB3' | 'AI_AGENT' | 'SECRET' | 'RACE_CONDITION' | 'DESERIALIZATION' | 'MISCONFIG' | 'DOS' | 'CLOUD' | 'BUSINESS_LOGIC' | 'DEPENDENCY';
   cwe: string;
   owasp: string;
   languages: string[];
@@ -146,7 +146,7 @@ export interface SASTRule {
 
 export interface BenchmarkCase {
   id: string;
-  suite: 'OWASP_BENCHMARK' | 'NIST_JULIET' | 'CYBERSEC_EVAL' | 'WEB3_DEFENSE' | 'REAL_WORLD_CVE';
+  suite: 'OWASP_BENCHMARK' | 'NIST_JULIET' | 'CYBERSEC_EVAL' | 'WEB3_DEFENSE' | 'REAL_WORLD_CVE' | 'BUSINESS_LOGIC_IDOR' | 'ZERO_DAY_LIVE_INGEST' | 'DEPENDENCY_SCA';
   category: string;
   cwe: string;
   name: string;

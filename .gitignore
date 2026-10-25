@@ -10,5 +10,7 @@ sentinel-report.html
 *.tmp
 temp_*
 
-hexora-report.html
+hexora-report.*
+sentinel-report.*
+bench_*.txt
 .benchmark_workspace/

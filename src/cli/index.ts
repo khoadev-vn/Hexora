@@ -38,6 +38,9 @@ export async function runScan(targetInput: string = '.', options: ScanOptions = 
   }
 
   const outDir = path.resolve(options.output || path.join(process.cwd(), '.hexora-results'));
+  const txtReportPath = path.resolve(process.cwd(), 'hexora-report.txt');
+  const pdfReportPath = path.resolve(process.cwd(), 'hexora-report.pdf');
+  const mdReportPath = path.resolve(process.cwd(), 'hexora-report.md');
   const htmlReportPath = path.resolve(process.cwd(), 'hexora-report.html');
 
   if (options.verbose) {
@@ -75,27 +78,39 @@ export async function runScan(targetInput: string = '.', options: ScanOptions = 
     fs.mkdirSync(outDir, { recursive: true });
   }
 
+  const txtReport = ReportGenerator.toStructuredText(report);
+  const pdfBuffer = ReportGenerator.toPdf(report);
   const mdReport = ReportGenerator.toMarkdown(report);
   const sarifReport = ReportGenerator.toSarif(report);
   const htmlReport = ReportGenerator.toHtml(report);
 
+  // Save to target results dir
+  fs.writeFileSync(path.join(outDir, 'audit-report.txt'), txtReport, 'utf-8');
+  fs.writeFileSync(path.join(outDir, 'audit-report.pdf'), pdfBuffer);
   fs.writeFileSync(path.join(outDir, 'audit-report.md'), mdReport, 'utf-8');
   fs.writeFileSync(path.join(outDir, 'audit-report.sarif'), sarifReport, 'utf-8');
   fs.writeFileSync(path.join(outDir, 'hexora-report.html'), htmlReport, 'utf-8');
-  fs.writeFileSync(htmlReportPath, htmlReport, 'utf-8');
   fs.writeFileSync(path.join(outDir, 'audit-coverage.json'), JSON.stringify(coverage, null, 2), 'utf-8');
   fs.writeFileSync(path.join(outDir, 'audit-findings.json'), JSON.stringify(verifiedFindings, null, 2), 'utf-8');
 
+  // Also save key executive reports directly to workspace root for instant access
+  fs.writeFileSync(txtReportPath, txtReport, 'utf-8');
+  fs.writeFileSync(pdfReportPath, pdfBuffer);
+  fs.writeFileSync(mdReportPath, mdReport, 'utf-8');
+  fs.writeFileSync(htmlReportPath, htmlReport, 'utf-8');
+
   // Categorize findings for clear high-level display
   const secretsCount = confirmedFindings.filter((f) => f.category === 'SECRET').length;
-  const secVulnsCount = confirmedFindings.filter((f) => ['INJECTION', 'WEB3', 'AI_AGENT', 'AUTH'].includes(f.category)).length;
-  const configCount = confirmedFindings.filter((f) => !['SECRET', 'INJECTION', 'WEB3', 'AI_AGENT', 'AUTH'].includes(f.category)).length;
+  const secVulnsCount = confirmedFindings.filter((f) => ['INJECTION', 'WEB3', 'AI_AGENT', 'AUTH', 'BUSINESS_LOGIC'].includes(f.category)).length;
+  const depVulnsCount = confirmedFindings.filter((f) => f.category === 'DEPENDENCY' || f.category === 'SCA').length;
+  const configCount = confirmedFindings.filter((f) => !['SECRET', 'INJECTION', 'WEB3', 'AI_AGENT', 'AUTH', 'BUSINESS_LOGIC', 'DEPENDENCY', 'SCA'].includes(f.category)).length;
 
   const totalConfirmed = confirmedFindings.length;
 
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
   console.log(`Secrets                  ${secretsCount} findings`);
   console.log(`Security vulnerabilities ${secVulnsCount} findings`);
+  console.log(`Vulnerable dependencies  ${depVulnsCount} findings`);
   console.log(`Insecure configuration   ${configCount} findings\n`);
   console.log(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
   console.log(`${totalConfirmed} findings detected (Adversarial filtered ${disprovedCount} false positives)\n`);
@@ -103,10 +118,14 @@ export async function runScan(targetInput: string = '.', options: ScanOptions = 
   console.log(`High:     ${report.stats.bySeverity.HIGH}`);
   console.log(`Medium:   ${report.stats.bySeverity.MEDIUM}`);
   console.log(`Low:      ${report.stats.bySeverity.LOW + report.stats.bySeverity.INFO}\n`);
-  console.log(`Report: ./hexora-report.html`);
+  console.log(`Report:`);
+  console.log(`  📄 Text (Structured): ./hexora-report.txt`);
+  console.log(`  📑 PDF (Executive):   ./hexora-report.pdf`);
+  console.log(`  📝 Markdown:          ./hexora-report.md`);
+  console.log(`  🌐 HTML Dashboard:    ./hexora-report.html`);
   if (options.verbose) {
+    console.log(`\nDetailed Archive: ${outDir}`);
     console.log(`SARIF:  ${path.join(outDir, 'audit-report.sarif')}`);
-    console.log(`Markdown: ${path.join(outDir, 'audit-report.md')}`);
   }
   console.log(`\n`);
 

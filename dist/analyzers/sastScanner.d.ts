@@ -10,6 +10,8 @@ export declare class SastScanner {
     private ignoreDirs;
     private maxFileSizeBytes;
     private threatKb;
+    private businessLogicAnalyzer;
+    private scaScanner;
     constructor(options?: Partial<ScannerOptions>);
     scan(targetDir: string): Promise<{
         findings: VulnerabilityFinding[];

@@ -3,6 +3,9 @@ import path from 'node:path';
 import { BUILTIN_RULES } from '../rules/ruleDatabase.js';
 import { VulnerabilityFinding, CoverageLedger, SASTRule, AttackSurfaceEntry } from '../types/index.js';
 import { ThreatKnowledgeBase } from '../intelligence/threatKnowledgeBase.js';
+import { BusinessLogicAnalyzer } from './businessLogicAnalyzer.js';
+import { ZeroDaySyncEngine } from '../intelligence/zeroDaySyncEngine.js';
+import { ScaScanner } from './scaScanner.js';
 
 export interface ScannerOptions {
   targetDir: string;
@@ -16,6 +19,8 @@ export class SastScanner {
   private ignoreDirs: Set<string>;
   private maxFileSizeBytes: number;
   private threatKb: ThreatKnowledgeBase;
+  private businessLogicAnalyzer: BusinessLogicAnalyzer;
+  private scaScanner: ScaScanner;
 
   constructor(options: Partial<ScannerOptions> = {}) {
     this.rules = options.customRules || BUILTIN_RULES;
@@ -37,6 +42,8 @@ export class SastScanner {
     ]);
     this.maxFileSizeBytes = (options.maxFileSizeKb || 1024) * 1024;
     this.threatKb = ThreatKnowledgeBase.getInstance();
+    this.businessLogicAnalyzer = new BusinessLogicAnalyzer();
+    this.scaScanner = new ScaScanner();
   }
 
   public async scan(targetDir: string): Promise<{ findings: VulnerabilityFinding[]; coverage: CoverageLedger }> {
@@ -72,7 +79,10 @@ export class SastScanner {
           continue;
         }
 
-        for (const rule of this.rules) {
+        const dynamicRules = ZeroDaySyncEngine.getInstance().getDynamicRules();
+        const activeRules = [...this.rules, ...dynamicRules];
+
+        for (const rule of activeRules) {
           if (rule.languages.includes(ext) || rule.languages.includes('*')) {
             this.evaluateRule(rule, filePath, relPath, content, findings);
           }
@@ -80,9 +90,23 @@ export class SastScanner {
 
         // 3. Evaluate Direct Threat Report & Attack Variant Signatures
         this.evaluateThreatIntelCorrelations(filePath, relPath, content, findings);
+
+        // 4. Semantic Business Logic & IDOR / BOLA Analysis
+        if (['js', 'ts', 'jsx', 'tsx', 'py'].includes(ext)) {
+          const bizFindings = this.businessLogicAnalyzer.analyze(relPath, content);
+          findings.push(...bizFindings);
+        }
       } catch (err: any) {
         skippedFiles.push({ path: relPath, reason: `Read error: ${err.message}` });
       }
+    }
+
+    // 5. Software Composition Analysis (SCA) - Manifest Dependency & Plugin Auditing
+    try {
+      const scaFindings = await this.scaScanner.scanProject(resolvedRoot);
+      findings.push(...scaFindings);
+    } catch {
+      // Gracefully continue
     }
 
     const coverage: CoverageLedger = {
@@ -107,12 +131,28 @@ export class SastScanner {
       if (!isSourceFile) return [];
 
       const content = fs.readFileSync(filePath, 'utf-8');
-      for (const rule of this.rules) {
+      const dynamicRules = ZeroDaySyncEngine.getInstance().getDynamicRules();
+      const activeRules = [...this.rules, ...dynamicRules];
+
+      for (const rule of activeRules) {
         if (rule.languages.includes(ext) || rule.languages.includes('*')) {
           this.evaluateRule(rule, filePath, relPath, content, findings);
         }
       }
       this.evaluateThreatIntelCorrelations(filePath, relPath, content, findings);
+
+      if (['js', 'ts', 'jsx', 'tsx', 'py'].includes(ext)) {
+        const bizFindings = this.businessLogicAnalyzer.analyze(relPath, content);
+        findings.push(...bizFindings);
+      }
+
+      // Manifest dependency check
+      const baseName = path.basename(filePath).toLowerCase();
+      const isManifest = ['package.json', 'package-lock.json', 'requirements.txt', 'cargo.toml', 'go.mod', 'pom.xml', 'composer.json'].includes(baseName);
+      if (isManifest) {
+        const scaFindings = this.scaScanner.scanManifestFileSync(filePath, relPath, content);
+        findings.push(...scaFindings);
+      }
     } catch {
       // Ignore read errors
     }

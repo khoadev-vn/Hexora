@@ -8,6 +8,10 @@ export declare class ThreatKnowledgeBase {
     static getInstance(storageDir?: string): ThreatKnowledgeBase;
     private initDefaultReports;
     /**
+     * Synchronously registers an in-memory threat report (e.g. from Zero-Day live stream)
+     */
+    registerReport(report: ThreatReport): void;
+    /**
      * Adds or updates a learned threat report in the knowledge base
      */
     learnReport(report: ThreatReport): Promise<void>;

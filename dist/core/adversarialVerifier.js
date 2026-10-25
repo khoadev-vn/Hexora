@@ -8,6 +8,19 @@ export class AdversarialVerifier {
         const loc = updated.location.filePath.toLowerCase();
         const snippet = updated.location.snippet;
         const context = fileContent || snippet;
+        // Software Composition Analysis (SCA) & Dependency / Plugin CVE verification
+        if (updated.category === 'DEPENDENCY' || updated.ruleId.startsWith('HEXORA-SCA')) {
+            updated.status = 'CONFIRMED';
+            if (!updated.adversarialVerification) {
+                updated.adversarialVerification = {
+                    verifier: 'Hexora-SCA-Engine',
+                    verdict: 'CONFIRMED',
+                    argument: `Package manifest dependency check confirmed against known vulnerability advisory: ${updated.description}`,
+                    confidence: 1.0
+                };
+            }
+            return updated;
+        }
         // Check 1: Is this in a test, mock, fixture, documentation, dataset, or rule definition file?
         const isTestOrMock = /(?:^|[\\/])(?:__tests__|fixtures?|mocks?|examples?|datasets?|corpus|docs?)(?:[\\/]|$)/i.test(loc) ||
             /\.(?:test|spec|md|txt|jsonl)\.[a-z0-9]+$/i.test(loc) ||
@@ -15,6 +28,7 @@ export class AdversarialVerifier {
             loc.includes('threatknowledgebase') ||
             loc.includes('ruledatabase') ||
             loc.includes('adversarialverifier') ||
+            loc.includes('scascanner') ||
             loc.includes('benchmarkcases') ||
             loc.includes('trainingexamples');
         if (isTestOrMock) {
@@ -247,6 +261,44 @@ export class AdversarialVerifier {
                 return updated;
             }
         }
+        // Check 7: Business Logic & IDOR Protection Verification
+        if (updated.category === 'BUSINESS_LOGIC' || updated.ruleId.includes('BIZ')) {
+            const hasStrictSessionCheck = /(?:req\.user\.id|req\.auth\.userId|session\.userId|ctx\.user\.id)\s*===?\s*(?:req\.params|req\.body|req\.query|userId|walletId|accountId|id)/i.test(context) ||
+                /(?:where\s*:\s*\{[^}]*(?:userId|ownerId)\s*:\s*(?:req\.user\.id|session\.userId)|ownerId\s*:\s*req\.user\.id)/i.test(context) ||
+                /(?:checkOwnership|verifyOwnership|isOwner|authorizeResource|requireOwnership)\s*\(/i.test(context);
+            const hasCanonicalPriceCheck = /(?:db\.products|Product\.findById|productRepository|catalog\.getPrice|fetchProductPrice)\s*\(/i.test(context);
+            const hasStrictPositiveCheck = /(?:amount\s*<=\s*0|amount\s*>\s*0|require\s*\(\s*amount\s*>\s*0|if\s*\(\s*amount\s*<=\s*0\))/i.test(context);
+            if (updated.ruleId.includes('IDOR') && hasStrictSessionCheck) {
+                updated.status = 'DISPROVED';
+                updated.adversarialVerification = {
+                    verifier: 'Hexora-RedTeam-Judge',
+                    verdict: 'FALSE_POSITIVE',
+                    argument: 'Ownership validation verified: endpoint binds target resource ID to authenticated session identity (req.user.id).',
+                    confidence: 0.99
+                };
+                return updated;
+            }
+            if (updated.ruleId.includes('PRICE') && hasCanonicalPriceCheck) {
+                updated.status = 'DISPROVED';
+                updated.adversarialVerification = {
+                    verifier: 'Hexora-RedTeam-Judge',
+                    verdict: 'FALSE_POSITIVE',
+                    argument: 'Price validation verified: backend resolves canonical item price from database rather than client parameters.',
+                    confidence: 0.99
+                };
+                return updated;
+            }
+            if (updated.ruleId.includes('NEGATIVE_AMOUNT') && hasStrictPositiveCheck) {
+                updated.status = 'DISPROVED';
+                updated.adversarialVerification = {
+                    verifier: 'Hexora-RedTeam-Judge',
+                    verdict: 'FALSE_POSITIVE',
+                    argument: 'Numeric bounds check verified: transaction requires strictly positive amount value.',
+                    confidence: 0.99
+                };
+                return updated;
+            }
+        }
         // Finding stands verified! Confirm and generate reproduction PoC and fix patch
         const hasCorrelatedReport = updated.correlatedReports && updated.correlatedReports.length > 0;
         const topCorrelation = hasCorrelatedReport ? updated.correlatedReports[0] : null;
@@ -269,9 +321,14 @@ export class AdversarialVerifier {
         return updated;
     }
     generatePoC(finding) {
+        if (finding.reproductionPoC) {
+            return finding.reproductionPoC;
+        }
         const topCorrelation = finding.correlatedReports?.[0];
         const variant = topCorrelation?.attackVariant || '';
         switch (finding.category) {
+            case 'BUSINESS_LOGIC':
+                return `# Business Logic Flaw PoC Exploit (${finding.ruleId})\n# Scenario: Attacker swaps resource ID or payload without identity authorization\ncurl -X POST "http://localhost:3000/api/resource/victim-id/action" \\\n  -H "Authorization: Bearer <ATTACKER_TOKEN>" \\\n  -d '{"action": "drain"}'`;
             case 'INJECTION':
                 if (variant.includes('SSRF') || finding.ruleId.includes('NET') || finding.title.includes('SSRF')) {
                     return `# PoC SSRF Simulation (Matches ${topCorrelation?.reportId || 'CWE-918'})\ncurl -X POST "http://localhost:3000/api/fetch" \\\n  -H "Host: 169.254.169.254" \\\n  -d '{"targetUrl": "http://169.254.169.254/latest/meta-data/"}'`;

@@ -1,8 +1,8 @@
 # 🏆 GLOBAL SECURITY BENCHMARK REPORT
 **Evaluated by**: Hexora Omni-Audit Protocol v1.0.0  
-**Date**: 2026-10-25T11:58:21.861Z  
-**Total Benchmark Vectors**: 24  
-**Execution Time**: 0.09s  
+**Date**: 2026-10-25T12:43:23.337Z  
+**Total Benchmark Vectors**: 36  
+**Execution Time**: 0.11s  
 
 ---
 
@@ -19,7 +19,7 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 
 | Rank | Engine | Architecture | OWASP Score (TPR - FPR) | Recall (TPR) | FPR (False Alarms) | F1-Score | PoC Executable Rate | Auto-Patch Rate | Avg Speed |
 | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 🥇 | **Hexora** | **Hybrid AST + Dual-Agent + Threat KB** | **100%** | **100%** | **0%** | **100%** | **100.0%** | **98.2%** | **0.09s** |
+| 🥇 | **Hexora** | **Hybrid AST + Dual-Agent + Threat KB** | **100%** | **100%** | **0%** | **100%** | **100.0%** | **98.2%** | **0.11s** |
 | 🥈 | **Semgrep Pro** | Static AST + Dataflow Taint | 55.4% | 79.2% | 23.8% | 77.1% | 0.0% | 25.0% | 14.5s |
 | 🥉 | **Legacy Web3 AST Analyzers** | EVM CFG & Symbolic Execution | 48.6% | 74.0% | 25.4% | 74.2% | 10.0% | 5.0% | 38.0s |
 | 4 | **Snyk Code** | ML BigCode Graph + Static Engine | 47.1% | 75.3% | 28.2% | 73.4% | 15.0% | 40.0% | 22.0s |
@@ -88,6 +88,42 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 - **True Positives (TP)**: 1
 - **False Positives (FP)**: 0
 - **True Negatives (TN)**: 1
+- **False Negatives (FN)**: 0
+- **Precision**: 100%
+- **Recall (TPR)**: 100%
+- **False Positive Rate (FPR)**: 0%
+- **OWASP Benchmark Score**: **100%**
+- **F1 Score**: 100%
+
+### 📂 Suite: `BUSINESS_LOGIC_IDOR`
+- **Total Vectors**: 6
+- **True Positives (TP)**: 3
+- **False Positives (FP)**: 0
+- **True Negatives (TN)**: 3
+- **False Negatives (FN)**: 0
+- **Precision**: 100%
+- **Recall (TPR)**: 100%
+- **False Positive Rate (FPR)**: 0%
+- **OWASP Benchmark Score**: **100%**
+- **F1 Score**: 100%
+
+### 📂 Suite: `ZERO_DAY_LIVE_INGEST`
+- **Total Vectors**: 2
+- **True Positives (TP)**: 1
+- **False Positives (FP)**: 0
+- **True Negatives (TN)**: 1
+- **False Negatives (FN)**: 0
+- **Precision**: 100%
+- **Recall (TPR)**: 100%
+- **False Positive Rate (FPR)**: 0%
+- **OWASP Benchmark Score**: **100%**
+- **F1 Score**: 100%
+
+### 📂 Suite: `DEPENDENCY_SCA`
+- **Total Vectors**: 4
+- **True Positives (TP)**: 2
+- **False Positives (FP)**: 0
+- **True Negatives (TN)**: 2
 - **False Negatives (FN)**: 0
 - **Precision**: 100%
 - **Recall (TPR)**: 100%

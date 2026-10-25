@@ -540,6 +540,266 @@ export function logUserHeaderSafe(req: any, logger: any) {
 }
 `,
         deceptiveTrap: 'Structured logging objects cannot trigger JNDI expression interpolation.'
+    },
+    // =========================================================================
+    // SUITE 6: BUSINESS LOGIC & IDOR / BOLA FLAW BENCHMARK
+    // =========================================================================
+    {
+        id: 'BIZ-IDOR-001-BAD',
+        suite: 'BUSINESS_LOGIC_IDOR',
+        category: 'BUSINESS_LOGIC',
+        cwe: 'CWE-639',
+        name: 'Financial IDOR: User A Drains User B Wallet via Unchecked URL Parameter',
+        isVulnerable: true,
+        language: 'ts',
+        filename: 'bizlogic/idor_wallet_drain.ts',
+        code: `
+export async function handleWithdraw(req: any, res: any, db: any) {
+  // Vulnerable IDOR: takes target userId directly from URL parameter
+  const targetUserId = req.params.userId;
+  const amount = Number(req.body.amount);
+
+  // CRITICAL: No ownership check comparing req.user.id against targetUserId!
+  // Attacker can pass any victim's userId and drain their balance.
+  const wallet = await db.wallets.findOne({ userId: targetUserId });
+  await db.wallets.updateBalance(targetUserId, -amount);
+  return res.json({ success: true, withdrawn: amount });
+}
+`,
+        deceptiveTrap: 'Classic IDOR / BOLA where backend updates wallet state based purely on client-supplied ID.'
+    },
+    {
+        id: 'BIZ-IDOR-002-GOOD',
+        suite: 'BUSINESS_LOGIC_IDOR',
+        category: 'BUSINESS_LOGIC',
+        cwe: 'CWE-639',
+        name: 'Hardened Wallet Withdrawal with Session Ownership Binding (Trap for Naive Tools)',
+        isVulnerable: false,
+        language: 'ts',
+        filename: 'bizlogic/safe_wallet_withdraw.ts',
+        code: `
+export async function handleWithdrawSafe(req: any, res: any, db: any) {
+  const targetUserId = req.params.userId;
+  const amount = Number(req.body.amount);
+
+  // SAFE: Strict identity enforcement binds authenticated session token to resource owner
+  if (req.user.id !== targetUserId) {
+    return res.status(403).json({ error: "Forbidden: Cannot access other users' wallets" });
+  }
+
+  // Scoped database update with ownership clause
+  const wallet = await db.wallets.findOne({ userId: targetUserId, ownerId: req.user.id });
+  await db.wallets.updateBalance(targetUserId, -amount);
+  return res.json({ success: true, withdrawn: amount });
+}
+`,
+        deceptiveTrap: 'Naive scanners flag parameter userId in URL without recognizing the req.user.id !== targetUserId authorization barrier.'
+    },
+    {
+        id: 'BIZ-PRICE-003-BAD',
+        suite: 'BUSINESS_LOGIC_IDOR',
+        category: 'BUSINESS_LOGIC',
+        cwe: 'CWE-472',
+        name: 'Client-Side Arbitrary Price Manipulation in Checkout',
+        isVulnerable: true,
+        language: 'ts',
+        filename: 'bizlogic/price_tamper_bad.ts',
+        code: `
+export async function processPayment(req: any, res: any, paymentGateway: any) {
+  const { productId, quantity } = req.body;
+  // Vulnerable: trusts client-submitted price directly from request body!
+  const price = req.body.price;
+  const total = price * quantity;
+
+  // Attacker sends price: 0.01 to purchase a $5,000 item
+  const charge = await paymentGateway.chargeCustomer(total);
+  return res.json({ status: 'paid', chargeId: charge.id });
+}
+`,
+        deceptiveTrap: 'Client-side parameter tampering allowing buyers to dictate product prices.'
+    },
+    {
+        id: 'BIZ-PRICE-004-GOOD',
+        suite: 'BUSINESS_LOGIC_IDOR',
+        category: 'BUSINESS_LOGIC',
+        cwe: 'CWE-472',
+        name: 'Canonical Catalog Price Resolution from Database (Trap for Naive Tools)',
+        isVulnerable: false,
+        language: 'ts',
+        filename: 'bizlogic/safe_checkout.ts',
+        code: `
+export async function processPaymentSafe(req: any, res: any, db: any, paymentGateway: any) {
+  const { productId, quantity } = req.body;
+
+  // SAFE: Price is retrieved strictly from authoritative database catalog, ignoring client body
+  const product = await db.products.findById(productId);
+  if (!product) return res.status(404).json({ error: "Product not found" });
+
+  const canonicalPrice = product.price;
+  const total = canonicalPrice * Number(quantity);
+
+  const charge = await paymentGateway.chargeCustomer(total);
+  return res.json({ status: 'paid', chargeId: charge.id });
+}
+`,
+        deceptiveTrap: 'Contains checkout/payment keywords but ignores client price in favor of database catalog lookup.'
+    },
+    {
+        id: 'BIZ-NUMERIC-005-BAD',
+        suite: 'BUSINESS_LOGIC_IDOR',
+        category: 'BUSINESS_LOGIC',
+        cwe: 'CWE-839',
+        name: 'Missing Positive Bounds Check Allowing Negative Transfer (Balance Inflation)',
+        isVulnerable: true,
+        language: 'ts',
+        filename: 'bizlogic/negative_amount_bad.ts',
+        code: `
+export async function transferFunds(sender: any, recipient: any, amount: number) {
+  // Vulnerable: No positive amount check!
+  // If amount is negative (e.g. -5000), sender.balance -= (-5000) => balance increases!
+  sender.balance -= amount;
+  recipient.balance += amount;
+  return { success: true };
+}
+`,
+        deceptiveTrap: 'Arithmetic sign manipulation where negative withdrawal acts as balance deposit.'
+    },
+    {
+        id: 'BIZ-NUMERIC-006-GOOD',
+        suite: 'BUSINESS_LOGIC_IDOR',
+        category: 'BUSINESS_LOGIC',
+        cwe: 'CWE-839',
+        name: 'Validated Positive Amount Bounds Check (Trap for Naive Tools)',
+        isVulnerable: false,
+        language: 'ts',
+        filename: 'bizlogic/safe_numeric_transfer.ts',
+        code: `
+export async function transferFundsSafe(sender: any, recipient: any, amount: number) {
+  // SAFE: Strict numeric guard disallowing zero or negative values
+  if (typeof amount !== 'number' || amount <= 0 || !Number.isFinite(amount)) {
+    throw new Error("Invalid transfer amount: Must be strictly greater than 0");
+  }
+
+  if (sender.balance < amount) {
+    throw new Error("Insufficient funds");
+  }
+
+  sender.balance -= amount;
+  recipient.balance += amount;
+  return { success: true };
+}
+`,
+        deceptiveTrap: 'Arithmetic operations with comprehensive input positivity verification.'
+    },
+    // =========================================================================
+    // SUITE 7: AUTONOMOUS ZERO-DAY LIVE INGESTION BENCHMARK
+    // =========================================================================
+    {
+        id: '0DAY-GHSA-001-BAD',
+        suite: 'ZERO_DAY_LIVE_INGEST',
+        category: 'INJECTION',
+        cwe: 'CWE-94',
+        name: 'GitHub Advisory GHSA-2026-X99: Zero-Day Dangerous Deserializer Hook',
+        isVulnerable: true,
+        language: 'ts',
+        filename: 'zeroday/dangerous_hook_bad.ts',
+        code: `
+export function applyCustomHook(req: any, parser: any) {
+  const dynamicHookPayload = req.body.hookPayload;
+  // Newly disclosed 0-day sink: customPayloadHookExec allowing arbitrary sandbox escape
+  return parser.customPayloadHookExec(dynamicHookPayload);
+}
+`,
+        deceptiveTrap: 'Unseen novel 0-day API published today on GitHub Advisory feed.'
+    },
+    {
+        id: '0DAY-GHSA-002-GOOD',
+        suite: 'ZERO_DAY_LIVE_INGEST',
+        category: 'INJECTION',
+        cwe: 'CWE-94',
+        name: 'Safe Isolated JSON Parser Without Dangerous Dynamic Hook (Trap)',
+        isVulnerable: false,
+        language: 'ts',
+        filename: 'zeroday/safe_hook_handler.ts',
+        code: `
+export function applySafeParser(req: any, parser: any) {
+  const payload = req.body.data;
+  // SAFE: Standard strict schema parsing without dangerous customPayloadHookExec
+  return JSON.parse(String(payload));
+}
+`,
+        deceptiveTrap: 'Similar dataflow but avoids the newly disclosed 0-day sink function.'
+    },
+    // =========================================================================
+    // SUITE 8: SOFTWARE COMPOSITION ANALYSIS (SCA) & DEPENDENCY VULNERABILITIES
+    // =========================================================================
+    {
+        id: 'SCA-NPM-001-BAD',
+        suite: 'DEPENDENCY_SCA',
+        category: 'DEPENDENCY',
+        cwe: 'CWE-1321',
+        name: 'Node.js Manifest Containing Outdated Vulnerable Dependencies (lodash & axios)',
+        isVulnerable: true,
+        language: 'json',
+        filename: 'sca_npm_vuln/package.json',
+        code: `{
+  "name": "vulnerable-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "lodash": "4.17.15",
+    "axios": "0.21.1"
+  }
+}`,
+        deceptiveTrap: 'Real-world vulnerable npm manifest with Prototype Pollution and SSRF CVEs.'
+    },
+    {
+        id: 'SCA-NPM-002-GOOD',
+        suite: 'DEPENDENCY_SCA',
+        category: 'DEPENDENCY',
+        cwe: 'CWE-1321',
+        name: 'Node.js Manifest With Fully Patched Dependencies (Trap)',
+        isVulnerable: false,
+        language: 'json',
+        filename: 'sca_npm_safe/package.json',
+        code: `{
+  "name": "safe-app",
+  "version": "1.0.0",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "axios": "^1.7.4"
+  }
+}`,
+        deceptiveTrap: 'Contains the same package names but versions are securely patched to safe baselines.'
+    },
+    {
+        id: 'SCA-PY-001-BAD',
+        suite: 'DEPENDENCY_SCA',
+        category: 'DEPENDENCY',
+        cwe: 'CWE-200',
+        name: 'Python Requirements Manifest Containing Vulnerable requests & urllib3 (CVE-2023-32681)',
+        isVulnerable: true,
+        language: 'txt',
+        filename: 'sca_py_vuln/requirements.txt',
+        code: `requests==2.20.0
+urllib3==1.25.8
+flask==2.0.1
+`,
+        deceptiveTrap: 'Common real-world Python requirements file with token leakage CVEs.'
+    },
+    {
+        id: 'SCA-PY-002-GOOD',
+        suite: 'DEPENDENCY_SCA',
+        category: 'DEPENDENCY',
+        cwe: 'CWE-200',
+        name: 'Python Requirements Manifest With Patched Upgrades (Trap)',
+        isVulnerable: false,
+        language: 'txt',
+        filename: 'sca_py_safe/requirements.txt',
+        code: `requests>=2.31.0
+urllib3>=2.0.7
+flask>=2.2.5
+`,
+        deceptiveTrap: 'Same dependency list with modern safe patched constraints.'
     }
 ];
 //# sourceMappingURL=benchmarkCases.js.map
