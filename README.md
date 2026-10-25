@@ -1,5 +1,7 @@
 <div align="center">
 
+<img src="assets/banner.png" alt="Hexora - Next-Generation Universal Security Engine" width="100%" />
+
 # 🛡️ HEXORA
 ### Next-Generation Universal Security Engine
 

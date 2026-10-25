@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="../assets/banner.png" alt="Hexora Guide" width="100%" />
+</div>
+
 # 📖 HƯỚNG DẪN SỬ DỤNG HEXORA TỪ A ĐẾN Z (STEP-BY-STEP USER GUIDE)
 > **Dành cho mọi đối tượng:** Developer, Security Auditor, Tech Lead, DevOps & AI Agent Enthusiast.
 
