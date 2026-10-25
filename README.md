@@ -27,7 +27,7 @@
 Traditional security tools force developers to remember dozens of complex flags, overwhelm teams with hundreds of noisy false positives, and stop at warning messages without offering a real fix.
 
 **Hexora changes the paradigm:**
-- ⚡ **Zero-Friction ("Cài một lần, dùng ở mọi nơi")**: Run it in 3 seconds with `npx hexora .`, wire it into Cursor or Claude with `npx hexora init`, or lock down your git commits with `npx hexora hook`.
+- ⚡ **Zero-Friction ("Install once, run anywhere")**: Run it in 3 seconds with `npx hexora .`, wire it into Cursor or Claude with `npx hexora init`, or lock down your git commits with `npx hexora hook`.
 - 🥊 **Dual-Agent Adversarial Verification**: Every candidate vulnerability is actively challenged by an automated Red-Team verifier to eliminate false positives (test mocks, sanitizers, framework protections) before you ever see it.
 - 🩹 **Autonomous PoC & Minimal Unified Patches**: Don't just find bugs — Hexora generates non-destructive reproduction PoCs and minimal unified diffs (`git apply`) ready for review.
 - 🧠 **Continuous Threat Intelligence Memory**: Ingest real-world CVEs and bounty writeups on the fly (`npx hexora learn writeup.md`) to dynamically expand detection patterns.
@@ -53,28 +53,28 @@ Traditional security tools force developers to remember dozens of complex flags,
 
 ## ⚡ Quick Start & Installation
 
-Dễ dùng tối đa, không cần nhớ những câu lệnh phức tạp hay đường dẫn dài dòng:
+Maximum simplicity—zero complex configuration or hard-to-remember parameters:
 
-### 🌟 Cách 1: Cài đặt toàn cầu (Khuyên dùng — Tiện nhất!)
-Cài đặt 1 lần duy nhất qua GitHub, sử dụng vĩnh viễn ở mọi nơi trên máy tính:
+### 🌟 Option 1: Global Installation (Recommended — Most Convenient!)
+Install once globally via GitHub and use anywhere across your operating system:
 
 ```bash
 npm install -g khoadev-vn/Hexora
 ```
 
-Sau khi cài xong, bạn chỉ cần gõ lệnh siêu ngắn ở **bất kỳ thư mục dự án nào**:
+Once installed, simply run concise commands in **any project directory**:
 ```bash
-hexora .         # 🔍 Quét bảo mật toàn diện (SAST, Secrets, SCA)
-hexora watch     # 👁️ Tự động quét tức thì mỗi khi bấm Ctrl+S
-hexora init      # 🤖 1-Click tích hợp AI (Cursor, Claude, VS Code, Antigravity)
-hexora hook      # 🔒 Cài đặt Git Pre-Commit hook chặn rò rỉ mã bí mật
-hexora bench     # 🏆 Chạy kiểm thử đối kháng (Adversarial Benchmark)
+hexora .         # 🔍 Full security audit (SAST, Secrets, SCA)
+hexora watch     # 👁️ Instant live scan on every save (Ctrl+S)
+hexora init      # 🤖 1-Click AI Agent setup (Cursor, Claude, VS Code, Antigravity)
+hexora hook      # 🔒 Install Git Pre-Commit hook preventing secret leaks
+hexora bench     # 🏆 Adversarial verification benchmark suite
 ```
 
 ---
 
-### 🎁 Cách 2: Trình cài đặt tự động 1 dòng lệnh (One-Line Installer)
-Tự động kiểm tra môi trường Node.js và cài đặt trọn gói không cần nhớ lệnh:
+### 🎁 Option 2: 1-Line Automated Installer
+Automatically verifies Node.js environment and configures Hexora in seconds:
 
 - **Linux / macOS**:
 ```bash
@@ -88,24 +88,24 @@ irm https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.ps1 | iex
 
 ---
 
-### 🚀 Cách 3: Chạy trực tiếp qua NPX (Không cần cài đặt)
-Nếu bạn chỉ muốn quét nhanh một dự án mà không cần cài đặt:
+### 🚀 Option 3: Zero-Install NPX Execution
+Execute immediately without installing anything globally:
 
 ```bash
-# Quét dự án hiện tại
+# Scan current workspace
 npx khoadev-vn/Hexora .
 
-# Chế độ theo dõi realtime
+# Real-time background watch engine
 npx khoadev-vn/Hexora watch
 
-# Cài đặt tự động AI Agents
+# 1-Click AI Agent & MCP setup
 npx khoadev-vn/Hexora init
 ```
 
 ---
 
-### 🛠️ Cách 4: Dành cho Contributor / Local Development
-Dành cho lập trình viên muốn phát triển thêm tính năng cho Hexora:
+### 🛠️ Option 4: Local Development & Contributors
+For security researchers and developers building on Hexora:
 
 ```bash
 git clone https://github.com/khoadev-vn/Hexora.git
