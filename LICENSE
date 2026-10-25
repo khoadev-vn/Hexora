@@ -1,21 +1,57 @@
-﻿MIT License
+Hexora Source-Available & Non-Commercial License (v1.0)
+Copyright (c) 2026 Khoa Dev (khoadev-vn). All Rights Reserved.
 
-Copyright (c) 2026 Khoa Dev (khoadev-vn)
+================================================================================
+TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION, AND MODIFICATION
+================================================================================
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. GRANT OF LICENSE (NON-COMMERCIAL PURPOSES ONLY)
+Subject to the terms and conditions of this License, Khoa Dev hereby grants to 
+any person obtaining a copy of this software and associated documentation files 
+(the "Software") a perpetual, worldwide, non-exclusive, no-charge, royalty-free 
+license to:
+  a. Use, study, inspect, run, and execute the Software locally;
+  b. Modify, patch, adapt, and translate the Software;
+  c. Distribute or share the Software (in source or binary form), provided that 
+     all copies retain this original License Notice and Copyright attribution.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+ALL PERMISSIONS GRANTED ABOVE ARE STRICTLY LIMITED TO NON-COMMERCIAL USE.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+--------------------------------------------------------------------------------
+2. COMMERCIAL USE RESTRICTION (EXCLUSIVE TO AUTHOR)
+Any Commercial Use of the Software is STRICTLY PROHIBITED unless an express, 
+written Commercial License is executed directly with the copyright holder: Khoa Dev.
+
+"Commercial Use" includes, but is not limited to:
+  a. Selling, licensing, renting, or leasing the Software or any derivative work;
+  b. Offering the Software as a managed service, Software-as-a-Service (SaaS), 
+     Cloud API, or hosted platform for monetary compensation;
+  c. Using the Software to deliver paid professional services, commercial security 
+     auditing, pentesting contracts, or consulting for fee;
+  d. Incorporating or bundling the Software into proprietary, commercial, or 
+     closed-source software products;
+  e. Generating direct or indirect commercial advantage, subscription revenue, 
+     or advertising profit from the Software.
+
+ALL EXCLUSIVE COMMERCIAL RIGHTS, COMMERCIALIZATION, RESALE, SAAS HOSTING, AND 
+DUAL-LICENSING RIGHTS BELONG EXCLUSIVELY TO KHOA DEV.
+
+--------------------------------------------------------------------------------
+3. COMMERCIAL LICENSING & ENTERPRISE INQUIRIES
+Organizations, corporations, startups, or individuals wishing to utilize Hexora 
+for commercial purposes, enterprise workflows, proprietary integrations, or paid 
+engagements must obtain a valid commercial license.
+
+To request a commercial license or enterprise partnership, please contact:
+  - Author: Khoa Dev
+  - GitHub: https://github.com/khoadev-vn
+  - Email: khoadev@users.noreply.github.com
+
+--------------------------------------------------------------------------------
+4. DISCLAIMER OF WARRANTY & LIMITATION OF LIABILITY
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS 
+FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR 
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN 
+AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION 
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

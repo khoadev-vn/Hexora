@@ -4,7 +4,7 @@
 ### Next-Generation Universal Security Engine
 
 [![npm version](https://img.shields.io/npm/v/hexora.svg?style=flat-square&color=00F0FF&logo=npm)](https://www.npmjs.com/package/hexora)
-[![License: MIT](https://img.shields.io/badge/License-MIT-00FF88.svg?style=flat-square)](https://opensource.org/licenses/MIT)
+[![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-FF5555.svg?style=flat-square)](LICENSE)
 [![AI-Native: MCP](https://img.shields.io/badge/AI--Native-Model%20Context%20Protocol-8A2BE2.svg?style=flat-square&logo=anthropic)](https://modelcontextprotocol.io/)
 [![Zero-Config](https://img.shields.io/badge/Setup-Zero--Config-brightgreen.svg?style=flat-square)](#-quickstart-for-developers)
 [![False Positive Filter](https://img.shields.io/badge/False%20Positives-0%25%20Filtered-success.svg?style=flat-square)](#-dual-agent-adversarial-verification)
@@ -263,9 +263,15 @@ Hexora automatically produces SARIF output compatible with GitHub's native **Sec
 
 ---
 
-## 📄 License
+## 📄 License & Commercial Rights
 
-Distributed under the **MIT License**. Free for open-source and commercial use.
+Hexora is licensed under the **Hexora Source-Available & Non-Commercial License**.
+
+- ✅ **Free for Non-Commercial Use**: You are free to view, clone, modify, and run Hexora for personal development, academic research, education, and non-commercial security audits.
+- 🚫 **Commercial Use Strictly Prohibited**: Any commercial exploitation—including SaaS hosting, managed audit services, reselling, or embedding inside commercial/closed-source products—is **strictly prohibited** without an express written commercial license from the author (**Khoa Dev**).
+- 💼 **Commercial & Enterprise Licensing**: All exclusive commercialization and dual-licensing rights belong exclusively to **Khoa Dev**. For commercial licensing, enterprise tiers, or custom partnerships, please contact:
+  - Author: **Khoa Dev** ([@khoadev-vn](https://github.com/khoadev-vn))
+  - Inquiries: `khoadev@users.noreply.github.com`
 
 ---
 

@@ -53,7 +53,7 @@
     "security-scanner"
   ],
   "author": "Khoa Dev <https://github.com/khoadev-vn>",
-  "license": "MIT",
+  "license": "SEE LICENSE IN LICENSE",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "commander": "^12.1.0",
