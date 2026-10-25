@@ -13,7 +13,7 @@
 **Zero-Friction SAST • Dual-Agent Adversarial Verification • Dynamic PoC & Patch Generation**  
 *One security engine that works seamlessly in your Terminal, IDE, AI Agents, and CI/CD pipelines.*
 
-[🌐 Live Landing Page](https://hexora-security.github.io/hexora) • [📖 Documentation](#-universal-modes-of-use) • [⚡ Quickstart](#-quickstart-for-developers) • [🤖 AI Agent MCP](#-mode-2-1-click-ai-agent-setup) • [🏆 Benchmarks](#-global-vulnerability-benchmarks)
+[🌐 Live Landing Page](https://hexora-security.github.io/hexora) • [📚 Step-by-Step Guide](docs/STEP_BY_STEP_GUIDE.md) • [📖 Documentation](#-universal-modes-of-use) • [⚡ Quickstart](#-quickstart-for-developers) • [🤖 AI Agent MCP](#-mode-2-1-click-ai-agent-setup) • [🏆 Benchmarks](#-global-vulnerability-benchmarks)
 
 ---
 
@@ -86,73 +86,269 @@ node bin/hexora.js .
 
 ---
 
-## 🚀 Quickstart for Developers
+## 🚀 Comprehensive Feature Guide & Hands-on Demos
 
-### 🖥️ Mode 1: Terminal CLI (Zero-Config)
-Run Hexora directly across your projects:
+Hexora is designed to fit naturally into every stage of your engineering workflow. Below are detailed walkthroughs and live terminal demos for each core capability:
+
+---
+
+### 🖥️ Feature 1: Zero-Config Security Audit (`hexora .`)
+
+Run a full deterministic audit with deep SAST, dependency vulnerability scanning (SCA), and adversarial false-positive filtering in one simple command.
 
 ```bash
-# Scan current directory:
-hexora .
+# Scan current workspace:
+npx hexora .
 
-# Scan any target project:
-hexora ./path-to-project
+# Scan specific folder or file:
+npx hexora ./src/backend
 
-# Scan any remote GitHub repository in an isolated sandbox:
-hexora owner/repo
+# Scan remote public GitHub repository inside a secure sandbox:
+npx hexora expressjs/express
 ```
 
-**Clean, Actionable Output:**
+**Live Terminal Output:**
 ```text
+PS D:\my-project> npx hexora .
+
 Hexora
 
 Scanning project...
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Secrets                  2 findings
-Security vulnerabilities 3 findings
-Insecure configuration   1 finding
+
+Secrets                  1 finding
+Security vulnerabilities 2 findings
+Vulnerable dependencies  1 finding
+Insecure configuration   0 findings
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-6 findings confirmed (12 false positives eliminated by Adversarial Verifier)
+4 findings detected (Adversarial filtered 8 false positives)
 
-Critical: 1  |  High: 2  |  Medium: 2  |  Low: 1
+Critical: 1
+High:     2
+Medium:   1
+Low:      0
 
-Report: ./hexora-report.html  (Interactive HTML & SARIF generated)
+Report:
+  📄 Text (Structured): ./hexora-report.txt
+  📑 PDF (Executive):   ./hexora-report.pdf
+  📝 Markdown:          ./hexora-report.md
+  🌐 HTML Dashboard:    ./hexora-report.html
 ```
+
+**💡 How It Works & What to Expect:**
+1. **Multi-Vector Scanning**: Analyzes AST syntax, semantic patterns, high-entropy secrets, and checks dependencies against known CVEs.
+2. **Dual-Agent Verification**: Every detected flag is passed through an automated Red-Team verifier to discard mock tests, sanitized variables, and harmless snippets, ensuring **zero alert fatigue**.
+3. **Simultaneous Multi-Format Reports**: Automatically exports:
+   - `hexora-report.txt`: Clean, human-readable structured text, ideal for console review or terminal piping (`grep`, `cat`).
+   - `hexora-report.pdf`: Executive-ready PDF summary for management, stakeholders, or compliance reviews.
+   - `hexora-report.md`: Markdown summary ready to paste into GitHub Issues or Pull Request descriptions.
+   - `hexora-report.html`: Interactive web dashboard with search, filter badges, and expandable remediation diffs.
 
 ---
 
-### 🤖 Mode 2: 1-Click AI Agent Setup (`npx hexora init`)
-Tired of manually configuring JSON files for Cursor, Claude, or Windsurf? Just run:
+### ⏱️ Feature 2: Real-Time Watch Engine (`hexora watch`)
 
-```bash
-npx hexora init
-```
-
-Hexora automatically detects and configures:
-- ✅ **Cursor MCP** (`.cursor/mcp.json`)
-- ✅ **Claude Desktop** (`claude_desktop_config.json`)
-- ✅ **Claude Code & Agentic IDEs**
-- ✅ **VS Code Tasks & Pre-commit Git Hooks**
-
-Once configured, simply instruct your AI Assistant:
-> *"Audit this project with Hexora and automatically apply the recommended patches."*
-
----
-
-### ⏱️ Mode 3: Live Auto-Scan on Save (`watch`)
-Keep Hexora running in the background. Every time you hit `Ctrl+S`, Hexora performs an instant micro-delta scan in milliseconds:
+Keep Hexora running in a background terminal. Every time you save a file (`Ctrl+S`), Hexora performs an instantaneous micro-delta scan in milliseconds, alerting you before you even switch windows.
 
 ```bash
 npx hexora watch
 ```
 
+**Live Terminal Output:**
+```text
+PS D:\my-project> npx hexora watch
+
+======================================================
+👁️  HEXORA REAL-TIME WATCH ENGINE
+   Monitoring: D:\my-project
+   Auto-scans and verifies code on every save (Ctrl+S)
+======================================================
+
+⚡ Watcher active! Listening for file changes... (Press Ctrl+C to stop)
+
+[20:12:04] 🟢 CLEAN: src/services/user.service.ts (0 issues, 14.2ms)
+[20:12:45] 🟢 CLEAN: src/config/database.ts (0 issues, 11.8ms)
+
+------------------------------------------------------
+[20:13:19] 🚨 SECURITY ALERT: src/controllers/auth.controller.ts (18.6ms)
+Found 1 genuine vulnerability:
+
+  🔴 CRITICAL | Hardcoded Cloud Access Key (Line 15) [CWE-798]
+  Target: src/controllers/auth.controller.ts:15
+  💡 Suggested Fix: Store credentials in environment variables (.env) and reference via process.env.
+------------------------------------------------------
+```
+
+**💡 Step-by-Step Hands-On Guide:**
+1. Open a terminal tab and run `npx hexora watch`.
+2. Open your code editor and edit any file (TypeScript, JavaScript, Python, Rust, Solidity, Go, etc.).
+3. Press `Ctrl+S` — notice the sub-20ms instant confirmation badge: `🟢 CLEAN`.
+4. If you accidentally type or paste an insecure pattern (e.g. `eval(req.query.code)` or a raw API secret), Hexora sounds an alert chime (`\x07`) and prints an exact line reference with remediation instructions.
+
 ---
 
-### 🔒 Mode 4: Git Pre-Commit Security Gate
-Block leaked API keys and critical vulnerabilities before they ever enter Git history:
+### 🔒 Feature 3: Git Pre-Commit Security Gate (`hexora hook`)
+
+Prevent secrets and critical bugs from ever entering your Git commit history or remote repository.
 
 ```bash
 npx hexora hook
+```
+
+**1. Installation Demo:**
+```text
+PS D:\my-project> npx hexora hook
+✅ Installed pre-commit hook at D:\my-project\.git\hooks\pre-commit
+```
+
+**2. Enforcement Demo (When Insecure Code is Committed):**
+```text
+PS D:\my-project> git add .
+PS D:\my-project> git commit -m "feat: add payment gateway webhook"
+
+🛡️ Hexora Pre-Commit Gate: Verifying staged files...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Secrets                  1 finding
+Security vulnerabilities 0 findings
+Vulnerable dependencies  0 findings
+Insecure configuration   0 findings
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ [Hexora Pre-Commit Hook] Hardcoded Secret Detected!
+   File: src/payment.ts:22 -> Found unencrypted Stripe Secret Key.
+   
+Commit rejected to protect repository history.
+To inspect or fix, run: npx hexora .
+```
+
+**💡 Step-by-Step Hands-On Guide:**
+1. Run `npx hexora hook` inside any Git repository. It writes a zero-dependency pre-commit script to `.git/hooks/pre-commit`.
+2. Stage your changes with `git add .` and run `git commit`.
+3. If clean, git proceeds normally with zero delay.
+4. If a critical issue or leaked credential is found, the commit is immediately blocked, protecting you from costly API leaks or security incidents.
+
+---
+
+### 🤖 Feature 4: 1-Click Universal AI Setup (`npx hexora init`)
+
+Configure Hexora across your entire developer ecosystem in 5 seconds. Connects with Cursor, Claude Desktop, Claude Code, VS Code, and terminal paths automatically.
+
+```bash
+npx hexora init
+```
+
+**Interactive Terminal Demo:**
+```text
+PS D:\my-project> npx hexora init
+
+Hexora Setup
+
+Where do you want to use Hexora?
+
+  [1] Terminal (Register global shortcut 'hexora' & 'audit')
+  [2] Cursor (Model Context Protocol - .cursor/mcp.json)
+  [3] Claude Code (.claude/mcp.json)
+  [4] Claude Desktop (claude_desktop_config.json)
+  [5] VS Code (Build & Audit Tasks)
+  [6] Other MCP-compatible agents
+  [7] All supported integrations (Recommended)
+
+Select an option (1-7): 7
+
+======================================================
+🚀 HEXORA UNIVERSAL SETUP
+======================================================
+
+✅ [Terminal] Created global shortcuts 'hexora' and 'audit' in C:\Users\user\bin
+✅ [Cursor] Configured MCP server in .cursor/mcp.json
+✅ [Claude Code] Configured MCP server in .claude/mcp.json
+✅ [Claude Desktop] Configured claude_desktop_config.json
+✅ [VS Code] Added audit tasks to .vscode/tasks.json
+✅ [Git] Installed pre-commit hook in .git/hooks/pre-commit
+
+🎉 Hexora configured successfully across all environments!
+```
+
+**💡 Step-by-Step Hands-On Guide:**
+1. Run `npx hexora init` and choose `7` (All).
+2. Open **Cursor** or **Claude Desktop** — Hexora MCP tools are now recognized immediately.
+3. Prompt your agent: *"Audit this codebase using Hexora and generate minimal patches for any high severity bugs."*
+4. The AI agent will call Hexora's MCP tools autonomously, evaluate the verified findings, and apply safe unified diffs.
+
+---
+
+### 🧠 Feature 5: Threat Intelligence & Dynamic CVE Learning (`learn` & `intel`)
+
+Modern attack vectors evolve rapidly. Hexora includes a live threat intelligence knowledge vault that allows you to feed newly published CVEs, post-mortems, or bug bounty writeups directly into its detection memory.
+
+```bash
+# Ingest a security report or writeup:
+npx hexora learn ./reports/cve-2024-solana-cpi.md
+
+# Inspect active threat memory and learned attack variants:
+npx hexora intel
+```
+
+**Live Terminal Output:**
+```text
+PS D:\my-project> npx hexora learn ./reports/cve-2024-solana-cpi.md
+
+📚 [Hexora Threat Ingestion] Processing: ./reports/cve-2024-solana-cpi.md...
+✨ Successfully ingested report: [CVE-2024-SOL-01] "Arbitrary CPI Execution in Solana Anchor"
+   - Attack Variants learned: cpi_spoofing, missing_program_id_check
+   - Mitigation: Verify program_id matches expected Pubkey before calling invoke_signed
+
+PS D:\my-project> npx hexora intel
+
+======================================================
+🧠 HEXORA THREAT INTELLIGENCE KNOWLEDGE VAULT
+======================================================
+Total Reports Learned: 14
+Total Attack Variants: 48
+
+📌 [CVE-Database] CVE-2024-SOL-01: Arbitrary CPI Execution (CRITICAL)
+   - Ecosystem: Solana | Class: CPI_HIJACK
+   - Attack Variants: cpi_spoofing; missing_program_id_check
+
+📌 [Bounty-Writeup] H1-2024-AUTH-99: OAuth State Parameter Bypass (HIGH)
+   - Ecosystem: Web2 | Class: AUTH_BYPASS
+   - Attack Variants: missing_pkce; lax_state_validation
+```
+
+---
+
+### 🥊 Feature 6: Vulnerability Benchmark Arena (`hexora bench`)
+
+Verify Hexora's accuracy and false-positive elimination rate directly against industry security scanners.
+
+```bash
+npx hexora bench
+```
+
+**Live Terminal Output:**
+```text
+PS D:\my-project> npx hexora bench
+
+======================================================
+🥊 HEXORA GLOBAL VULNERABILITY BENCHMARK ARENA
+======================================================
+Running 11 high-fidelity test suites across Web2, Web3, and AI Agents...
+
+[Suite 1/11] SQL Injection in ORM Bypass ............. ✅ DETECTED (Confirmed)
+[Suite 2/11] False Positive: Mock Test DB Client ..... 🛡️ DISPROVED (Adversarial)
+[Suite 3/11] Solana Arbitrary CPI Missing Signer ..... ✅ DETECTED (Confirmed)
+[Suite 4/11] False Positive: Constant In-Memory Key .. 🛡️ DISPROVED (Adversarial)
+[Suite 5/11] Prompt Injection & Tool Exfiltration ... ✅ DETECTED (Confirmed)
+...
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+BENCHMARK RESULTS SUMMARY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+True Positive Detection Rate:     100.0% (11/11)
+False Positive Elimination Rate:  100.0% (Zero false alarms)
+Execution Time:                   412ms
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
 ---

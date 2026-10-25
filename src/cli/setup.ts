@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import readline from 'node:readline';
@@ -262,7 +262,7 @@ export function installGitHook(targetDir: string = '.') {
   const hooksDir = path.join(gitDir, 'hooks');
   if (!fs.existsSync(hooksDir)) fs.mkdirSync(hooksDir, { recursive: true });
   const hookPath = path.join(hooksDir, 'pre-commit');
-  const hookContent = `#!/bin/sh\necho "🛡️ [Hexora] Running pre-commit security check..."\naudit\n`;
+  const hookContent = `#!/bin/sh\necho "🛡️ [Hexora] Running pre-commit security check..."\nif [ -f "./bin/hexora.js" ]; then\n  node ./bin/hexora.js .\nelif command -v hexora > /dev/null 2>&1; then\n  hexora .\nelif command -v audit > /dev/null 2>&1; then\n  audit .\nelse\n  npx --yes hexora .\nfi\n`;
   fs.writeFileSync(hookPath, hookContent, 'utf-8');
   console.log(`✅ Installed pre-commit hook at ${hookPath}`);
 }
