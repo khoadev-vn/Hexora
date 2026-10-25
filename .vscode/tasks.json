@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "2.0.0",
   "tasks": [
     {
@@ -6,7 +6,7 @@
       "type": "shell",
       "command": "node",
       "args": [
-        "${workspaceFolder}/bin/hexora.js",
+        "D:/aevum-audit/bin/hexora.js",
         "."
       ],
       "group": {
@@ -16,19 +16,17 @@
       "presentation": {
         "reveal": "always",
         "panel": "shared"
-      },
-      "problemMatcher": []
+      }
     },
     {
       "label": "👁️ Hexora: Real-time Watcher (Auto on Save)",
       "type": "shell",
       "command": "node",
       "args": [
-        "${workspaceFolder}/bin/hexora.js",
+        "D:/aevum-audit/bin/hexora.js",
         "watch"
       ],
-      "isBackground": true,
-      "problemMatcher": []
+      "isBackground": true
     }
   ]
 }

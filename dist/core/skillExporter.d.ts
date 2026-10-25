@@ -9,6 +9,7 @@ export declare class SkillExporter {
     static exportCursor(workspaceDir: string, homeDir: string, auditBinPath: string): ExportReport;
     static exportClaudeCode(homeDir: string, auditBinPath: string): ExportReport;
     static exportWindsurf(workspaceDir: string, homeDir: string, auditBinPath: string): ExportReport;
+    static exportOpenCode(workspaceDir: string, homeDir: string, auditBinPath: string): ExportReport;
     static exportVsCode(workspaceDir: string, auditBinPath: string): ExportReport;
 }
 //# sourceMappingURL=skillExporter.d.ts.map

@@ -1,0 +1,11 @@
+---
+description: Hexora Security Audit & Remediation Guidelines
+globs: *
+---
+# Hexora Security Rules for Cursor
+
+When generating or editing code:
+1. Never hardcode API keys, private keys, or credentials.
+2. Use Hexora MCP tools (`scan_project`, `audit_scan_file`, `apply_fix`) to verify security posture.
+3. Validate all external inputs against injection vulnerabilities (SQL, NoSQL, SSTI, Shell, LLM Prompt Injection).
+4. If a vulnerability is detected, verify with Hexora Adversarial Verifier and apply safe unified patches.

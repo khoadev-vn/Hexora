@@ -186,6 +186,58 @@ export class SkillExporter {
     };
   }
 
+  public static exportOpenCode(workspaceDir: string, homeDir: string, auditBinPath: string): ExportReport {
+    const filesCreated: string[] = [];
+    const normalizedBin = auditBinPath.replace(/\\/g, '/');
+
+    // 1. Workspace opencode.json
+    const wsOpencodePath = path.join(workspaceDir, 'opencode.json');
+    try {
+      let json: any = { $schema: 'https://opencode.ai/config.json', mcp: {} };
+      if (fs.existsSync(wsOpencodePath)) {
+        try {
+          json = JSON.parse(fs.readFileSync(wsOpencodePath, 'utf-8') || '{}');
+        } catch {}
+      }
+      if (!json.mcp) json.mcp = {};
+      json.mcp['hexora'] = {
+        type: 'local',
+        command: ['node', normalizedBin, 'mcp'],
+        enabled: true,
+      };
+      fs.writeFileSync(wsOpencodePath, JSON.stringify(json, null, 2), 'utf-8');
+      filesCreated.push(wsOpencodePath);
+    } catch {}
+
+    // 2. Global OpenCode config (~/.config/opencode/config.json)
+    const globalConfigDir = path.join(homeDir, '.config', 'opencode');
+    const globalConfigFile = path.join(globalConfigDir, 'config.json');
+    try {
+      if (!fs.existsSync(globalConfigDir)) fs.mkdirSync(globalConfigDir, { recursive: true });
+      let json: any = { $schema: 'https://opencode.ai/config.json', mcp: {} };
+      if (fs.existsSync(globalConfigFile)) {
+        try {
+          json = JSON.parse(fs.readFileSync(globalConfigFile, 'utf-8') || '{}');
+        } catch {}
+      }
+      if (!json.mcp) json.mcp = {};
+      json.mcp['hexora'] = {
+        type: 'local',
+        command: ['node', normalizedBin, 'mcp'],
+        enabled: true,
+      };
+      fs.writeFileSync(globalConfigFile, JSON.stringify(json, null, 2), 'utf-8');
+      filesCreated.push(globalConfigFile);
+    } catch {}
+
+    return {
+      platform: 'OpenCode',
+      filesCreated,
+      mcpConfigured: wsOpencodePath,
+      success: true,
+    };
+  }
+
   public static exportVsCode(workspaceDir: string, auditBinPath: string): ExportReport {
     const filesCreated: string[] = [];
     const normalizedBin = auditBinPath.replace(/\\/g, '/');

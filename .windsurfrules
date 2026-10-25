@@ -1,0 +1,6 @@
+# Hexora Security Protocol for Windsurf
+
+When building and refactoring software:
+- Follow OWASP Top 10, CWE Top 25, and SWC Registry security best practices.
+- Use Hexora MCP server tools to scan workspaces, detect vulnerabilities, and synthesize safe diff fixes.
+- Proactively verify dependencies with SCA checks.

@@ -458,7 +458,7 @@ Hexora incorporates a high-assurance detection matrix and continuous threat inte
 
 ## 🤖 Model Context Protocol (MCP) Configuration
 
-To connect Hexora directly to **Cursor** or **Claude Desktop**:
+To connect Hexora directly to **Cursor**, **Claude Desktop**, **Claude Code**, or **OpenCode**:
 
 ### Cursor (`~/.cursor/mcp.json` or `.cursor/mcp.json`)
 ```json
@@ -473,6 +473,32 @@ To connect Hexora directly to **Cursor** or **Claude Desktop**:
 ```
 
 ### Claude Desktop (`claude_desktop_config.json`)
+```json
+{
+  "mcpServers": {
+    "hexora": {
+      "command": "npx",
+      "args": ["-y", "hexora", "mcp"]
+    }
+  }
+}
+```
+
+### OpenCode (`opencode.json` or `~/.config/opencode/config.json`)
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "hexora": {
+      "type": "local",
+      "command": ["npx", "-y", "hexora", "mcp"],
+      "enabled": true
+    }
+  }
+}
+```
+
+### Claude Code (`~/.claude.json`)
 ```json
 {
   "mcpServers": {
@@ -516,14 +542,14 @@ Hexora is licensed under the **Hexora Source-Available & Non-Commercial License*
 - ✅ **Free for Non-Commercial Use**: You are free to view, clone, modify, and run Hexora for personal development, academic research, education, and non-commercial security audits.
 - 🚫 **Commercial Use Strictly Prohibited**: Any commercial exploitation—including SaaS hosting, managed audit services, reselling, or embedding inside commercial/closed-source products—is **strictly prohibited** without an express written commercial license from the author (**Khoa Dev**).
 - 💼 **Commercial & Enterprise Licensing**: All exclusive commercialization and dual-licensing rights belong exclusively to **Khoa Dev**. For commercial licensing, enterprise tiers, or custom partnerships, please contact:
-  - Author: **Khoa Dev** ([@khoadev-vn](https://github.com/khoadev-vn))
+  - Author: **Khoa Dev** ([@khoadev-vn](https://github.com/khoadev-vn) • [Facebook Profile](https://www.facebook.com/anhkhoavnk/))
   - Inquiries: `khoadev@users.noreply.github.com`
 
 ---
 
 <div align="center">
 
-Made with 💜 by **Khoa Dev** ([@khoadev-vn](https://github.com/khoadev-vn)) & Hexora Core Contributors  
+Made with 💜 by **Khoa Dev** ([@khoadev-vn](https://github.com/khoadev-vn) • [Facebook](https://www.facebook.com/anhkhoavnk/)) & Hexora Core Contributors  
 *Next-Gen Universal Security for Humans & AI Agents.*
 
 </div>

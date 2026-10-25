@@ -41,14 +41,15 @@ export async function runUniversalSetup(options: SetupOptions = {}) {
     console.log(`  [4] Claude Desktop (claude_desktop_config.json)`);
     console.log(`  [5] VS Code (Workspace Tasks & Extension)`);
     console.log(`  [6] Windsurf (.windsurf & .windsurfrules)`);
-    console.log(`  [7] Terminal Global Shortcuts & Git Pre-commit Hook`);
-    console.log(`  [8] All Integrations (Recommended for Full AI Stack)\n`);
+    console.log(`  [7] OpenCode (opencode.json & ~/.config/opencode)`);
+    console.log(`  [8] Terminal Global Shortcuts & Git Pre-commit Hook`);
+    console.log(`  [9] All Integrations (Recommended for Full AI Stack)\n`);
 
-    selected = await promptUser('Select an option (1-8): ');
+    selected = await promptUser('Select an option (1-9): ');
   }
 
-  // Default to '8' (all) if non-interactive or empty
-  if (!selected) selected = '8';
+  // Default to 'all' if non-interactive or empty
+  if (!selected) selected = 'all';
 
   const root = path.resolve(options.workspaceDir || '.');
   const auditRoot = path.resolve(__dirname, '../../');
@@ -67,13 +68,15 @@ export async function runUniversalSetup(options: SetupOptions = {}) {
   const isWindows = process.platform === 'win32';
   const nodeExec = process.execPath;
 
-  const doAntigravity = selected === '1' || selected === 'antigravity' || selected === 'agy' || selected === '8' || selected === 'all';
-  const doCursor = selected === '2' || selected === 'cursor' || selected === '8' || selected === 'all';
-  const doClaudeCode = selected === '3' || selected === 'claude-code' || selected === 'claude' || selected === '8' || selected === 'all';
-  const doClaudeDesktop = selected === '4' || selected === 'claude-desktop' || selected === '8' || selected === 'all';
-  const doVsCode = selected === '5' || selected === 'vscode' || selected === '8' || selected === 'all';
-  const doWindsurf = selected === '6' || selected === 'windsurf' || selected === '8' || selected === 'all';
-  const doTerminal = selected === '7' || selected === 'terminal' || selected === 'git' || selected === '8' || selected === 'all';
+  const isAll = selected === '8' || selected === '9' || selected === 'all';
+  const doAntigravity = selected === '1' || selected === 'antigravity' || selected === 'agy' || isAll;
+  const doCursor = selected === '2' || selected === 'cursor' || isAll;
+  const doClaudeCode = selected === '3' || selected === 'claude-code' || selected === 'claude' || isAll;
+  const doClaudeDesktop = selected === '4' || selected === 'claude-desktop' || isAll;
+  const doVsCode = selected === '5' || selected === 'vscode' || isAll;
+  const doWindsurf = selected === '6' || selected === 'windsurf' || isAll;
+  const doOpenCode = selected === '7' || selected === 'opencode' || isAll;
+  const doTerminal = selected === '8' || selected === 'terminal' || selected === 'git' || isAll;
 
   // 1. Google Antigravity Setup (MCP + Workspace Skill + Global Skill + Rules)
   if (doAntigravity) {
@@ -182,7 +185,22 @@ export async function runUniversalSetup(options: SetupOptions = {}) {
     }
   }
 
-  // 7. Terminal & Git Hook Setup
+  // 7. OpenCode (Workspace opencode.json & ~/.config/opencode/config.json)
+  if (doOpenCode) {
+    for (const homeDir of targetHomeDirs) {
+      try {
+        const report = SkillExporter.exportOpenCode(root, homeDir, auditBin);
+        if (report.success) {
+          console.log(`✅ [OpenCode] Configured MCP server in: ${report.mcpConfigured}`);
+          configuredCount++;
+        }
+      } catch (err: any) {
+        console.warn(`⚠️ [OpenCode] Could not configure OpenCode: ${err.message}`);
+      }
+    }
+  }
+
+  // 8. Terminal & Git Hook Setup
   if (doTerminal) {
     for (const homeDir of targetHomeDirs) {
       const userBin = path.join(homeDir, 'bin');
@@ -214,7 +232,7 @@ export async function runUniversalSetup(options: SetupOptions = {}) {
         const hooksDir = path.join(gitDir, 'hooks');
         if (!fs.existsSync(hooksDir)) fs.mkdirSync(hooksDir, { recursive: true });
         const hookPath = path.join(hooksDir, 'pre-commit');
-        const hookContent = `#!/bin/sh\n# Hexora Pre-Commit Security Gate\necho "🛡️ [Hexora] Scanning staged files for vulnerabilities & leaked secrets..."\naudit\nif [ $? -ne 0 ]; then\n  echo "❌ [Hexora] Commit aborted due to security vulnerabilities!"\n  exit 1\nfi\n`;
+        const hookContent = `#!/bin/sh\n# Hexora Pre-Commit Security Gate\necho "🛡️ [Hexora] Scanning staged files for vulnerabilities & leaked secrets..."\nif [ -f "./bin/hexora.js" ]; then\n  node ./bin/hexora.js .\nelif command -v hexora > /dev/null 2>&1; then\n  hexora .\nelif command -v audit > /dev/null 2>&1; then\n  audit .\nelse\n  npx --yes hexora .\nfi\nif [ $? -ne 0 ]; then\n  echo "❌ [Hexora] Commit aborted due to security vulnerabilities!"\n  exit 1\nfi\n`;
         fs.writeFileSync(hookPath, hookContent, 'utf-8');
         console.log(`✅ [Terminal/Git] Installed pre-commit hook in ${hookPath}`);
         configuredCount++;
@@ -275,11 +293,16 @@ export async function runSkillCommand(platform: string = 'all', targetDir: strin
     const report = SkillExporter.exportWindsurf(root, homeDir, auditBin);
     console.log(`✅ Installed Windsurf Rules & MCP:`);
     report.filesCreated.forEach((f) => console.log(`   - ${f}`));
+  } else if (p === 'opencode') {
+    const report = SkillExporter.exportOpenCode(root, homeDir, auditBin);
+    console.log(`✅ Installed OpenCode MCP:`);
+    report.filesCreated.forEach((f) => console.log(`   - ${f}`));
   } else {
     const agy = SkillExporter.exportAntigravity(root, homeDir, auditBin);
     const cur = SkillExporter.exportCursor(root, homeDir, auditBin);
     const cld = SkillExporter.exportClaudeCode(homeDir, auditBin);
     const wnd = SkillExporter.exportWindsurf(root, homeDir, auditBin);
+    const opn = SkillExporter.exportOpenCode(root, homeDir, auditBin);
     const vsc = SkillExporter.exportVsCode(root, auditBin);
 
     console.log(`✅ Exported skills and MCP configs across all agent ecosystems:`);
@@ -287,6 +310,7 @@ export async function runSkillCommand(platform: string = 'all', targetDir: strin
     console.log(`   - Cursor IDE (${cur.filesCreated.length} files)`);
     console.log(`   - Claude Code (${cld.filesCreated.length} files)`);
     console.log(`   - Windsurf (${wnd.filesCreated.length} files)`);
+    console.log(`   - OpenCode (${opn.filesCreated.length} files)`);
     console.log(`   - VS Code (${vsc.filesCreated.length} files)`);
   }
 
