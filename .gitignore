@@ -15,4 +15,4 @@ sentinel-report.*
 bench_*.txt
 .benchmark_workspace/
 
-landing/dist/
+landing/
