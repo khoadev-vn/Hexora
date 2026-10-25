@@ -65,7 +65,14 @@ export const BUILTIN_RULES = [
         cwe: 'CWE-89',
         owasp: 'A03:2021-Injection',
         languages: ['js', 'ts', 'py'],
-        pattern: /(?:query|raw|execute)\s*\(\s*`\s*(?:SELECT|INSERT|UPDATE|DELETE|DROP)\s+[^`]*\${.+}[^`]*`|\b(?:SELECT|INSERT|UPDATE|DELETE|DROP)\b[^;\n]*['"]\s*\+\s*[a-zA-Z0-9_.]+/i,
+        pattern: /(?:query|raw|execute)\s*\(\s*`\s*(?:SELECT|INSERT|UPDATE|DELETE|DROP)\s+[^`]*\${.+}[^`]*`|\b(?:SELECT\s+[\w*,\s]+\s+FROM|INSERT\s+INTO\s+\w+|UPDATE\s+\w+\s+SET|DELETE\s+FROM\s+\w+|DROP\s+TABLE)\b[^;\n]*['"]\s*\+\s*[a-zA-Z0-9_.]+/i,
+        validate: (match, content, filePath) => {
+            // Must not match crypto or stream update calls like crypto.createHash('sha1').update(...)
+            if (/createHash|cipher|hmac|digest|cacheKey/i.test(match.input.slice(Math.max(0, match.index - 50), match.index + 50))) {
+                return false;
+            }
+            return true;
+        },
         description: 'SQL queries built with unescaped string interpolation allow database compromise and data exfiltration.',
         remediationAdvice: 'Use parameterized queries, prepared statements, or ORM parameter binding (e.g. $1, ?).'
     },
@@ -78,7 +85,14 @@ export const BUILTIN_RULES = [
         cwe: 'CWE-918',
         owasp: 'A10:2021-Server-Side Request Forgery',
         languages: ['js', 'ts', 'py'],
-        pattern: /(?:fetch|axios\.(?:get|post|request)|http\.(?:get|request)|requests\.(?:get|post))\s*\(\s*(?:req\.(?:query|body|params)|url|targetUrl|inputUrl)/,
+        pattern: /(?:fetch|axios\.(?:get|post|request)|http\.(?:get|request)|requests\.(?:get|post))\s*\(\s*(?:req\.(?:query|body|params)|(?:targetUrl|inputUrl|userUrl|untrustedUrl)\b)/,
+        validate: (match, content, filePath) => {
+            // Relative paths or frontend URLs are not SSRF
+            const matched = match[0];
+            if (/['"]\//.test(matched))
+                return false;
+            return true;
+        },
         description: 'Outbound HTTP requests constructed directly from untrusted input allow internal network pivoting and metadata theft (e.g. 169.254.169.254).',
         remediationAdvice: 'Validate target hosts against a strict domain allowlist and block private IP ranges (RFC 1918, loopback, link-local).'
     },
@@ -90,7 +104,15 @@ export const BUILTIN_RULES = [
         cwe: 'CWE-22',
         owasp: 'A01:2021-Broken Access Control',
         languages: ['js', 'ts', 'py'],
-        pattern: /fs\.(?:readFile|readFileSync|createReadStream|writeFile|unlink)\s*\(\s*(?:path\.join\(|req\.(?:params|query|body)|target\b)/,
+        pattern: /fs\.(?:readFile|readFileSync|createReadStream|writeFile|unlink)\s*\(\s*(?:path\.(?:join|resolve)\([^)]*(?:req\.|user|input|query|params|filename|filePath|targetPath)|req\.(?:params|query|body)|target\b)/,
+        validate: (match, content, filePath) => {
+            // Disqualify if reading purely static files (all string literals in path.join without variables)
+            const afterSink = content.slice(match.index, match.index + 120);
+            const isStaticPath = /path\.join\(\s*__dirname\s*,\s*['"][^'"]+['"]\s*\)/.test(afterSink);
+            if (isStaticPath)
+                return false;
+            return true;
+        },
         description: 'Unvalidated user input in filesystem operations allows reading or overwriting arbitrary host files via dot-dot-slash (../).',
         remediationAdvice: 'Resolve absolute paths and verify path starts with the trusted root directory: path.resolve(root, input).startsWith(root).'
     },
@@ -600,7 +622,7 @@ export const BUILTIN_RULES = [
     },
     // ==================== 16. HEXORA INJECTION ENGINE: ADVANCED TEMPLATE & INJECTION EXPLOITS ====================
     {
-        id: 'HEX-INJ-001',
+        id: 'HEX-INJ-004',
         name: 'Advanced SSTI: Server-Side Template Injection (SSTI) to RCE',
         severity: 'CRITICAL',
         category: 'INJECTION',
@@ -612,7 +634,7 @@ export const BUILTIN_RULES = [
         remediationAdvice: 'Never render user input as a template string. Pass variables strictly as data context to pre-compiled static templates.'
     },
     {
-        id: 'HEX-INJ-002',
+        id: 'HEX-INJ-005',
         name: 'NoSQL Operator Injection ($where, $regex, $ne)',
         severity: 'HIGH',
         category: 'INJECTION',
@@ -624,7 +646,7 @@ export const BUILTIN_RULES = [
         remediationAdvice: 'Sanitize query inputs using mongo-sanitize or validate types strictly with Zod to disallow object expressions where strings are expected.'
     },
     {
-        id: 'HEX-INJ-003',
+        id: 'HEX-INJ-006',
         name: 'XML Processing: XML External Entity (XXE) Injection',
         severity: 'HIGH',
         category: 'INJECTION',
@@ -634,6 +656,18 @@ export const BUILTIN_RULES = [
         pattern: /(?:noent\s*:\s*true|resolveExternalEntities\s*:\s*true|xml2js\.parseString|libxmljs\.parseXml)/i,
         description: 'XML parser configured with external entity resolution allows attackers to extract local server files and perform internal port scans.',
         remediationAdvice: 'Disable DTD processing and external entity resolution in all XML parsers (noent: false, resolveEntities: false).'
+    },
+    {
+        id: 'HEX-INJ-007',
+        name: 'Log Injection / JNDI Remote Code Execution (Log4Shell Pattern)',
+        severity: 'CRITICAL',
+        category: 'INJECTION',
+        cwe: 'CWE-117',
+        owasp: 'A03:2021-Injection',
+        languages: ['js', 'ts', 'java', 'py'],
+        pattern: /(?:logger|console|log)\.(?:info|warn|error|debug)\s*\(\s*(?:['"][^'"]*['"]\s*\+\s*|\`[^\`]*\$\{)[^)]*(?:req\.headers|req\.query|req\.body|req\.params|userAgent|user_input|payload)/i,
+        description: 'Direct string concatenation of untrusted client headers/inputs into logger calls enables Log Injection and JNDI/LDAP lookup exploitation (CVE-2021-44228).',
+        remediationAdvice: 'Use structured logging with format specifiers or JSON payload objects rather than string interpolation.'
     },
     // ==================== 17. HEXORA INFRASTRUCTURE-AS-CODE (IAC) SECURITY GATE ====================
     {

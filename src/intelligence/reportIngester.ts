@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+﻿import fs from 'node:fs';
 import path from 'node:path';
 import { ThreatReport, Severity } from '../types/index.js';
 import { ThreatKnowledgeBase } from './threatKnowledgeBase.js';

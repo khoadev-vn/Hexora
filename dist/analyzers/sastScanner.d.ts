@@ -23,5 +23,6 @@ export declare class SastScanner {
     private evaluateThreatIntelCorrelations;
     private detectAttackSurfaces;
     private collectFiles;
+    private isIndexInsideComment;
 }
 //# sourceMappingURL=sastScanner.d.ts.map

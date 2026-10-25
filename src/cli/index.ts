@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { spawnSync } from 'node:child_process';
@@ -55,7 +55,16 @@ export async function runScan(targetInput: string = '.', options: ScanOptions = 
   const { findings, coverage } = await scanner.scan(root);
 
   const verifier = new AdversarialVerifier();
-  const verifiedFindings = findings.map((f) => verifier.verifyFinding(f));
+  const verifiedFindings = findings.map((f) => {
+    let fullContent: string | undefined;
+    try {
+      const fullPath = path.resolve(root, f.location.filePath);
+      if (fs.existsSync(fullPath)) {
+        fullContent = fs.readFileSync(fullPath, 'utf-8');
+      }
+    } catch {}
+    return verifier.verifyFinding(f, fullContent);
+  });
 
   const confirmedFindings = verifiedFindings.filter((f) => f.status === 'CONFIRMED');
   const disprovedCount = verifiedFindings.filter((f) => f.status === 'DISPROVED').length;

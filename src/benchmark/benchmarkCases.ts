@@ -1,4 +1,4 @@
-import { BenchmarkCase } from '../types/index.js';
+﻿import { BenchmarkCase } from '../types/index.js';
 
 export const BENCHMARK_CASES: BenchmarkCase[] = [
   // =========================================================================

@@ -1,4 +1,4 @@
-﻿import fs from 'node:fs';
+import fs from 'node:fs';
 import path from 'node:path';
 import { ThreatReport, ThreatCorrelation, ThreatIntelSummary } from '../types/index.js';
 
@@ -321,8 +321,7 @@ export const BUILTIN_THREAT_REPORTS: ThreatReport[] = [
     triggerPatterns: [
       '169\\.254\\.169\\.254',
       'metadata\\.google\\.internal',
-      'latest\\/meta-data',
-      'fetch\\s*\\(.*url'
+      'latest\\/meta-data'
     ],
     summary: 'SSRF vulnerabilities in cloud applications often pivot directly to the Cloud Metadata Service (169.254.169.254) to steal temporary IAM role credentials and access keys.',
     exploitMechanism: 'Attacker provides an SSRF payload pointing to `http://169.254.169.254/latest/meta-data/iam/security-credentials/role-name`, receiving AWS keys with high cluster privileges.',
@@ -344,9 +343,8 @@ export const BUILTIN_THREAT_REPORTS: ThreatReport[] = [
       'Unprotected Node.js V8 Debugger (Port 9229) RCE'
     ],
     triggerPatterns: [
-      '0\\.0\\.0\\.0',
-      'port\\s*:\\s*(?:6379|9229|27017|2375)',
-      'bind\\s*\\(.*0\\.0\\.0\\.0'
+      '(?:bind|listen|host)\\s*[:=]\\s*[\'"]0\\.0\\.0\\.0[\'"].*(?:6379|9229|27017|2375|5432|3306)',
+      '(?:redis|mongo|docker|debug).*0\\.0\\.0\\.0'
     ],
     summary: 'Cloudflare Flan Scan methodology: lightweight network vulnerability scanning identifies open network attack surfaces and exposed management ports before external threat actors exploit them.',
     exploitMechanism: 'Scanning perimeter IP ranges discovers unauthenticated microservices or debug ports bound to 0.0.0.0, allowing attackers to read memory, execute commands, or drop keys.',
@@ -605,44 +603,57 @@ export class ThreatKnowledgeBase {
    */
   public matchThreats(content: string, filePath: string, category?: string): ThreatCorrelation[] {
     const correlations: ThreatCorrelation[] = [];
+    const lowerContent = content.toLowerCase();
 
     for (const report of this.reports.values()) {
       if (category && report.category !== category && report.category !== 'GENERAL') {
-        // Still check high-severity or cross-cutting reports
         if (report.severity !== 'CRITICAL') continue;
       }
 
-      let matchCount = 0;
+      let triggerPatternMatched = false;
       let detectedVariant = report.attackVariants[0] || 'Standard Exploit Vector';
+      let matchCount = 0;
 
-      // Check regex trigger patterns
+      // Check regex trigger patterns (strict)
       for (let i = 0; i < report.triggerPatterns.length; i++) {
         const patternStr = report.triggerPatterns[i];
         try {
           const reg = new RegExp(patternStr, 'i');
           if (reg.test(content)) {
-            matchCount++;
+            triggerPatternMatched = true;
+            matchCount += 2;
             if (report.attackVariants[i]) {
               detectedVariant = report.attackVariants[i];
             }
           }
         } catch {
-          if (content.toLowerCase().includes(patternStr.toLowerCase())) {
-            matchCount++;
+          if (lowerContent.includes(patternStr.toLowerCase())) {
+            triggerPatternMatched = true;
+            matchCount += 2;
           }
         }
       }
 
-      // Check keywords from vulnerability class & variants
-      const classTerms = report.vulnerabilityClass.toLowerCase().split(/\s+/);
+      // Check domain-specific keywords (ignore generic stop words like code, data, file, call, etc.)
+      const stopWords = new Set([
+        'code', 'file', 'data', 'text', 'call', 'type', 'test', 'user', 'view', 'name', 
+        'path', 'info', 'find', 'send', 'post', 'get', 'read', 'make', 'save', 'load',
+        'arbitrary', 'vulnerability', 'remote', 'local', 'execution', 'security', 'system',
+        'service', 'services', 'network', 'port', 'ports', 'access', 'attack', 'threat'
+      ]);
+
+      const classTerms = report.vulnerabilityClass.toLowerCase().split(/[\s/\\-]+/).filter(t => t.length > 3 && !stopWords.has(t));
+      let termMatches = 0;
       for (const term of classTerms) {
-        if (term.length > 3 && content.toLowerCase().includes(term)) {
-          matchCount += 0.5;
+        if (lowerContent.includes(term)) {
+          termMatches++;
         }
       }
 
-      if (matchCount > 0) {
-        const similarityScore = Math.min(0.99, Number((0.55 + (matchCount * 0.15)).toFixed(2)));
+      // Require genuine trigger pattern match OR at least 2 highly specific domain terms!
+      if (triggerPatternMatched || (termMatches >= 2 && classTerms.length >= 2)) {
+        const totalScore = triggerPatternMatched ? 0.85 + (matchCount * 0.05) : 0.60 + (termMatches * 0.08);
+        const similarityScore = Math.min(0.99, Number(totalScore.toFixed(2)));
         correlations.push({
           reportId: report.id,
           title: report.title,

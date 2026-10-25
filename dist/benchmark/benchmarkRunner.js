@@ -70,7 +70,7 @@ export class BenchmarkRunner {
                     return norm === targetRelPath || norm.endsWith('/' + targetRelPath);
                 });
                 // Apply Dual-Agent Adversarial Verification
-                const verified = rawFindings.map((rf) => verifier.verifyFinding(rf, bCase.code));
+                const verified = rawFindings.map((rf) => verifier.verifyFinding(rf, bCase.code.trim()));
                 const confirmedFindings = verified.filter((v) => v.status === 'CONFIRMED');
                 const detected = confirmedFindings.length > 0;
                 if (bCase.isVulnerable) {

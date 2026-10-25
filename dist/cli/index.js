@@ -46,7 +46,17 @@ export async function runScan(targetInput = '.', options = {}) {
     const scanner = new SastScanner();
     const { findings, coverage } = await scanner.scan(root);
     const verifier = new AdversarialVerifier();
-    const verifiedFindings = findings.map((f) => verifier.verifyFinding(f));
+    const verifiedFindings = findings.map((f) => {
+        let fullContent;
+        try {
+            const fullPath = path.resolve(root, f.location.filePath);
+            if (fs.existsSync(fullPath)) {
+                fullContent = fs.readFileSync(fullPath, 'utf-8');
+            }
+        }
+        catch { }
+        return verifier.verifyFinding(f, fullContent);
+    });
     const confirmedFindings = verifiedFindings.filter((f) => f.status === 'CONFIRMED');
     const disprovedCount = verifiedFindings.filter((f) => f.status === 'DISPROVED').length;
     const report = ReportGenerator.buildReport(root, verifiedFindings, coverage);

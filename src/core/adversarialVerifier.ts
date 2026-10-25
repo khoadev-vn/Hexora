@@ -11,23 +11,204 @@ export class AdversarialVerifier {
     const snippet = updated.location.snippet;
     const context = fileContent || snippet;
 
-    // Check 1: Is this in a test, mock, fixture, or rule definition file?
+    // Check 1: Is this in a test, mock, fixture, documentation, dataset, or rule definition file?
     const isTestOrMock =
-      /(?:^|[\\/])(?:__tests__|fixtures?|mocks?|examples?)(?:[\\/]|$)/i.test(loc) ||
-      /\.(?:test|spec)\.[a-z0-9]+$/i.test(loc) ||
+      /(?:^|[\\/])(?:__tests__|fixtures?|mocks?|examples?|datasets?|corpus|docs?)(?:[\\/]|$)/i.test(loc) ||
+      /\.(?:test|spec|md|txt|jsonl)\.[a-z0-9]+$/i.test(loc) ||
+      loc.endsWith('.md') ||
       loc.includes('threatknowledgebase') ||
       loc.includes('ruledatabase') ||
-      loc.includes('adversarialverifier') || loc.includes('benchmarkcases') ;
+      loc.includes('adversarialverifier') ||
+      loc.includes('benchmarkcases') ||
+      loc.includes('trainingexamples');
 
     if (isTestOrMock) {
       updated.status = 'DISPROVED';
       updated.adversarialVerification = {
         verifier: 'Hexora-RedTeam-Judge',
         verdict: 'FALSE_POSITIVE',
-        argument: `Location '${loc}' is inside a test, rule definition, or mock fixture. Code here does not violate production trust boundaries.`,
+        argument: `Location '${loc}' is inside a test, rule definition, mock fixture, dataset, or documentation. Code here does not violate production trust boundaries.`,
         confidence: 0.99
       };
       return updated;
+    }
+
+    // Check 2: Is the match occurring strictly on a comment line or JSDoc block?
+    const lines = (fileContent || snippet).split('\n');
+    const targetLineIdx = updated.location.lineStart - 1;
+    const targetLine = lines[targetLineIdx]?.trim() || '';
+    const isCommentLine =
+      targetLine.startsWith('//') ||
+      targetLine.startsWith('*') ||
+      targetLine.startsWith('/*') ||
+      targetLine.startsWith('#') ||
+      targetLine.startsWith('<!--');
+
+    if (isCommentLine) {
+      updated.status = 'DISPROVED';
+      updated.adversarialVerification = {
+        verifier: 'Hexora-RedTeam-Judge',
+        verdict: 'FALSE_POSITIVE',
+        argument: `Match occurs on a non-executable comment or documentation line: "${targetLine.slice(0, 80)}"`,
+        confidence: 0.99
+      };
+      return updated;
+    }
+
+    // Check 3: Is the match inside a Regular Expression literal or security rule? (e.g. /\beval\s*\(/ or /169\.254\.169\.254/)
+    const isRegexLiteral =
+      /(?:\/(?:\\\/|[^\/\n])+\/[gimsuy]*\s*\.(?:test|exec|match)|new\s+RegExp\s*\()/i.test(snippet) ||
+      /^\s*(?:\/|\s*\*\s*\/)/.test(snippet);
+
+    if (isRegexLiteral && (updated.ruleId === 'HEX-INJ-002' || updated.ruleId === 'HEX-CLOUD-001' || updated.category === 'CLOUD')) {
+      updated.status = 'DISPROVED';
+      updated.adversarialVerification = {
+        verifier: 'Hexora-RedTeam-Judge',
+        verdict: 'FALSE_POSITIVE',
+        argument: 'Pattern occurs inside a regular expression or input sanitization rule, not an execution sink.',
+        confidence: 0.98
+      };
+      return updated;
+    }
+
+    // Check 4: Defensive Guard / Security Shield / Blocklist Containment
+    const isDefensiveFile = /(?:guard|sanitiz|firewall|proxy|shield|filter|validat|security)/i.test(loc);
+    const hasDefensiveLogic =
+      /(?:blockedIps|blacklist|blocklist|isPrivate|safe\s*:\s*false|!safe|reject|forbidden|untrusted|domainList)/i.test(snippet) ||
+      /(?:169\.254\.169\.254|metadata).*chặn|chặn.*(?:169\.254\.169\.254|metadata)/i.test(snippet);
+
+    if (isDefensiveFile && hasDefensiveLogic && (updated.ruleId.includes('CLOUD') || updated.ruleId.includes('NET') || updated.id.includes('REP-CLOUDFLARE') || updated.id.includes('REP-CF-FLAN'))) {
+      updated.status = 'DISPROVED';
+      updated.adversarialVerification = {
+        verifier: 'Hexora-RedTeam-Judge',
+        verdict: 'FALSE_POSITIVE',
+        argument: 'Occurrence is part of an active defensive security barrier or IP blocklist explicitly mitigating the threat.',
+        confidence: 0.99
+      };
+      return updated;
+    }
+
+    // Check 5: SSRF & Cloud Metadata Client-Side Trust Boundary
+    if (updated.ruleId === 'HEX-NET-001' || updated.id.includes('REP-CLOUDFLARE-METADATA') || updated.id.includes('REP-CF-FLAN')) {
+      // 5a. Client-Side Browser Context
+      const isClientSide =
+        /(?:^|[\\/])(?:src[\\/](?:components|pages|views|hooks|constants|ui|context)|frontend|client)(?:[\\/]|$)/i.test(loc) ||
+        /\.(?:tsx|vue|svelte|jsx)$/i.test(loc);
+
+      if (isClientSide) {
+        updated.status = 'DISPROVED';
+        updated.adversarialVerification = {
+          verifier: 'Hexora-RedTeam-Judge',
+          verdict: 'FALSE_POSITIVE',
+          argument: `Reachable only within client-side browser runtime (${loc}). Browser network isolation prevents server-side metadata or internal VPC pivoting.`,
+          confidence: 0.98
+        };
+        return updated;
+      }
+
+      // 5b. Same-Origin Relative Paths or Fixed Origin URLs
+      const isRelativeOrFixed =
+        /fetch\s*\(\s*['"]\/(?:api|proxy|static|v[0-9])/i.test(snippet) ||
+        /fetch\s*\(\s*`https:\/\/[a-zA-Z0-9.-]+\//i.test(snippet) ||
+        /const\s+url\s*=\s*['"]\//i.test(context);
+
+      if (isRelativeOrFixed) {
+        updated.status = 'DISPROVED';
+        updated.adversarialVerification = {
+          verifier: 'Hexora-RedTeam-Judge',
+          verdict: 'FALSE_POSITIVE',
+          argument: 'Destination endpoint is bound to an immutable fixed origin or relative same-origin route; cannot be hijacked for SSRF.',
+          confidence: 0.98
+        };
+        return updated;
+      }
+    }
+
+    // Check 6: Development Server Configurations (Vite / Webpack / Dev Bundlers)
+    if (updated.id.includes('REP-CF-FLAN-001') || updated.ruleId.includes('CLOUD')) {
+      const isDevConfig =
+        /(?:vite\.config|webpack\.config|rollup\.config|next\.config|nuxt\.config)\.[a-z0-9]+$/i.test(loc) ||
+        (loc.endsWith('package.json') && snippet.includes('"dev"'));
+
+      if (isDevConfig) {
+        updated.status = 'DISPROVED';
+        updated.adversarialVerification = {
+          verifier: 'Hexora-RedTeam-Judge',
+          verdict: 'FALSE_POSITIVE',
+          argument: 'Host bind 0.0.0.0 is used for local development network preview, not an exposed unauthenticated production service.',
+          confidence: 0.98
+        };
+        return updated;
+      }
+    }
+
+    // Check 7: Non-Cryptographic Hashing (MD5 / SHA-1)
+    if (updated.ruleId === 'HEX-BANDIT-001') {
+      const isCacheOrDigest =
+        /(?:cacheKey|cache|etag|digest|contentHash|hashKey|fileHash|summary|checksum|slug|fingerprint)/i.test(snippet) &&
+        !/(?:password|passwd|auth|token|secret|privateKey|jwt)/i.test(snippet);
+
+      if (isCacheOrDigest) {
+        updated.status = 'DISPROVED';
+        updated.adversarialVerification = {
+          verifier: 'Hexora-RedTeam-Judge',
+          verdict: 'FALSE_POSITIVE',
+          argument: 'Hash algorithm (MD5/SHA-1) is used strictly for non-cryptographic cache key / digest generation.',
+          confidence: 0.97
+        };
+        return updated;
+      }
+    }
+
+    // Check 8: Dotenv & Configuration Loading
+    if (updated.ruleId === 'HEX-EXP-003') {
+      const isDotenvLoading = /dotenv\.config|require\(['"]dotenv['"]\)/i.test(snippet);
+      if (isDotenvLoading) {
+        updated.status = 'DISPROVED';
+        updated.adversarialVerification = {
+          verifier: 'Hexora-RedTeam-Judge',
+          verdict: 'FALSE_POSITIVE',
+          argument: 'Standard runtime environment initialization via dotenv; configuration is externalized and not hardcoded.',
+          confidence: 0.99
+        };
+        return updated;
+      }
+    }
+
+    // Check 9: Path Traversal Static File Reading
+    if (updated.ruleId === 'HEX-FS-001') {
+      const isStaticPath =
+        /path\.join\(\s*__dirname\s*,\s*['"][^'"]+['"]\s*\)/.test(snippet) &&
+        !/(?:req\.|params|query|body|filename|userPath|inputPath)/i.test(snippet);
+
+      if (isStaticPath) {
+        updated.status = 'DISPROVED';
+        updated.adversarialVerification = {
+          verifier: 'Hexora-RedTeam-Judge',
+          verdict: 'FALSE_POSITIVE',
+          argument: 'Filesystem operation is bounded to a compile-time static file path without dynamic user inputs.',
+          confidence: 0.98
+        };
+        return updated;
+      }
+    }
+
+    // Check 10: Dynamic Code Evaluation (eval / Function) in Strings / Logs
+    if (updated.ruleId === 'HEX-INJ-002') {
+      const isDescriptiveString =
+        /['"][^'"]*\beval\(\)[^'"]*['"]/.test(snippet) ||
+        /(?:console\.log|detail\s*:|description\s*:|message\s*:)/i.test(snippet);
+
+      if (isDescriptiveString && !/eval\s*\(\s*[^'"`\s\)]/.test(snippet)) {
+        updated.status = 'DISPROVED';
+        updated.adversarialVerification = {
+          verifier: 'Hexora-RedTeam-Judge',
+          verdict: 'FALSE_POSITIVE',
+          argument: 'Reference to eval is part of a descriptive text string, log, or alert definition, not dynamic code execution.',
+          confidence: 0.97
+        };
+        return updated;
+      }
     }
 
     // Check 2: False positive check for hardcoded secrets (dummy strings, env references)

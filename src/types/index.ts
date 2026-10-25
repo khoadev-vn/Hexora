@@ -1,4 +1,4 @@
-export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
+﻿export type Severity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'INFO';
 
 export type FindingStatus = 'CANDIDATE' | 'CONFIRMED' | 'DISPROVED' | 'NEEDS_HUMAN';
 

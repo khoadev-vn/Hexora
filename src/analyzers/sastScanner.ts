@@ -131,6 +131,10 @@ export class SastScanner {
 
     let match: RegExpExecArray | null;
     while ((match = regex.exec(content)) !== null) {
+      if (rule.id !== 'HEX-DEBUG-001' && this.isIndexInsideComment(content, match.index)) {
+        continue;
+      }
+
       if (rule.validate && !rule.validate(match, content, absPath)) {
         continue;
       }
@@ -204,6 +208,10 @@ export class SastScanner {
 
         let match: RegExpExecArray | null;
         while ((match = reg.exec(content)) !== null) {
+          if (this.isIndexInsideComment(content, match.index)) {
+            continue;
+          }
+
           // Avoid duplicate findings if already caught by standard rule on same line
           const index = match.index;
           let lineStart = 1;
@@ -344,5 +352,54 @@ export class SastScanner {
       }
     }
     return results;
+  }
+
+  private isIndexInsideComment(content: string, index: number): boolean {
+    const lastNewline = content.lastIndexOf('\n', index);
+    const linePrefix = content.slice(lastNewline + 1, index);
+    const trimmedPrefix = linePrefix.trimStart();
+
+    // Single-line comment starts
+    if (
+      trimmedPrefix.startsWith('//') ||
+      trimmedPrefix.startsWith('*') ||
+      trimmedPrefix.startsWith('/*') ||
+      trimmedPrefix.startsWith('#') ||
+      trimmedPrefix.startsWith('<!--')
+    ) {
+      return true;
+    }
+
+    // Line has // before index and not inside string quotes
+    const doubleSlash = linePrefix.indexOf('//');
+    if (doubleSlash !== -1) {
+      const beforeSlash = linePrefix.slice(0, doubleSlash);
+      const singleQuotes = (beforeSlash.match(/'/g) || []).length;
+      const doubleQuotes = (beforeSlash.match(/"/g) || []).length;
+      const backticks = (beforeSlash.match(/`/g) || []).length;
+      if (singleQuotes % 2 === 0 && doubleQuotes % 2 === 0 && backticks % 2 === 0) {
+        return true;
+      }
+    }
+
+    // Inside block comment /* ... */
+    const lastBlockStart = content.lastIndexOf('/*', index);
+    if (lastBlockStart !== -1) {
+      const lastBlockEnd = content.lastIndexOf('*/', index);
+      if (lastBlockEnd < lastBlockStart) {
+        return true;
+      }
+    }
+
+    // Inside HTML comment <!-- ... -->
+    const lastHtmlStart = content.lastIndexOf('<!--', index);
+    if (lastHtmlStart !== -1) {
+      const lastHtmlEnd = content.lastIndexOf('-->', index);
+      if (lastHtmlEnd < lastHtmlStart) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
