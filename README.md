@@ -126,7 +126,7 @@ Hexora is designed to fit naturally into every stage of your engineering workflo
 
 Run a full deterministic audit with deep SAST, dependency vulnerability scanning (SCA), and adversarial false-positive filtering in one simple command.
 
-````bash
+```bash
 # Scan current workspace:
 npx hexora .
 
@@ -181,7 +181,7 @@ Report:
 
 Keep Hexora running in a background terminal. Every time you save a file (`Ctrl+S`), Hexora performs an instantaneous micro-delta scan in milliseconds, alerting you before you even switch windows.
 
-````bash
+```bash
 npx hexora watch
 ```
 
@@ -222,7 +222,7 @@ Found 1 genuine vulnerability:
 
 Prevent secrets and critical bugs from ever entering your Git commit history or remote repository.
 
-````bash
+```bash
 npx hexora hook
 ```
 
@@ -260,26 +260,12 @@ To inspect or fix, run: npx hexora .
 
 ---
 
-### 🤖 Feature 4: 1-Click Universal AI Setup (`npx hexora init`)
-
-Configure Hexora across your entire developer ecosystem in 5 seconds. Connects with Cursor, Claude Desktop, Claude Code, VS Code, and terminal paths automatically.
-
-````bash
-npx hexora init
-```
-
-**Interactive Terminal Demo:**
-```text
-PS D:\my-project> npx hexora init
-
-Hexora Setup
-
 ### ⚡ Feature 4: 1-Click AI Agent Integration (Antigravity, Cursor, Claude & Windsurf)
 
 Hexora seamlessly integrates with next-generation AI coding agents and IDEs via the **Model Context Protocol (MCP)** and **Native Agent Skills**.
 
 #### 1. Instant Export to Google Antigravity
-````bash
+```bash
 npx hexora skill antigravity
 ```
 Automatically registers:
@@ -288,7 +274,7 @@ Automatically registers:
 * **Project Security Rules**: `.agents/rules/hexora-security.md` and `GEMINI.md`
 
 #### 2. Universal Interactive Setup
-````bash
+```bash
 npx hexora init
 ```
 
@@ -344,7 +330,6 @@ AI Agents gain access to 14 native deterministic security tools:
 * `audit_get_threat_intel_stats` — Statistics on learned zero-days and variants.
 * `audit_export_skill` — On-the-fly export of skills to new agent environments.
 * `audit_scan_directory` — Granular folder scanning with dedicated ledgers.
-```
 
 **💡 Step-by-Step Hands-On Guide:**
 1. Run `npx hexora init` and choose `7` (All).
@@ -358,7 +343,7 @@ AI Agents gain access to 14 native deterministic security tools:
 
 Modern attack vectors evolve rapidly. Hexora includes a live threat intelligence knowledge vault that allows you to feed newly published CVEs, post-mortems, or bug bounty writeups directly into its detection memory.
 
-````bash
+```bash
 # Ingest a security report or writeup:
 npx hexora learn ./reports/cve-2024-solana-cpi.md
 
@@ -398,7 +383,7 @@ Total Attack Variants: 48
 
 Verify Hexora's accuracy and false-positive elimination rate directly against industry security scanners.
 
-````bash
+```bash
 npx hexora bench
 ```
 
@@ -445,7 +430,7 @@ We evaluated Hexora on real-world test suites containing modern vulnerabilities 
 | **Setup Time** | **< 3 seconds** (`npx`) | Minutes | Requires Login | Heavy JVM |
 
 *Run the benchmark yourself directly from source:*
-````bash
+```bash
 npx hexora bench
 ```
 
