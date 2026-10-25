@@ -543,7 +543,7 @@ Hexora is licensed under the **Hexora Source-Available & Non-Commercial License*
 - 🚫 **Commercial Use Strictly Prohibited**: Any commercial exploitation—including SaaS hosting, managed audit services, reselling, or embedding inside commercial/closed-source products—is **strictly prohibited** without an express written commercial license from the author (**Khoa Dev**).
 - 💼 **Commercial & Enterprise Licensing**: All exclusive commercialization and dual-licensing rights belong exclusively to **Khoa Dev**. For commercial licensing, enterprise tiers, or custom partnerships, please contact:
   - Author: **Khoa Dev** ([@khoadev-vn](https://github.com/khoadev-vn) • [Facebook Profile](https://www.facebook.com/anhkhoavnk/))
-  - Inquiries: `khoadev@users.noreply.github.com`
+  - Email: 'kanh05113@gmail.com'
 
 ---
 
