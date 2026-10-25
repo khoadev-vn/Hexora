@@ -2,79 +2,95 @@
   <img src="../assets/banner.png" alt="Hexora Guide" width="100%" />
 </div>
 
-# 📖 HƯỚNG DẪN SỬ DỤNG HEXORA TỪ A ĐẾN Z (STEP-BY-STEP USER GUIDE)
-> **Dành cho mọi đối tượng:** Developer, Security Auditor, Tech Lead, DevOps & AI Agent Enthusiast.
+# 📖 HEXORA COMPLETE USER GUIDE (FROM A TO Z)
+> **Designed for everyone:** Developers, Security Auditors, Tech Leads, DevOps Engineers & AI Agent Enthusiasts.
 
 ---
 
-## 🌟 MỤC LỤC
-1. [Yêu cầu hệ thống](#1-yêu-cầu-hệ-thống)
-2. [Cách 1: Chạy ngay lập tức không cần cài đặt (Khuyên dùng)](#2-cách-1-chạy-ngay-lập-tức-không-cần-cài-đặt-khuyên-dùng)
-3. [Cách 2: Cài đặt toàn hệ thống (Global CLI)](#3-cách-2-cài-đặt-toàn-hệ-thống-global-cli)
-4. [Hướng dẫn quét chi tiết các loại mục tiêu](#4-hướng-dẫn-quét-chi-tiết-các-loại-mục-tiêu)
-5. [Đọc và sử dụng các file Báo cáo (PDF, TXT, HTML, SARIF)](#5-đọc-và-sử-dụng-các-file-báo-cáo-pdf-txt-html-sarif)
-6. [Tích hợp 1-Click vào Cursor, Claude Desktop & AI Agents](#6-tích-hợp-1-click-vào-cursor-claude-desktop--ai-agents)
-7. [Chế độ Vệ sĩ canh gác tự động khi Save (Watch Mode)](#7-chế-độ-vệ-sĩ-canh-gác-tự-động-khi-save-watch-mode)
-8. [Cài đặt Git Pre-commit Gate (Chặn rò rỉ khóa bí mật)](#8-cài-đặt-git-pre-commit-gate-chặn-rò-rỉ-khóa-bí-mật)
-9. [Chạy Benchmark so tài với Snyk / Semgrep / SonarQube](#9-chạy-benchmark-so-tài-với-snyk--semgrep--sonarqube)
-10. [Nạp tri thức Zero-Day & CVE mới vào Hexora](#10-nạp-tri-thức-zero-day--cve-mới-vào-hexora)
-11. [Tích hợp CI/CD trên GitHub Actions](#11-tích-hợp-cicd-trên-github-actions)
-12. [Bảng tổng hợp câu lệnh thường dùng (Cheatsheet)](#12-bảng-tổng-hợp-câu-lệnh-thường-dùng-cheatsheet)
+## 🌟 TABLE OF CONTENTS
+1. [System Requirements](#1-system-requirements)
+2. [Option 1: Instant Zero-Install Execution (Recommended)](#2-option-1-instant-zero-install-execution-recommended)
+3. [Option 2: Global System Installation (Global CLI)](#3-option-2-global-system-installation-global-cli)
+4. [Detailed Target Scanning Guide](#4-detailed-target-scanning-guide)
+5. [Understanding & Using Audit Reports (PDF, TXT, HTML, SARIF)](#5-understanding--using-audit-reports-pdf-txt-html-sarif)
+6. [1-Click AI Agent Integration (Antigravity, Cursor, Claude & Windsurf)](#6-1-click-ai-agent-integration-antigravity-cursor-claude--windsurf)
+7. [Real-time Autonomous Watch Mode (On Save Guard)](#7-real-time-autonomous-watch-mode-on-save-guard)
+8. [Git Pre-Commit Gate (Prevent Secret & Code Leaks)](#8-git-pre-commit-gate-prevent-secret--code-leaks)
+9. [Running Adversarial Benchmarks vs Snyk / Semgrep / SonarQube](#9-running-adversarial-benchmarks-vs-snyk--semgrep--sonarqube)
+10. [Ingesting Zero-Day & Custom CVE Threat Intelligence](#10-ingesting-zero-day--custom-cve-threat-intelligence)
+11. [CI/CD Automation with GitHub Actions](#11-cicd-automation-with-github-actions)
+12. [CLI Command Cheatsheet](#12-cli-command-cheatsheet)
 
 ---
 
-## 1. Yêu cầu hệ thống
-Hexora được thiết kế siêu nhẹ, không phụ thuộc vào Docker hay các cỗ máy JVM cồng kềnh:
-- **Node.js**: Phiên bản 18.0.0 trở lên. (Kiểm tra bằng lệnh: `node -v`)
-- **Hệ điều hành**: Windows, macOS, Linux (Ubuntu, Debian, Fedora...).
+## 1. System Requirements
+Hexora is lightweight and has zero dependency on Docker, heavy JVMs, or external databases:
+- **Node.js**: Version 18.0.0 or higher. (Check with: `node -v`)
+- **Operating System**: Windows, macOS, Linux (Ubuntu, Debian, Fedora, Arch, etc.).
 
 ---
 
-## 2. Cách 1: Chạy ngay lập tức không cần cài đặt (Khuyên dùng)
-Bạn không cần phải tải hay clone bất kỳ repo nào. Chỉ cần mở Terminal tại thư mục dự án và chạy:
+## 2. Option 1: Instant Zero-Install Execution (Recommended)
+You don't need to clone or install anything globally. Simply open your Terminal in your project root and run:
 
 ```bash
 npx hexora .
 ```
 
-*Lần đầu tiên chạy, `npx` sẽ tự động tải phiên bản mới nhất của Hexora và thực thi quét toàn bộ mã nguồn chỉ trong 3 giây.*
+*On first run, `npx` automatically fetches the latest Hexora engine and completes a full workspace audit in under 3 seconds.*
 
 ---
 
-## 3. Cách 2: Cài đặt toàn hệ thống (Global CLI)
-Nếu bạn thường xuyên kiểm toán bảo mật nhiều dự án khác nhau và muốn gõ lệnh ngắn gọn (`hexora` hoặc `audit`):
+## 3. Option 2: Global System Installation (Global CLI)
+If you frequently audit multiple projects and want ultra-concise commands (`hexora` or `audit`):
 
-### Tùy chọn A: Cài đặt từ mã nguồn (Dành cho Contributor & Master)
+### Option A: Install Directly from GitHub (Fastest)
 ```bash
-# 1. Clone repository về máy
+npm install -g khoadev-vn/Hexora
+```
+
+### Option B: Automated One-Line Installer
+- **Linux / macOS**:
+```bash
+curl -fsSL https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.sh | bash
+```
+
+- **Windows PowerShell**:
+```powershell
+irm https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.ps1 | iex
+```
+
+### Option C: Install from Source (For Contributors)
+```bash
+# 1. Clone repository
 git clone https://github.com/khoadev-vn/Hexora.git
 cd Hexora
 
-# 2. Cài dependencies và build mã nguồn TypeScript
+# 2. Install dependencies & build TypeScript source
 npm install
 npm run build
 
-# 3. Đăng ký liên kết nhị phân toàn cầu (Global Link)
+# 3. Register global binary symlink
 npm link
 ```
 
-Bây giờ bạn có thể đứng ở bất kỳ thư mục nào trên máy tính và gõ:
+Now you can run Hexora from any folder:
 ```bash
 hexora .
-# hoặc lệnh rút gọn siêu ngắn:
+# Or short alias:
 audit
 ```
 
 ---
 
-## 4. Hướng dẫn quét chi tiết các loại mục tiêu
+## 4. Detailed Target Scanning Guide
 
-### A. Quét thư mục dự án hiện tại
+### A. Scan the Current Project Directory
 ```bash
 npx hexora .
 ```
 
-**Màn hình Terminal thực tế (Live Demo):**
+**Live Terminal Output:**
 ```text
 PS D:\my-app> npx hexora .
 
@@ -103,64 +119,63 @@ Report:
   🌐 HTML Dashboard:    ./hexora-report.html
 ```
 
-* **Giải thích cơ chế:** Hexora tự động kích hoạt 4 tầng phân tích:
-  1. Phân tích ngữ cảnh AST và luồng dữ liệu (Data-flow / Taint analysis).
-  2. Dò tìm khóa bí mật qua thuật toán độ hỗn loạn Shannon Entropy.
-  3. Quét thành phần phụ thuộc bên thứ 3 (SCA) đối chiếu kho CVE toàn cầu.
-  4. Bộ lọc đối nghịch Red-Team loại bỏ hoàn toàn các biến giả lập (mock), sanitize hợp lệ để không làm phiền bạn với cảnh báo rác (False Positives).
+* **Engine Mechanics:** Hexora automatically executes a 4-tier pipeline:
+  1. AST semantic parsing and data-flow taint analysis.
+  2. Shannon Entropy credential & high-entropy secret detection.
+  3. Software Composition Analysis (SCA) checking global CVE vulnerability advisories.
+  4. Red-Team Dual-Agent Adversarial filter disproving mock environments, sanitizers, and framework protections to eliminate false positives.
 
-### B. Quét một thư mục hoặc tệp cụ thể ở đường dẫn khác
+### B. Scan a Specific Directory or File
 ```bash
 npx hexora ./path/to/my-web-app
 npx hexora /var/www/ecommerce/src/auth.ts
 ```
 
-### C. Quét thẳng một kho mã nguồn GitHub từ xa (Remote Repo Sandbox)
-Hexora hỗ trợ cơ chế Sandbox tự động: Tải nông repo về môi trường cô lập, quét và xuất báo cáo mà không làm ảnh hưởng máy tính của bạn:
+### C. Audit a Remote GitHub Repository (Isolated Sandbox)
+Hexora includes an automated sandbox cloner: it performs a shallow clone into an ephemeral workspace, audits the codebase, and outputs reports without touching your local project:
 ```bash
 npx hexora facebook/react
 npx hexora expressjs/express
 ```
 
-### D. Xem nhật ký kiểm toán chuyên sâu 4 giai đoạn
-Nếu bạn là Chuyên gia bảo mật muốn xem từng bước phân tích AST, entropy secrets, dependency vulnerabilities và Red-Team adversarial reasoning:
+### D. Detailed 4-Tier Audit Logs (Verbose Mode)
+If you want to inspect each phase of AST parsing, Shannon entropy calculation, dependency graph analysis, and Red-Team adversarial reasoning:
 ```bash
 npx hexora . --verbose
 ```
 
-### E. Chạy không dừng tiến trình (Không exit code 1)
-Mặc định nếu phát hiện lỗi `CRITICAL` hoặc `HIGH`, Hexora sẽ trả về `exit code 1` để chặn pipeline. Nếu bạn muốn kiểm tra thăm dò mà không ngắt luồng lệnh:
+### E. Non-Breaking CI Scan (No-Fail Mode)
+By default, detecting `CRITICAL` or `HIGH` vulnerabilities returns an `exit code 1` to block broken builds. To audit without failing the process:
 ```bash
 npx hexora . --no-fail
 ```
 
 ---
 
-## 5. Đọc và sử dụng các file Báo cáo (PDF, TXT, HTML, SARIF)
+## 5. Understanding & Using Audit Reports (PDF, TXT, HTML, SARIF)
 
-Sau khi quét xong, Hexora sẽ tự động khởi tạo các bản báo cáo tiêu chuẩn chuyên nghiệp ngay tại thư mục làm việc của bạn:
+Upon completion, Hexora automatically generates comprehensive reports in standard industry formats:
 
-| Tên tập tin | Mục đích & Đối tượng sử dụng |
+| Report File | Purpose & Recommended Audience |
 | :--- | :--- |
-| **`hexora-report.pdf`** | **Báo cáo hành pháp (Executive Report)**: Định dạng đồ họa chuyên nghiệp, có bảng tóm tắt rủi ro, phân loại mức độ nghiêm trọng (Critical/High/Medium/Low), PoC tái hiện và mã vá lỗi (Patch diff) – Thích hợp nhất để gửi khách hàng, đối tác hoặc sếp duyệt. |
-| **`hexora-report.txt`** | **Báo cáo cấu trúc văn bản thuần (UNIX/Dev Friendly)**: Cực kỳ trực quan, dễ mở trên Notepad/Vim, hỗ trợ lệnh `grep`, `cat`, chuyển hướng pipe hoặc xem lướt ngay trong Terminal. |
-| **`hexora-report.html`** | **Báo cáo đồ họa tương tác (Interactive Dashboard)**: Mở bằng bất kỳ trình duyệt nào (Chrome, Edge, Safari), hiển thị giao diện Dark Mode cyberpunk hiện đại, lọc động theo mức độ lỗi. |
-| **`hexora-report.md`** | **Báo cáo Markdown**: Chuẩn GitHub Flavored Markdown, có thể dán trực tiếp vào GitHub Issues, Pull Request Summary hoặc Notion. |
-| **`.hexora-results/audit-report.sarif`** | **Chuẩn SARIF quốc tế (OASIS)**: Dùng để tích hợp trực tiếp vào tab **Security > Code Scanning** của GitHub. |
+| **`hexora-report.pdf`** | **Executive Summary (PDF)**: High-resolution graphical report with executive risk matrix, CVSS severity breakdowns, PoC reproduction steps, and unified diff patches. Perfect for stakeholders, clients, and compliance reviews. |
+| **`hexora-report.txt`** | **Structured Plain Text (UNIX / Dev Friendly)**: Clean text format designed for terminal inspection, `grep`, `cat`, piping, or review inside lightweight editors (Notepad, Vim, Nano). |
+| **`hexora-report.html`** | **Interactive Web Dashboard**: Open in any browser (Chrome, Edge, Safari). Features an interactive dark-mode cyberpunk interface with real-time severity filters and expandable code diffs. |
+| **`hexora-report.md`** | **Markdown Report**: GitHub Flavored Markdown ready to paste directly into GitHub Issues, Pull Request descriptions, or internal documentation. |
+| **`.hexora-results/audit-report.sarif`** | **OASIS SARIF Standard**: Ingested directly by GitHub **Security > Code Scanning** tab, SonarQube, and enterprise vulnerability management suites. |
 
 ---
 
-## 6. Tích hợp 1-Click vào Google Antigravity, Cursor, Claude & AI Agents
+## 6. 1-Click AI Agent Integration (Antigravity, Cursor, Claude & Windsurf)
 
-Bạn đang dùng **Google Antigravity**, **Cursor IDE**, **Claude Code / Desktop**, **Windsurf**, hay các AI Agent tự hành? Thay vì phải cấu hình thủ công từng file JSON hay viết prompt dài dòng:
+Using **Google Antigravity**, **Cursor IDE**, **Claude Code / Desktop**, **Windsurf**, or autonomous coding agents? Hexora configures them automatically with zero manual JSON editing:
 
-### Cách 1: Xuất Skill & MCP trực tiếp cho Google Antigravity
-Chỉ cần chạy lệnh:
+### Option 1: Direct Skill & MCP Setup for Google Antigravity
 ```bash
 npx hexora skill antigravity
 ```
 
-**Màn hình Terminal thực tế:**
+**Terminal Output:**
 ```text
 PS D:\my-app> npx hexora skill antigravity
 
@@ -180,13 +195,12 @@ PS D:\my-app> npx hexora skill antigravity
 ✨ Installation complete! Your AI agents are ready to audit code.
 ```
 
-### Cách 2: Trình cài đặt đa nền tảng (Universal Setup)
-Chạy lệnh:
+### Option 2: Universal Multi-Agent Interactive Wizard
 ```bash
 npx hexora init
 ```
 
-**Màn hình Terminal tương tác (Interactive Demo):**
+**Interactive Menu:**
 ```text
 PS D:\my-app> npx hexora init
 
@@ -225,42 +239,38 @@ Select an option (1-8): 8
 
 ---
 
-### 🤖 Danh mục 14 Công cụ MCP Hexora Cung Cấp Cho AI Agent:
+### 🤖 14 MCP Security Tools Provided to AI Agents:
 
-Khi tích hợp vào Antigravity, Cursor hay Claude, AI Agent sẽ sở hữu một "kho vũ khí" an ninh chuyên nghiệp:
+Hexora exposes a comprehensive security toolkit to autonomous AI models:
 
-| MCP Tool | Chức Năng Cốt Lõi | Ví Dụ Prompt Thực Tế |
+| MCP Tool | Core Function | Example Agent Prompt |
 | :--- | :--- | :--- |
-| `scan_project` | Quét toàn bộ repository & đối kháng lọc bỏ false positive | *"Hãy scan toàn bộ repo này bằng Hexora"* |
-| `audit_scan_file` | Quét tức thì 1 file hoặc buffer code đang mở trên RAM | *"Kiểm tra an toàn file authController.ts vừa sửa"* |
-| `get_findings` | Lấy danh sách lỗ hổng đã xác minh (phân loại theo mức độ) | *"Liệt kê tất cả lỗi CRITICAL trong project"* |
-| `apply_fix` | Tự động vá code bằng unified diff an toàn 100% | *"Áp dụng bản vá Hexora đề xuất cho lỗi SQLi"* |
-| `audit_explain_vulnerability` | Phân tích kiến trúc, CVSS và nguyên nhân gốc rễ (Root Cause) | *"Giải thích tại sao hàm này bị Reentrancy"* |
-| `audit_generate_poc` | Tự động sinh kịch bản PoC test an toàn để chứng minh lỗ hổng | *"Tạo script PoC chứng minh lỗi bypass quyền"* |
-| `audit_get_workspace_posture` | Chấm điểm an ninh workspace (A+ đến F) và thống kê rủi ro | *"Đánh giá điểm an ninh tổng thể của repo"* |
-| `validate_finding` | Thử thách nghi vấn để loại bỏ cảnh báo giả lập | *"Xác thực xem cảnh báo này có phải false positive không"* |
-| `audit_check_snippet` | Quét nhanh một đoạn code / function trực tiếp | *"Đoạn code regex này có bị ReDoS không?"* |
-| `audit_learn_report` | Nạp CVE mới hoặc writeup bug bounty vào bộ nhớ tri thức | *"Học báo cáo CVE vừa công bố này vào database"* |
-| `audit_search_knowledge` | Tra cứu cơ chế tấn công và cách phòng thủ từ threat database | *"Tìm các biến thể tấn công Solana CPI hijack"* |
-| `audit_get_threat_intel_stats` | Xem thống kê số lượng CVE và attack variants đã học | *"Thống kê tri thức zero-day trong hệ thống"* |
-| `audit_export_skill` | Xuất skill và cấu hình MCP tức thì cho agent khác | *"Xuất skill Hexora sang Cursor workspace"* |
-| `audit_scan_directory` | Quét một thư mục cụ thể và xuất report chi tiết | *"Quét riêng thư mục src/controllers"* |
-
-* **Ví dụ Prompt ra lệnh cho Antigravity / Cursor:**
-  > *"Em ơi, hãy dùng công cụ Hexora MCP kiểm tra toàn bộ workspace, phân tích các lỗ hổng CRITICAL và tự động sinh bản vá chuẩn unified diff giúp anh nhé!"*
+| `scan_project` | Run full workspace audit with adversarial verification | *"Scan this entire repository with Hexora"* |
+| `audit_scan_file` | Instantly audit a specific file or in-memory buffer | *"Check the security of my modified authController.ts"* |
+| `get_findings` | Retrieve verified vulnerability findings grouped by severity | *"List all CRITICAL security findings in this project"* |
+| `apply_fix` | Apply minimal, safe unified diff patch to source code | *"Apply the recommended Hexora patch for the SQL injection"* |
+| `audit_explain_vulnerability` | Deep root-cause analysis, CVSS scoring, and architectural risk | *"Explain why this function is vulnerable to Reentrancy"* |
+| `audit_generate_poc` | Generate non-destructive reproduction PoC script | *"Generate a PoC test script proving this privilege bypass"* |
+| `audit_get_workspace_posture` | Compute security posture score (A+ to F) and risk breakdown | *"Evaluate the overall security posture score of the repo"* |
+| `validate_finding` | Adversarially challenge finding to rule out mock/sanitized code | *"Validate whether this finding is a false positive"* |
+| `audit_check_snippet` | Rapidly audit an isolated code snippet or function | *"Is this regex vulnerable to ReDoS?"* |
+| `audit_learn_report` | Ingest new CVE or bug bounty writeup into threat memory | *"Learn this newly disclosed CVE writeup into memory"* |
+| `audit_search_knowledge` | Query attack mechanisms & defenses from threat database | *"Find attack variants related to Solana CPI hijack"* |
+| `audit_get_threat_intel_stats` | Inspect statistics on learned attack vectors and CVEs | *"Show me current threat intelligence database stats"* |
+| `audit_export_skill` | Export skill rules & MCP configs to target workspace | *"Export Hexora skill to the current Cursor workspace"* |
+| `audit_scan_directory` | Audit a specific directory and produce targeted findings | *"Audit only the src/controllers folder"* |
 
 ---
 
-## 7. Chế độ Vệ sĩ canh gác tự động khi Save (Watch Mode)
+## 7. Real-time Autonomous Watch Mode (On Save Guard)
 
-Bạn muốn vừa gõ code vừa được bảo vệ theo thời gian thực mà không cần gõ lệnh quét thủ công liên tục?
+Want active real-time protection while coding without manual terminal commands?
 
-Chạy lệnh:
 ```bash
 npx hexora watch
 ```
 
-**Màn hình Terminal thực tế (Live Demo):**
+**Live Terminal Watch Output:**
 ```text
 PS D:\my-app> npx hexora watch
 
@@ -285,30 +295,28 @@ Found 1 genuine vulnerability(ies):
 ------------------------------------------------------
 ```
 
-* **Giải thích cơ chế:**
-  - Bộ lắng nghe nền (Background Daemon) theo dõi các sự kiện lưu file với bộ trễ chống rung 250ms (Debouncing).
-  - Chỉ quét phân tích vi sai (Micro-delta AST) đúng tệp vừa sửa trong dưới **20 mili-giây**, không làm lag máy hay đứng IDE.
-  - Khi phát hiện mã độc hại hay lộ key, terminal sẽ phát tiếng chuông cảnh báo (`beep`) kèm dòng vị trí chính xác và gợi ý sửa code tức thì.
-* **Cách thử nghiệm:** Mở tệp bất kỳ trong VS Code, thử dán một chuỗi giả lập khóa bí mật rồi bấm `Ctrl + S`, bạn sẽ thấy Hexora báo động ngay lập tức!
+* **Key Highlights:**
+  - Background daemon monitors file save events with a 250ms debouncing window.
+  - Micro-delta AST parsing analyzes modified files in under **20 milliseconds**—zero IDE lag.
+  - Generates immediate terminal alerts with line-accurate locations and actionable remediation advice.
 
 ---
 
-## 8. Cài đặt Git Pre-commit Gate (Chặn rò rỉ khóa bí mật)
+## 8. Git Pre-Commit Gate (Prevent Secret & Code Leaks)
 
-Để đảm bảo các thành viên trong nhóm không bao giờ vô tình `git commit` nhầm file `.env`, khóa API OpenAI/AWS hay code dính SQL Injection lên GitHub:
+Prevent team members from accidentally committing secrets, API keys, or SQL injections into Git history:
 
-Chạy lệnh:
 ```bash
 npx hexora hook
 ```
 
-**1. Màn hình Cài đặt Hook:**
+**Hook Installation:**
 ```text
 PS D:\my-app> npx hexora hook
 ✅ Installed pre-commit hook at D:\my-app\.git\hooks\pre-commit
 ```
 
-**2. Màn hình Chặn đứng Commit Lỗi (Enforcement Demo):**
+**Enforcement Demo (Commit Intercepted):**
 ```text
 PS D:\my-app> git add src/routes/payment.ts
 PS D:\my-app> git commit -m "feat: integrate stripe payment"
@@ -328,20 +336,17 @@ Commit rejected to protect repository history.
 To inspect or fix, run: npx hexora .
 ```
 
-* **Giải thích cơ chế:** Hexora ghi đè hook `.git/hooks/pre-commit` chuẩn của Git. Trước khi Git tạo commit, Hexora lập tức kiểm tra toàn bộ thay đổi. Nếu có lỗi **CRITICAL** hoặc lộ khóa API bí mật, lệnh commit sẽ bị hủy bỏ ngay tại máy lập trình viên, bảo vệ an toàn 100% cho lịch sử Git!
-
 ---
 
-## 9. Chạy Benchmark so tài với Snyk / Semgrep / SonarQube
+## 9. Running Adversarial Benchmarks vs Snyk / Semgrep / SonarQube
 
-Muốn kiểm chứng sức mạnh thực tế của Hexora so với các cỗ máy bảo mật hàng đầu thế giới?
+Verify Hexora's detection accuracy and false-positive elimination rate against industry benchmarks:
 
-Chạy lệnh:
 ```bash
 npx hexora bench
 ```
 
-**Màn hình Terminal thực tế (Arena Benchmark Demo):**
+**Benchmark Results:**
 ```text
 PS D:\my-app> npx hexora bench
 
@@ -368,16 +373,15 @@ Execution Time:                   412ms
 
 ---
 
-## 10. Nạp tri thức Zero-Day & CVE mới vào Hexora
+## 10. Ingesting Zero-Day & Custom CVE Threat Intelligence
 
-Khi bạn đọc được một bài viết phân tích lỗ hổng mới (Security Writeup) hoặc thông báo CVE trên mạng dưới dạng file Markdown/Text:
+When new CVE advisories or bug bounty writeups are published, ingest them immediately into Hexora's detection engine:
 
-Chạy lệnh:
 ```bash
 npx hexora learn ./exploits/solana-cpi-writeup.md
 ```
 
-**Màn hình Terminal thực tế:**
+**Terminal Output:**
 ```text
 PS D:\my-app> npx hexora learn ./exploits/solana-cpi-writeup.md
 
@@ -401,11 +405,11 @@ Total Attack Variants: 48
 
 ---
 
-## 11. Tích hợp CI/CD trên GitHub Actions
+## 11. CI/CD Automation with GitHub Actions
 
-Để tự động quét bảo mật mỗi khi có Pull Request hoặc Push code lên nhánh chính:
+Add Hexora to your GitHub Actions pipeline in just a few lines of YAML.
 
-Tạo tập tin `.github/workflows/security.yml` trong dự án của bạn:
+Create `.github/workflows/security.yml` in your project repository:
 ```yaml
 name: Hexora Security Gate
 
@@ -439,20 +443,20 @@ jobs:
 
 ---
 
-## 12. Bảng tổng hợp câu lệnh thường dùng (Cheatsheet)
+## 12. CLI Command Cheatsheet
 
-| Nhu cầu sử dụng | Câu lệnh thực thi |
+| Task | Command |
 | :--- | :--- |
-| **Quét nhanh dự án** | `npx hexora .` |
-| **Quét chi tiết 4 giai đoạn** | `npx hexora . --verbose` |
-| **Quét repo GitHub từ xa** | `npx hexora <owner>/<repo>` |
-| **Bật chế độ tự quét khi bấm Save** | `npx hexora watch` |
-| **Cài đặt cho Cursor & Claude** | `npx hexora init` |
-| **Cài Git Hook chặn lỗi** | `npx hexora hook` |
-| **Chạy Benchmark so tài** | `npx hexora bench` |
-| **Dạy bài viết CVE mới** | `npx hexora learn <file.md>` |
-| **Xem tri thức đã học** | `npx hexora intel` |
-| **Xem trợ giúp nhanh** | `npx hexora --help` |
+| **Audit Current Workspace** | `hexora .` or `npx hexora .` |
+| **Verbose 4-Tier Audit** | `hexora . --verbose` |
+| **Audit Remote GitHub Repo** | `hexora <owner>/<repo>` |
+| **Real-Time Watch on Save** | `hexora watch` |
+| **AI Agent Setup (Cursor, Claude, Antigravity)** | `hexora init` |
+| **Install Git Pre-Commit Hook** | `hexora hook` |
+| **Run Adversarial Benchmark** | `hexora bench` |
+| **Ingest CVE / Threat Writeup** | `hexora learn <file.md>` |
+| **Inspect Threat Intelligence** | `hexora intel` |
+| **Display CLI Help** | `hexora --help` |
 
 ---
-*Tài liệu được biên soạn và bảo chứng bởi Hexora Core Development Team.*
+*Authored and verified by Khoa Dev & Hexora Core Contributors.*
