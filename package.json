@@ -25,7 +25,10 @@
     "dev": "node bin/hexora.js",
     "benchmark": "node bin/hexora.js benchmark",
     "mcp": "node bin/hexora.js mcp",
-    "test": "node --test"
+    "test": "node --test",
+    "landing:dev": "npm --prefix landing run dev",
+    "landing:build": "npm --prefix landing run build",
+    "landing:preview": "npm --prefix landing run preview"
   },
   "repository": {
     "type": "git",
