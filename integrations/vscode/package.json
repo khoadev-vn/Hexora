@@ -1,0 +1,38 @@
+{
+  "name": "hexora-vscode",
+  "displayName": "Hexora — Universal Security Engine",
+  "description": "Zero-friction code security: Inline vulnerability diagnostics, secret scanning, and dual-agent adversarial verification.",
+  "version": "1.0.0",
+  "publisher": "hexora-security",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Security",
+    "Programming Languages"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "hexora.scanWorkspace",
+        "title": "Hexora: Scan Workspace for Vulnerabilities",
+        "category": "Hexora"
+      },
+      {
+        "command": "hexora.watchWorkspace",
+        "title": "Hexora: Toggle Auto-Scan on Save",
+        "category": "Hexora"
+      },
+      {
+        "command": "hexora.showReport",
+        "title": "Hexora: Open Interactive Security Report (HTML)",
+        "category": "Hexora"
+      }
+    ]
+  }
+}

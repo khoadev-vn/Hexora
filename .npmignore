@@ -1,0 +1,14 @@
+﻿.github/
+.vscode/
+tests/
+reports/
+docs/
+landing/
+src/
+tsconfig.json
+.gitignore
+.npmignore
+.hexora-results/
+hexora-report.html
+*.tmp
+node_modules/

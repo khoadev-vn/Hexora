@@ -1,0 +1,68 @@
+{
+  "name": "hexora",
+  "version": "1.0.0",
+  "description": "Hexora — Next-Gen Universal Security Engine combining Deterministic SAST, Dual-Agent Adversarial Verification, Dynamic PoC & Patch Generation.",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "hexora": "./bin/hexora.js",
+    "audit": "./bin/hexora.js"
+  },
+  "files": [
+    "dist",
+    "bin",
+    "templates",
+    "skills",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepack": "npm run build",
+    "start": "node bin/hexora.js",
+    "dev": "node bin/hexora.js",
+    "benchmark": "node bin/hexora.js benchmark",
+    "mcp": "node bin/hexora.js mcp",
+    "test": "node --test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/khoadev-vn/Hexora.git"
+  },
+  "homepage": "https://github.com/khoadev-vn/Hexora#readme",
+  "bugs": {
+    "url": "https://github.com/khoadev-vn/Hexora/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "hexora",
+    "security",
+    "audit",
+    "sast",
+    "ai-agent",
+    "mcp-server",
+    "cursor-mcp",
+    "code-analysis",
+    "vulnerability-scanner",
+    "adversarial-verification",
+    "web3-audit",
+    "zero-day",
+    "security-scanner"
+  ],
+  "author": "Khoa Dev <https://github.com/khoadev-vn>",
+  "license": "MIT",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "commander": "^12.1.0",
+    "chalk": "^5.3.0",
+    "glob": "^11.0.0",
+    "ora": "^8.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.8.0",
+    "typescript": "^5.6.3"
+  }
+}

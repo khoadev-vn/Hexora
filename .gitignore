@@ -1,0 +1,15 @@
+node_modules/
+dist/*.map
+.env
+.env.*
+.DS_Store
+Thumbs.db
+*.log
+.aevum-audit-results/
+.hexora-results/
+sentinel-report.html
+*.tmp
+temp_*
+
+hexora-report.html
+.benchmark_workspace/

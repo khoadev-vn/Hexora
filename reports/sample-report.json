@@ -1,0 +1,20 @@
+{
+  "id": "CVE-2026-9999",
+  "title": "Arbitrary Memory Corruption via Unbounded WebAssembly Table Access",
+  "source": "CUSTOM",
+  "severity": "CRITICAL",
+  "category": "INJECTION",
+  "targetEcosystem": "GENERAL",
+  "vulnerabilityClass": "Memory Corruption / Table Bounds Evasion",
+  "attackVariants": [
+    "Table Index Integer Overflow Bypass",
+    "Dynamic Element Table Injection"
+  ],
+  "triggerPatterns": [
+    "WebAssembly\\.Table\\s*\\(.*initial",
+    "table\\.grow\\s*\\("
+  ],
+  "summary": "Improper bounds checking during dynamic WebAssembly table expansion allows out-of-bounds pointer writes.",
+  "exploitMechanism": "Attacker supplies negative integer to table index invoking unmapped function pointer.",
+  "mitigation": "Clamp table indices to maximum static bound and use strict signedness checks."
+}
