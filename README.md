@@ -2,7 +2,7 @@
 
 <img src="assets/banner.png" alt="Hexora - Next-Generation Universal Security Engine" width="100%" />
 
-# 🛡️ HEXORA
+# HEXORA
 ### Next-Generation Universal Security Engine
 
 [![npm version](https://img.shields.io/npm/v/hexora.svg?style=flat-square&color=00F0FF&logo=npm)](https://www.npmjs.com/package/hexora)
