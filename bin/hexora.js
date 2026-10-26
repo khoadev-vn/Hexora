@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import path from 'node:path';
-import { runScan, learnReport, showThreatIntel, runBenchmark, startWatchMode, runUniversalSetup, installGitHook, runSkillCommand } from '../dist/cli/index.js';
+import { runScan, learnReport, showThreatIntel, runBenchmark, startWatchMode, runUniversalSetup, installGitHook, runSkillCommand, openInteractiveMenu } from '../dist/cli/index.js';
 import { startMcpServer } from '../dist/mcp/server.js';
 
 const rawArgs = process.argv.slice(2);
@@ -9,45 +9,57 @@ const isVerbose = rawArgs.includes('--verbose') || rawArgs.includes('-v');
 const isNoFail = rawArgs.includes('--no-fail');
 const args = rawArgs.filter((a) => a !== '--verbose' && a !== '-v' && a !== '--no-fail');
 
-const command = args[0] || '.';
+const command = args[0];
 
 async function main() {
-  if (command === 'benchmark' || command === 'bench') {
+  // If run with no arguments, or explicit 'menu'/'ui' command, open interactive menu
+  if (!command || command === 'menu' || command === 'ui' || command === 'dashboard') {
+    await openInteractiveMenu();
+    return;
+  }
+
+  const effectiveCommand = command || '.';
+
+  if (effectiveCommand === 'benchmark' || effectiveCommand === 'bench') {
     await runBenchmark();
-  } else if (command === 'watch' || command === '-w' || command === '--watch') {
+  } else if (effectiveCommand === 'watch' || effectiveCommand === '-w' || effectiveCommand === '--watch') {
     const target = args[1] || '.';
     startWatchMode(target);
-  } else if (command === 'setup' || command === 'init') {
+  } else if (effectiveCommand === 'setup' || effectiveCommand === 'init') {
     const target = args[1];
     await runUniversalSetup({ target });
-  } else if (command === 'skill' || command === 'skills') {
+  } else if (effectiveCommand === 'skill' || effectiveCommand === 'skills') {
     const platform = args[1] || 'all';
     const targetDir = args[2] || '.';
     await runSkillCommand(platform, targetDir);
-  } else if (command === 'hook' || command === 'precommit') {
+  } else if (effectiveCommand === 'hook' || effectiveCommand === 'precommit') {
     const target = args[1] || '.';
     installGitHook(target);
-  } else if (command === 'mcp') {
+  } else if (effectiveCommand === 'mcp') {
     await startMcpServer();
-  } else if (command === 'scan') {
+  } else if (effectiveCommand === 'scan') {
     const target = args[1] || '.';
     const res = await runScan(target, { verbose: isVerbose, noFail: isNoFail });
     if (res?.hasCriticalOrHigh && !isNoFail) {
       process.exit(1);
     }
-  } else if (command === 'learn') {
+  } else if (effectiveCommand === 'learn') {
     const target = args[1];
     if (!target) {
       console.error('Error: Please provide a file or directory path containing security reports to learn.');
       process.exit(1);
     }
     await learnReport(target);
-  } else if (command === 'intel' || command === 'threats') {
+  } else if (effectiveCommand === 'intel' || effectiveCommand === 'threats') {
     showThreatIntel();
-  } else if (command === '--help' || command === '-h') {
+  } else if (effectiveCommand === '--help' || effectiveCommand === '-h') {
     console.log(`
 🛡️  HEXORA — NEXT-GEN UNIVERSAL SECURITY & AI AGENT ENGINE
 -----------------------------------------------------------------------
+Interactive Mode:
+  npx hexora                           Open Interactive Command Center (Menu)
+  npx hexora menu                      Open Interactive Command Center
+
 Zero-Config Usage:
   npx hexora .                         Scan current directory
   npx hexora ./my-project              Scan target project folder
@@ -56,7 +68,7 @@ Zero-Config Usage:
   npx hexora skill [platform]          Export skills to Antigravity, Cursor, Claude, Windsurf
 
 Short Commands (after global install / npx alias):
-  audit                                Scan current directory
+  audit                                Interactive menu / Scan current dir
   audit watch                          Auto-rescan on file save (Ctrl+S)
   audit setup                          Configure AI Agents & IDEs
   audit skill antigravity              Install Antigravity Skill & MCP
@@ -69,7 +81,6 @@ Advanced Commands:
   npx hexora intel                     View learned CVEs & attack variants
   npx hexora learn <path>              Ingest CVE report or security writeup
 
-
 Flags:
   --verbose, -v                        Print detailed 4-phase audit execution
   --no-fail                            Do not exit with code 1 on critical findings
@@ -77,7 +88,7 @@ Flags:
     `);
   } else {
     // Treat first arg directly as directory or GitHub owner/repo (e.g. npx hexora .)
-    const res = await runScan(command, { verbose: isVerbose, noFail: isNoFail });
+    const res = await runScan(effectiveCommand, { verbose: isVerbose, noFail: isNoFail });
     if (res?.hasCriticalOrHigh && !isNoFail) {
       process.exit(1);
     }

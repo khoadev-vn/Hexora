@@ -7,6 +7,8 @@
   "types": "dist/index.d.ts",
   "bin": {
     "hexora": "bin/hexora.js",
+    "hx": "bin/hexora.js",
+    "hxr": "bin/hexora.js",
     "hexora-vn": "bin/hexora.js",
     "audit": "bin/hexora.js"
   },
@@ -19,9 +21,10 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "node ./node_modules/typescript/bin/tsc",
     "prepack": "npm run build",
-    "start": "node bin/hexora.js",
+    "start": "node bin/hexora.js menu",
+    "menu": "node bin/hexora.js menu",
     "dev": "node bin/hexora.js",
     "benchmark": "node bin/hexora.js benchmark",
     "mcp": "node bin/hexora.js mcp",

@@ -19,4 +19,5 @@ export declare function runBenchmark(): Promise<{
 }>;
 export { startWatchMode } from './watch.js';
 export { runUniversalSetup, installGitHook, runSkillCommand } from './setup.js';
+export { openInteractiveMenu } from './menu.js';
 //# sourceMappingURL=index.d.ts.map

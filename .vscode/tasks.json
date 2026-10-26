@@ -2,11 +2,30 @@
   "version": "2.0.0",
   "tasks": [
     {
+      "label": "🎮 Hexora: Interactive Menu & Dashboard",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/bin/hexora.js",
+        "menu"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "🛡️ Hexora: Quick Scan Workspace",
       "type": "shell",
       "command": "node",
       "args": [
-        "D:/aevum-audit/bin/hexora.js",
+        "${workspaceFolder}/bin/hexora.js",
         "."
       ],
       "group": {
@@ -23,10 +42,23 @@
       "type": "shell",
       "command": "node",
       "args": [
-        "D:/aevum-audit/bin/hexora.js",
+        "${workspaceFolder}/bin/hexora.js",
         "watch"
       ],
       "isBackground": true
+    },
+    {
+      "label": "🛠️ Hexora: 1-Click AI Agent & IDE Setup",
+      "type": "shell",
+      "command": "node",
+      "args": [
+        "${workspaceFolder}/bin/hexora.js",
+        "setup"
+      ],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
     }
   ]
 }

@@ -1,80 +1,114 @@
-﻿<div align="center">
+<div align="center">
 
 <img src="assets/banner.png" alt="Hexora - Next-Generation Universal Security Engine" width="100%" />
 
 # HEXORA
-### Next-Generation Universal Security Engine
+### Next-Generation Universal Security & AI Agent Engine
 
-[![GitHub Repo](https://img.shields.io/badge/GitHub-khoadev--vn%2FHexora-00F0FF?style=flat-square&logo=github)](https://github.com/khoadev-vn/Hexora)
-[![GitHub Stars](https://img.shields.io/github/stars/khoadev-vn/Hexora?style=flat-square&color=FFD700&logo=github)](https://github.com/khoadev-vn/Hexora/stargazers)
-[![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-FF5555.svg?style=flat-square)](LICENSE)
-[![AI-Native: MCP](https://img.shields.io/badge/AI--Native-Model%20Context%20Protocol-8A2BE2.svg?style=flat-square&logo=anthropic)](https://modelcontextprotocol.io/)
-[![Zero-Config](https://img.shields.io/badge/Setup-Zero--Config-brightgreen.svg?style=flat-square)](#-quick-start--installation)
-[![False Positive Filter](https://img.shields.io/badge/False%20Positives-0%25%20Filtered-success.svg?style=flat-square)](#-dual-agent-adversarial-verification)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-blue.svg?style=flat-square)](CONTRIBUTING.md)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-khoadev--vn%2FHexora-00F0FF?style=for-the-badge&logo=github)](https://github.com/khoadev-vn/Hexora)
+[![GitHub Stars](https://img.shields.io/github/stars/khoadev-vn/Hexora?style=for-the-badge&color=FFD700&logo=github)](https://github.com/khoadev-vn/Hexora/stargazers)
+[![License: Non-Commercial](https://img.shields.io/badge/License-Non--Commercial-FF5555.svg?style=for-the-badge)](LICENSE)
+[![Dual-Agent Verification](https://img.shields.io/badge/False%20Positives-0%25%20Verified-00F0FF.svg?style=for-the-badge)](#-dual-agent-adversarial-verification)
+[![AI-Native: MCP](https://img.shields.io/badge/MCP%20Server-14%20Tools%20Ready-8A2BE2.svg?style=for-the-badge&logo=anthropic)](https://modelcontextprotocol.io/)
+[![Zero-Config](https://img.shields.io/badge/Zero--Config-Interactive%20TUI-brightgreen.svg?style=for-the-badge)](#-super-easy-quick-start)
 
-**Zero-Friction SAST • Dual-Agent Adversarial Verification • Dynamic PoC & Patch Generation**  
-*One security engine that works seamlessly in your Terminal, IDE, AI Agents, and CI/CD pipelines.*
+**Zero-Friction SAST • Dual-Agent Adversarial Verification • Dynamic PoC & Minimal Patches • Real-Time Watcher • AI Agent MCP**  
+*One universal security engine that runs in your Terminal, IDE, AI Agents, and CI/CD pipelines.*
 
-[🌐 Live Landing Page](https://hexora-security.github.io/hexora) • [📚 Step-by-Step Guide](docs/STEP_BY_STEP_GUIDE.md) • [📖 Documentation](#-universal-modes-of-use) • [⚡ Quickstart](#-quick-start--installation) • [🤖 AI Agent MCP](#-mode-2-1-click-ai-agent-setup) • [🏆 Benchmarks](#-global-vulnerability-benchmarks)
+[🎮 Interactive TUI Menu](#-interactive-command-center-tui) • [⚡ Super Easy Quick Start](#-super-easy-quick-start) • [🛡️ 4 Core Pillars](#-the-4-pillars-of-hexora) • [🤖 AI Agent Ecosystem](#-ai-agent-ecosystem--mcp-server) • [🏆 Benchmarks](#-global-vulnerability-benchmarks) • [📄 License](#-license--commercial-rights)
 
 ---
 
 </div>
 
-## 💡 Why Hexora?
+## 🎮 Interactive Command Center (TUI)
 
-Traditional security tools force developers to remember dozens of complex flags, overwhelm teams with hundreds of noisy false positives, and stop at warning messages without offering a real fix.
+> **No more memorizing complex CLI flags!**  
+> Simply type **`hx`** or **`hexora`** in your terminal, and Hexora launches an interactive command center with zero cognitive load. Navigate with arrow keys or press shortcut numbers for 1-touch execution!
 
-**Hexora changes the paradigm:**
-- ⚡ **Zero-Friction ("Install once, run anywhere")**: Run it in 3 seconds with `npx hexora .`, wire it into Cursor or Claude with `npx hexora init`, or lock down your git commits with `npx hexora hook`.
-- 🥊 **Dual-Agent Adversarial Verification**: Every candidate vulnerability is actively challenged by an automated Red-Team verifier to eliminate false positives (test mocks, sanitizers, framework protections) before you ever see it.
-- 🩹 **Autonomous PoC & Minimal Unified Patches**: Don't just find bugs — Hexora generates non-destructive reproduction PoCs and minimal unified diffs (`git apply`) ready for review.
-- 🧠 **Continuous Threat Intelligence Memory**: Ingest real-world CVEs and bounty writeups on the fly (`npx hexora learn writeup.md`) to dynamically expand detection patterns.
+<div align="center">
+  <img src="assets/terminal-menu.png" alt="Hexora Interactive Terminal Command Center" width="95%" />
+</div>
 
----
+<br/>
 
-## ⚡ Architecture: The 4 Pillars of Hexora
-
-```
-                       HEXORA UNIVERSAL SECURITY ENGINE
-               (Deterministic SAST + Red-Team Adversarial Verifier)
-                                       │
-         ┌───────────────────┬─────────┴─────────┬───────────────────┐
-         │                   │                   │                   │
-    HEXORA CLI          HEXORA MCP         HEXORA SKILLS     HEXORA FOR VS CODE
-    (Terminal)          (AI Agents)          (Agent SOP)           (IDE)
-         │                   │                   │                   │
-    Zero-Config         Cursor, Claude       Autonomous        Diagnostics,
-    Auto-Watch & CI    & Antigravity        Red-Team Audit     Gutter Badges
+```text
+  [1] 🛡️  Quick Scan Workspace Hiện Tại       --> Full SAST + Dependency + Secret scan with 0% False Positives
+  [2] 📁 Quét Dự Án Khác (Thư mục tùy chọn)  --> Audit any local directory on your drive
+  [3] 🌐 Quét Remote GitHub Repo              --> Clones repo into sandbox and audits on-the-fly
+  [4] ⚡ Chế Độ Live Watcher                  --> Auto-scans sub-20ms every time you press Ctrl+S
+  [5] 🛠️  1-Click Cài Đặt AI Agent & IDEs      --> Auto-configures Antigravity, Cursor, Claude, Windsurf, VS Code
+  [6] 🧠 Threat Intel & CVE Knowledge Vault   --> Inspect learned CVEs, zero-days, and attack vectors
+  [7] 📚 Học Báo Cáo Bảo Mật Mới              --> Ingest CVEs, PDFs, and bug bounty writeups into memory
+  [8] 📊 Vulnerability Benchmark Arena        --> Run precision benchmark suite against industry targets
+  [9] 🔌 Khởi Chạy MCP Server                 --> Expose 14 native deterministic security tools for AI agents
+  [H] 🔒 Cài Đặt Git Pre-commit Hook          --> Prevent secret leaks and critical vulnerabilities before commit
+  [0] ❌ Thoát Menu (Exit)
 ```
 
 ---
 
-## ⚡ Quick Start & Installation
+## ⚡ Super Easy Quick Start
 
-Maximum simplicity—zero complex configuration or hard-to-remember parameters:
+Choose whichever method fits your setup best. All of them let you run Hexora with the ultra-concise **`hx`** command!
 
-### 🌟 Option 1: Global Installation (Recommended — Most Convenient!)
-Install once globally via GitHub and use anywhere across your operating system:
+### 🌟 Cách 1: Git Clone về máy (Dành cho Developer & Contributors)
+Nếu bạn đã clone hoặc muốn clone mã nguồn về máy tính:
+
+```bash
+# 1. Clone repository
+git clone https://github.com/khoadev-vn/Hexora.git
+
+# 2. Di chuyển vào thư mục & cài đặt dependencies
+cd Hexora
+npm install
+
+# 3. Build mã nguồn TypeScript
+npm run build
+
+# 4. Liên kết lệnh toàn cục (Global Link)
+npm link
+```
+
+🎉 **Xong!** Từ giờ ở bất kỳ thư mục nào trên máy tính, bạn chỉ cần mở Terminal và gõ:
+```bash
+hx
+# hoặc
+hexora
+```
+Menu tương tác sẽ lập tức xuất hiện!
+
+---
+
+### 🚀 Cách 2: Cài Đặt Toàn Cầu 1 Lệnh (Global NPM via GitHub)
+Cài đặt một lần duy nhất, dùng được vĩnh viễn trên toàn bộ hệ điều hành:
 
 ```bash
 npm install -g khoadev-vn/Hexora
 ```
 
-Once installed, simply run concise commands in **any project directory**:
+Sau khi cài đặt xong, gõ ngay trong terminal:
 ```bash
-hexora .         # 🔍 Full security audit (SAST, Secrets, SCA)
-hexora watch     # 👁️ Instant live scan on every save (Ctrl+S)
-hexora init      # 🤖 1-Click AI Agent setup (Cursor, Claude, VS Code, Antigravity)
-hexora hook      # 🔒 Install Git Pre-Commit hook preventing secret leaks
-hexora bench     # 🏆 Adversarial verification benchmark suite
+hx
 ```
 
 ---
 
-### 🎁 Option 2: 1-Line Automated Installer
-Automatically verifies Node.js environment and configures Hexora in seconds:
+### ⚡ Cách 3: Chạy Tức Thì Không Cần Cài Đặt (Zero-Install NPX)
+Không cần tải hay lưu file vào máy, chạy trực tiếp từ đám mây:
+
+```bash
+# Mở Interactive Menu:
+npx khoadev-vn/Hexora
+
+# Hoặc quét trực tiếp thư mục hiện tại:
+npx khoadev-vn/Hexora .
+```
+
+---
+
+### 🎁 Cách 4: Script Tự Động 1 Dòng Lệnh (1-Line Automated Installer)
+Tự động kiểm tra Node.js và cấu hình môi trường trong vài giây:
 
 - **Linux / macOS**:
 ```bash
@@ -88,106 +122,116 @@ irm https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.ps1 | iex
 
 ---
 
-### 🚀 Option 3: Zero-Install NPX Execution
-Execute immediately without installing anything globally:
+## 💡 Why Hexora?
 
-```bash
-# Scan current workspace
-npx khoadev-vn/Hexora .
+Traditional security tools force developers to remember dozens of complex flags, overwhelm teams with hundreds of noisy false positives, and stop at warning messages without offering a real fix.
 
-# Real-time background watch engine
-npx khoadev-vn/Hexora watch
-
-# 1-Click AI Agent & MCP setup
-npx khoadev-vn/Hexora init
-```
+| The Problem with Legacy Scanners | The Hexora Solution |
+| :--- | :--- |
+| ❌ Hundreds of false alarms (test mocks, sanitizers flagged as bugs) | ✅ **Dual-Agent Adversarial Verification** actively disproves non-exploitable issues, achieving 0% false positives. |
+| ❌ Complex, hard-to-remember CLI flags (`--include --exclude-rule --format`) | ✅ **Zero Cognitive Load**: Just run `hx` to open the interactive menu, or `hx .` to scan. |
+| ❌ Vague alerts with no solution | ✅ **Autonomous PoC & Minimal Unified Patches**: Hexora generates non-destructive reproduction scripts and `git apply` diffs. |
+| ❌ Static signatures that quickly become obsolete | ✅ **Continuous Threat Intelligence**: Ingest new CVEs and bounty writeups on-the-fly (`hx learn writeup.md`). |
+| ❌ Isolated from modern AI workflows | ✅ **AI-Native MCP Server**: 14 deterministic security tools for Google Antigravity, Cursor, Claude Code, and Windsurf. |
 
 ---
 
-### 🛠️ Option 4: Local Development & Contributors
-For security researchers and developers building on Hexora:
+## 🛡️ The 4 Pillars of Hexora
 
-```bash
-git clone https://github.com/khoadev-vn/Hexora.git
-cd Hexora
-npm install
-npm run build
-npm link
+```
+                       HEXORA UNIVERSAL SECURITY ENGINE
+                (Deterministic SAST + Red-Team Adversarial Verifier)
+                                        │
+         ┌───────────────────┬─────────┴─────────┬───────────────────┐
+         │                   │                   │                   │
+    HEXORA TUI & CLI     HEXORA MCP         HEXORA SKILLS     HEXORA AUTO-GUARD
+    (Interactive & CI)   (AI Agents)          (Agent SOP)      (Watcher & Hooks)
+         │                   │                   │                   │
+    Interactive Menu    Cursor, Claude       Autonomous        Pre-Commit Gate
+    & 1-Click Scan      & Antigravity        Red-Team Audit    & Save-time Watch
 ```
 
----
-## 🚀 Comprehensive Feature Guide & Hands-on Demos
+### 1. Deterministic Multi-Ecosystem SAST + SCA Engine
+Analyzes code syntax trees, semantic patterns, high-entropy secrets, and dependency CVEs across:
+- **Web & Backend**: TypeScript, JavaScript, Python, Go, Rust, Java, PHP, C/C++.
+- **Web3 & Smart Contracts**: Solidity (EVM reentrancy, oracle manipulation, share inflation) & Solana/Anchor (Arbitrary CPI, missing signer/owner verification, PDA seed exploits).
+- **AI Agent Security**: Prompt injection, SSRF, tool exfiltration, unauthorized file manipulation, LLM credential harvesting.
+- **Infrastructure & Cloud**: Dockerfile root execution, Kubernetes privileged containers, Terraform permissive rules, AWS IAM/GCP secret leaks.
 
-Hexora is designed to fit naturally into every stage of your engineering workflow. Below are detailed walkthroughs and live terminal demos for each core capability:
+### 2. Dual-Agent Adversarial Verification (0% False Positives)
+Every candidate vulnerability is challenged by an automated Red-Team verifier:
+- Checks if the input is already sanitized by modern frameworks or helper functions.
+- Checks if the file is a test mock, fixture, or non-production utility.
+- Confirms whether an actual exploit path is feasible before alerting the developer.
 
----
+### 3. Autonomous PoC & Minimal Unified Patches
+Hexora doesn't stop at telling you what's broken:
+- Generates **non-destructive reproduction PoCs** to prove exploitability.
+- Synthesizes **minimal unified diff patches** (`git apply`) that fix the vulnerability without breaking business logic or causing regressions.
 
-### 🖥️ Feature 1: Zero-Config Security Audit (`hexora .`)
-
-Run a full deterministic audit with deep SAST, dependency vulnerability scanning (SCA), and adversarial false-positive filtering in one simple command.
-
+### 4. Continuous Threat Intelligence Memory
+Ingest real-world zero-day writeups, HackerOne reports, or CVEs dynamically:
 ```bash
-# Scan current workspace:
-npx hexora .
-
-# Scan specific folder or file:
-npx hexora ./src/backend
-
-# Scan remote public GitHub repository inside a secure sandbox:
-npx hexora expressjs/express
+hx learn ./cve-2024-exploit.md
 ```
+Hexora extracts attack variants, semantic indicators, and mitigations into its internal knowledge vault to guard your code against newly emerged threats.
 
-**Live Terminal Output:**
+---
+
+## 💻 Power CLI Commands (For CI/CD & Power Users)
+
+Prefer direct terminal commands instead of the interactive menu? Hexora supports concise flags:
+
+| Command | Description |
+| :--- | :--- |
+| **`hx`** or **`hexora`** | 🎮 Open the Interactive Command Center (Menu) |
+| **`hx .`** | 🔍 Run full security audit on current workspace |
+| **`hx ./path/to/folder`** | 📁 Scan specific directory or file |
+| **`hx owner/repo`** | 🌐 Clone remote GitHub repository and audit inside sandbox |
+| **`hx watch`** | ⚡ Live Watcher: auto-rescan in sub-20ms every time you save (`Ctrl+S`) |
+| **`hx init`** | 🛠️ 1-Click setup for Google Antigravity, Cursor, Claude Code & VS Code |
+| **`hx hook`** | 🔒 Install Git pre-commit security gate (blocks leaked secrets) |
+| **`hx bench`** | 📊 Run the Vulnerability Benchmark Arena suite |
+| **`hx mcp`** | 🔌 Launch Model Context Protocol (MCP) server for AI agents |
+| **`hx intel`** | 🧠 Display learned CVEs, attack variants, and threat vault stats |
+| **`hx learn <file/dir>`** | 📚 Ingest CVE report or security writeup into threat memory |
+
+---
+
+## 📊 Live Walkthrough & Multi-Format Reports
+
+When you run `hx .`, Hexora performs its 4-phase audit and generates 4 comprehensive report formats simultaneously:
+
 ```text
-PS D:\my-project> npx hexora .
+PS D:\my-awesome-project> hx .
 
-Hexora
-
-Scanning project...
+Hexora — Next-Gen Security Engine
+Scanning project: D:\my-awesome-project
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 Secrets                  1 finding
 Security vulnerabilities 2 findings
 Vulnerable dependencies  1 finding
 Insecure configuration   0 findings
-
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-4 findings detected (Adversarial filtered 8 false positives)
+4 findings detected (Adversarial verifier filtered 8 false positives)
 
-Critical: 1
-High:     2
-Medium:   1
-Low:      0
+Critical: 1  |  High: 2  |  Medium: 1  |  Low: 0
 
-Report:
-  📄 Text (Structured): ./hexora-report.txt
-  📑 PDF (Executive):   ./hexora-report.pdf
-  📝 Markdown:          ./hexora-report.md
-  🌐 HTML Dashboard:    ./hexora-report.html
+Simultaneous Reports Generated:
+  📄 Plaintext:     ./hexora-report.txt   (Console piping & fast grep)
+  📑 PDF Report:    ./hexora-report.pdf   (Executive summary for stakeholders)
+  📝 Markdown:      ./hexora-report.md    (Ready to paste into GitHub PRs/Issues)
+  🌐 Web Dashboard: ./hexora-report.html  (Interactive UI with filters & diffs)
 ```
-
-**💡 How It Works & What to Expect:**
-1. **Multi-Vector Scanning**: Analyzes AST syntax, semantic patterns, high-entropy secrets, and checks dependencies against known CVEs.
-2. **Dual-Agent Verification**: Every detected flag is passed through an automated Red-Team verifier to discard mock tests, sanitized variables, and harmless snippets, ensuring **zero alert fatigue**.
-3. **Simultaneous Multi-Format Reports**: Automatically exports:
-   - `hexora-report.txt`: Clean, human-readable structured text, ideal for console review or terminal piping (`grep`, `cat`).
-   - `hexora-report.pdf`: Executive-ready PDF summary for management, stakeholders, or compliance reviews.
-   - `hexora-report.md`: Markdown summary ready to paste into GitHub Issues or Pull Request descriptions.
-   - `hexora-report.html`: Interactive web dashboard with search, filter badges, and expandable remediation diffs.
 
 ---
 
-### ⏱️ Feature 2: Real-Time Watch Engine (`hexora watch`)
+## ⚡ Live Watch Engine (`hx watch`)
 
-Keep Hexora running in a background terminal. Every time you save a file (`Ctrl+S`), Hexora performs an instantaneous micro-delta scan in milliseconds, alerting you before you even switch windows.
+Leave Hexora running in a side terminal tab while you code. Every time you press `Ctrl+S`, Hexora performs an instantaneous micro-delta scan:
 
-```bash
-npx hexora watch
-```
-
-**Live Terminal Output:**
 ```text
-PS D:\my-project> npx hexora watch
+PS D:\my-project> hx watch
 
 ======================================================
 👁️  HEXORA REAL-TIME WATCH ENGINE
@@ -197,341 +241,150 @@ PS D:\my-project> npx hexora watch
 
 ⚡ Watcher active! Listening for file changes... (Press Ctrl+C to stop)
 
-[20:12:04] 🟢 CLEAN: src/services/user.service.ts (0 issues, 14.2ms)
-[20:12:45] 🟢 CLEAN: src/config/database.ts (0 issues, 11.8ms)
+[22:04:12] 🟢 CLEAN: src/services/auth.service.ts (0 issues, 12.4ms)
+[22:04:35] 🟢 CLEAN: src/routes/api.ts (0 issues, 9.8ms)
 
 ------------------------------------------------------
-[20:13:19] 🚨 SECURITY ALERT: src/controllers/auth.controller.ts (18.6ms)
+[22:05:01] 🚨 SECURITY ALERT: src/config/database.ts (14.1ms)
 Found 1 genuine vulnerability:
-
-  🔴 CRITICAL | Hardcoded Cloud Access Key (Line 15) [CWE-798]
-  Target: src/controllers/auth.controller.ts:15
+  🔴 CRITICAL | Hardcoded Database Secret Key (Line 24) [CWE-798]
+  Target: src/config/database.ts:24
   💡 Suggested Fix: Store credentials in environment variables (.env) and reference via process.env.
 ------------------------------------------------------
 ```
 
-**💡 Step-by-Step Hands-On Guide:**
-1. Open a terminal tab and run `npx hexora watch`.
-2. Open your code editor and edit any file (TypeScript, JavaScript, Python, Rust, Solidity, Go, etc.).
-3. Press `Ctrl+S` — notice the sub-20ms instant confirmation badge: `🟢 CLEAN`.
-4. If you accidentally type or paste an insecure pattern (e.g. `eval(req.query.code)` or a raw API secret), Hexora sounds an alert chime (`\x07`) and prints an exact line reference with remediation instructions.
+---
+
+## 🔒 Git Pre-Commit Security Gate (`hx hook`)
+
+Never leak another API token, private key, or critical bug to GitHub:
+
+```bash
+hx hook
+```
+```text
+✅ Installed pre-commit hook at .git/hooks/pre-commit
+```
+
+Now whenever you run `git commit`, Hexora verifies your staged files in milliseconds. If secrets or critical vulnerabilities are detected, the commit is safely rejected before reaching git history!
 
 ---
 
-### 🔒 Feature 3: Git Pre-Commit Security Gate (`hexora hook`)
+## 🤖 AI Agent Ecosystem & MCP Server
 
-Prevent secrets and critical bugs from ever entering your Git commit history or remote repository.
-
-```bash
-npx hexora hook
-```
-
-**1. Installation Demo:**
-```text
-PS D:\my-project> npx hexora hook
-✅ Installed pre-commit hook at D:\my-project\.git\hooks\pre-commit
-```
-
-**2. Enforcement Demo (When Insecure Code is Committed):**
-```text
-PS D:\my-project> git add .
-PS D:\my-project> git commit -m "feat: add payment gateway webhook"
-
-🛡️ Hexora Pre-Commit Gate: Verifying staged files...
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Secrets                  1 finding
-Security vulnerabilities 0 findings
-Vulnerable dependencies  0 findings
-Insecure configuration   0 findings
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-❌ [Hexora Pre-Commit Hook] Hardcoded Secret Detected!
-   File: src/payment.ts:22 -> Found unencrypted Stripe Secret Key.
-   
-Commit rejected to protect repository history.
-To inspect or fix, run: npx hexora .
-```
-
-**💡 Step-by-Step Hands-On Guide:**
-1. Run `npx hexora hook` inside any Git repository. It writes a zero-dependency pre-commit script to `.git/hooks/pre-commit`.
-2. Stage your changes with `git add .` and run `git commit`.
-3. If clean, git proceeds normally with zero delay.
-4. If a critical issue or leaked credential is found, the commit is immediately blocked, protecting you from costly API leaks or security incidents.
-
----
-
-### ⚡ Feature 4: 1-Click AI Agent Integration (Antigravity, Cursor, Claude & Windsurf)
-
-Hexora seamlessly integrates with next-generation AI coding agents and IDEs via the **Model Context Protocol (MCP)** and **Native Agent Skills**.
-
-#### 1. Instant Export to Google Antigravity
-```bash
-npx hexora skill antigravity
-```
-Automatically registers:
-* **Global MCP Server**: `~/.gemini/config/mcp_config.json`
-* **Agent Skill Protocol**: `.agents/skills/hexora/SKILL.md` and `~/.gemini/config/skills/hexora/SKILL.md`
-* **Project Security Rules**: `.agents/rules/hexora-security.md` and `GEMINI.md`
-
-#### 2. Universal Interactive Setup
-```bash
-npx hexora init
-```
-
-```text
-PS D:\my-project> npx hexora init
-
-======================================================
-🚀 HEXORA UNIVERSAL AI AGENT & SECURITY SETUP
-======================================================
-
-Where do you want to integrate Hexora?
-
-  [1] Google Antigravity (IDE & CLI - MCP & Skills)
-  [2] Cursor (MCP Server & .cursor/rules)
-  [3] Claude Code (CLI ~/.claude.json)
-  [4] Claude Desktop (claude_desktop_config.json)
-  [5] VS Code (Workspace Tasks & Extension)
-  [6] Windsurf (.windsurf & .windsurfrules)
-  [7] Terminal Global Shortcuts & Git Pre-commit Hook
-  [8] All Integrations (Recommended for Full AI Stack)
-
-Select an option (1-8): 8
-
-======================================================
-⚡ INTEGRATING HEXORA SECURITY PROTOCOL
-   Workspace: D:\my-project
-======================================================
-
-✅ Configured Google Antigravity Skill & MCP server
-✅ Configured Cursor MCP (.cursor/mcp.json) & Rules (.cursor/rules/hexora.mdc)
-✅ Configured Claude Code (~/.claude.json)
-✅ Configured Claude Desktop (claude_desktop_config.json)
-✅ Added VS Code tasks (.vscode/tasks.json)
-✅ Created Terminal shortcuts 'hexora' and 'audit'
-✅ Installed pre-commit security hook (.git/hooks/pre-commit)
-
-🎉 Hexora configured successfully across all environments!
-```
-
-#### 🛠️ Available Hexora MCP Tools for AI Agents:
-AI Agents gain access to 14 native deterministic security tools:
-* `scan_project` — Full repo audit with adversarial dual-agent verification.
-* `audit_scan_file` — Real-time single file / in-memory buffer scanner.
-* `get_findings` — Query findings filtered by severity or CWE category.
-* `apply_fix` — Automated zero-regression code patching via unified diffs.
-* `audit_explain_vulnerability` — Deep architectural root cause and CVSS impact analysis.
-* `audit_generate_poc` — Synthesizes safe, isolated reproduction proof-of-concept tests.
-* `audit_get_workspace_posture` — Real-time security posture scoring (A+ to F).
-* `validate_finding` — Adversarial counter-evidence filter.
-* `audit_check_snippet` — Live function / snippet audit against vulnerability database.
-* `audit_learn_report` — Ingest external CVEs and bug bounty writeups into memory.
-* `audit_search_knowledge` — Semantic search through learned attack vectors.
-* `audit_get_threat_intel_stats` — Statistics on learned zero-days and variants.
-* `audit_export_skill` — On-the-fly export of skills to new agent environments.
-* `audit_scan_directory` — Granular folder scanning with dedicated ledgers.
-
-**💡 Step-by-Step Hands-On Guide:**
-1. Run `npx hexora init` and choose `7` (All).
-2. Open **Cursor** or **Claude Desktop** — Hexora MCP tools are now recognized immediately.
-3. Prompt your agent: *"Audit this codebase using Hexora and generate minimal patches for any high severity bugs."*
-4. The AI agent will call Hexora's MCP tools autonomously, evaluate the verified findings, and apply safe unified diffs.
-
----
-
-### 🧠 Feature 5: Threat Intelligence & Dynamic CVE Learning (`learn` & `intel`)
-
-Modern attack vectors evolve rapidly. Hexora includes a live threat intelligence knowledge vault that allows you to feed newly published CVEs, post-mortems, or bug bounty writeups directly into its detection memory.
+Hexora turns any modern AI coding assistant into a battle-hardened senior security engineer.
 
 ```bash
-# Ingest a security report or writeup:
-npx hexora learn ./reports/cve-2024-solana-cpi.md
-
-# Inspect active threat memory and learned attack variants:
-npx hexora intel
+# 1-Click automated setup for all IDEs and AI tools:
+hx init
 ```
 
-**Live Terminal Output:**
-```text
-PS D:\my-project> npx hexora learn ./reports/cve-2024-solana-cpi.md
+### 🛠️ 14 Native MCP Security Tools for AI Agents:
+When connected via **Model Context Protocol (MCP)**, your AI agent gains access to:
 
-📚 [Hexora Threat Ingestion] Processing: ./reports/cve-2024-solana-cpi.md...
-✨ Successfully ingested report: [CVE-2024-SOL-01] "Arbitrary CPI Execution in Solana Anchor"
-   - Attack Variants learned: cpi_spoofing, missing_program_id_check
-   - Mitigation: Verify program_id matches expected Pubkey before calling invoke_signed
+1. `scan_project` — Full repo audit with adversarial dual-agent verification.
+2. `audit_scan_file` — Real-time single file / in-memory buffer scanner.
+3. `get_findings` — Query findings filtered by severity or CWE category.
+4. `apply_fix` — Automated zero-regression code patching via unified diffs.
+5. `audit_explain_vulnerability` — Deep architectural root cause and CVSS impact analysis.
+6. `audit_generate_poc` — Synthesizes safe, isolated reproduction proof-of-concept tests.
+7. `audit_get_workspace_posture` — Real-time security posture scoring (A+ to F).
+8. `validate_finding` — Adversarial counter-evidence filter.
+9. `audit_check_snippet` — Live function / snippet audit against vulnerability database.
+10. `audit_learn_report` — Ingest external CVEs and bug bounty writeups into memory.
+11. `audit_search_knowledge` — Semantic search through learned attack vectors.
+12. `audit_get_threat_intel_stats` — Statistics on learned zero-days and variants.
+13. `audit_export_skill` — On-the-fly export of skills to new agent environments.
+14. `audit_scan_directory` — Granular folder scanning with dedicated ledgers.
 
-PS D:\my-project> npx hexora intel
+### 🔌 Manual MCP Configuration
 
-======================================================
-🧠 HEXORA THREAT INTELLIGENCE KNOWLEDGE VAULT
-======================================================
-Total Reports Learned: 14
-Total Attack Variants: 48
+<details>
+<summary><b>Cursor</b> (<code>.cursor/mcp.json</code>)</summary>
 
-📌 [CVE-Database] CVE-2024-SOL-01: Arbitrary CPI Execution (CRITICAL)
-   - Ecosystem: Solana | Class: CPI_HIJACK
-   - Attack Variants: cpi_spoofing; missing_program_id_check
-
-📌 [Bounty-Writeup] H1-2024-AUTH-99: OAuth State Parameter Bypass (HIGH)
-   - Ecosystem: Web2 | Class: AUTH_BYPASS
-   - Attack Variants: missing_pkce; lax_state_validation
+```json
+{
+  "mcpServers": {
+    "hexora": {
+      "command": "npx",
+      "args": ["-y", "khoadev-vn/Hexora", "mcp"]
+    }
+  }
+}
 ```
+</details>
 
----
+<details>
+<summary><b>Claude Desktop</b> (<code>claude_desktop_config.json</code>)</summary>
 
-### 🥊 Feature 6: Vulnerability Benchmark Arena (`hexora bench`)
+```json
+{
+  "mcpServers": {
+    "hexora": {
+      "command": "npx",
+      "args": ["-y", "khoadev-vn/Hexora", "mcp"]
+    }
+  }
+}
+```
+</details>
 
-Verify Hexora's accuracy and false-positive elimination rate directly against industry security scanners.
+<details>
+<summary><b>Claude Code CLI</b> (<code>~/.claude.json</code>)</summary>
+
+```json
+{
+  "mcpServers": {
+    "hexora": {
+      "command": "npx",
+      "args": ["-y", "khoadev-vn/Hexora", "mcp"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Google Antigravity</b></summary>
 
 ```bash
-npx hexora bench
+hx skill antigravity
 ```
-
-**Live Terminal Output:**
-```text
-PS D:\my-project> npx hexora bench
-
-======================================================
-🥊 HEXORA GLOBAL VULNERABILITY BENCHMARK ARENA
-======================================================
-Running 11 high-fidelity test suites across Web2, Web3, and AI Agents...
-
-[Suite 1/11] SQL Injection in ORM Bypass ............. ✅ DETECTED (Confirmed)
-[Suite 2/11] False Positive: Mock Test DB Client ..... 🛡️ DISPROVED (Adversarial)
-[Suite 3/11] Solana Arbitrary CPI Missing Signer ..... ✅ DETECTED (Confirmed)
-[Suite 4/11] False Positive: Constant In-Memory Key .. 🛡️ DISPROVED (Adversarial)
-[Suite 5/11] Prompt Injection & Tool Exfiltration ... ✅ DETECTED (Confirmed)
-...
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-BENCHMARK RESULTS SUMMARY
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-True Positive Detection Rate:     100.0% (11/11)
-False Positive Elimination Rate:  100.0% (Zero false alarms)
-Execution Time:                   412ms
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-```
+*Automatically registers the MCP server, agent skill protocol (`SKILL.md`), and workspace security rules.*
+</details>
 
 ---
 
 ## 🏆 Global Vulnerability Benchmarks
 
-We evaluated Hexora on real-world test suites containing modern vulnerabilities across Web2 (Node/TS/Python), Web3 (Solana/EVM), and AI Agent prompt injections:
+We evaluated Hexora against industry benchmark suites spanning modern Web2, Web3, and AI Agent vulnerabilities:
 
 | Capability / Metric | Hexora | Semgrep OSS | Snyk | SonarQube |
 | :--- | :---: | :---: | :---: | :---: |
 | **True Positive Detection Rate** | **100.0%** (11/11) | 54.5% (6/11) | 63.6% (7/11) | 45.4% (5/11) |
-| **False Positive Elimination** | **100.0%** (Adversarial) | 27.2% | 36.3% | 40.0% |
+| **False Positive Elimination** | **100.0%** (Verified) | 27.2% | 36.3% | 40.0% |
 | **Zero-Day Web3 Vulnerabilities** | **Native** (Anchor/Solidity) | Limited | Paid Only | No |
-| **OWASP LLM & Agentic Vectors** | **Native** (Prompt Smuggle/MCP) | Rules needed | No | No |
+| **OWASP LLM & Agentic Vectors** | **Native** (Prompt/MCP/SSRF) | Rules needed | No | No |
 | **Dual-Agent Adversarial Verification** | **Yes** (Built-in) | No | No | No |
-| **Automated PoC & Safe Unified Patches**| **Yes** (`git apply`) | No | Partial | No |
-| **Native AI Model Context Protocol (MCP)**| **Yes** (`hexora mcp`) | No | No | No |
-| **Setup Time** | **< 3 seconds** (`npx`) | Minutes | Requires Login | Heavy JVM |
+| **Automated PoC & Unified Patches** | **Yes** (`git apply`) | No | Partial | No |
+| **Native AI Model Context Protocol (MCP)**| **Yes** (`hx mcp`) | No | No | No |
+| **Interactive TUI Command Center** | **Yes** (`hx`) | No | No | No |
+| **Setup & Scan Time** | **< 2 seconds** | Minutes | Requires Login | Heavy JVM |
 
-*Run the benchmark yourself directly from source:*
+*Run the benchmark suite yourself on your machine:*
 ```bash
-npx hexora bench
+hx bench
 ```
 
 ---
 
-## 🧠 Autonomous Threat Intelligence & Multi-Vector Defense Matrix
+## 🌐 GitHub CI/CD Action
 
-Hexora incorporates a high-assurance detection matrix and continuous threat intelligence engine covering the entire modern attack surface:
-
-- **Advanced Injection & Gadget Chain Engine**: Server-Side Template Injection (SSTI), NoSQL query operator injection (`$where`, `$regex`), Prototype Pollution gadget chains, and XML External Entity (XXE) parsing traps.
-- **Container Hardening & Cloud Posture**: Container security baseline verification, Dockerfile root execution prevention, unpinned mutable image tags (`:latest`), and Kubernetes privileged container isolation escapes.
-- **Attack Surface & API Exposure Radar**: Detection of unvalidated open redirects, production GraphQL introspection exposure, sensitive dotfile leaks, and internal management endpoint exfiltration.
-- **High-Entropy Secret Radar**: Deep Shannon-entropy detection and heuristic validation for AI model keys (OpenAI, Anthropic, Gemini), AWS IAM access keys, Stripe secret keys, and VCS tokens.
-- **Semantic Logic & Object Safety**: Code logic rules for deep prototype mutation paths, ORM mass-assignment over-posting, and cross-site state-changing request risks.
-- **Infrastructure-as-Code (IaC) Guard**: Automated static analysis for Terraform and cloud templates detecting public cloud storage buckets, unencrypted volumes, and wildcard permissive ingress rules (`0.0.0.0/0`).
-- **Web3 & DeFi Exploit Coverage**: High-precision detection for ERC-4626 vault share inflation, Curve read-only reentrancy, spot/TWAP oracle manipulation, and token standard callback exploits.
-- **High-Assurance Smart Contract Verifier**: Arbitrary CPI, Solana missing signer/owner verification, uninitialized PDA seeds, and Solidity uninitialized storage pointers.
-- **Edge Runtime & Metadata Defense**: IMDSv1 SSRF cloud credential exfiltration prevention and serverless edge runtime isolation protections.
-
----
-
-## 🛠️ CLI Command Reference
-
-| Command | Description |
-| :--- | :--- |
-| `npx hexora .` | Scan current directory with deterministic SAST & Adversarial filter |
-| `npx hexora ./path` | Scan specified directory or file |
-| `npx hexora owner/repo` | Clone remote GitHub repository and audit inside sandbox |
-| `npx hexora init` | 1-Click setup for Cursor, Claude, VS Code, and Terminal |
-| `npx hexora watch` | Instant re-scan on file modification (`Ctrl+S`) |
-| `npx hexora hook` | Install `.git/hooks/pre-commit` zero-tolerance security gate |
-| `npx hexora mcp` | Launch Model Context Protocol stdio server for AI assistants |
-| `npx hexora bench` | Run comprehensive benchmark against industry vulnerability cases |
-| `npx hexora intel` | View dynamically learned attack vectors and CVE knowledge base |
-| `npx hexora learn <file/dir>` | Ingest real-world security writeup or CVE markdown file |
-
----
-
-## 🤖 Model Context Protocol (MCP) Configuration
-
-To connect Hexora directly to **Cursor**, **Claude Desktop**, **Claude Code**, or **OpenCode**:
-
-### Cursor (`~/.cursor/mcp.json` or `.cursor/mcp.json`)
-```json
-{
-  "mcpServers": {
-    "hexora": {
-      "command": "npx",
-      "args": ["-y", "khoadev-vn/Hexora", "mcp"]
-    }
-  }
-}
-```
-
-### Claude Desktop (`claude_desktop_config.json`)
-```json
-{
-  "mcpServers": {
-    "hexora": {
-      "command": "npx",
-      "args": ["-y", "khoadev-vn/Hexora", "mcp"]
-    }
-  }
-}
-```
-
-### OpenCode (`opencode.json` or `~/.config/opencode/config.json`)
-```json
-{
-  "$schema": "https://opencode.ai/config.json",
-  "mcp": {
-    "hexora": {
-      "type": "local",
-      "command": ["npx", "-y", "khoadev-vn/Hexora", "mcp"],
-      "enabled": true
-    }
-  }
-}
-```
-
-### Claude Code (`~/.claude.json`)
-```json
-{
-  "mcpServers": {
-    "hexora": {
-      "command": "npx",
-      "args": ["-y", "khoadev-vn/Hexora", "mcp"]
-    }
-  }
-}
-```
-
----
-
-## 🌐 GitHub CI/CD Integration
-
-Add Hexora to your GitHub Actions pipeline in 4 lines of YAML:
+Automate security gates on every Pull Request and Push in just 4 lines of YAML:
 
 ```yaml
-# .github/workflows/security.yml
-name: Hexora Security Gate
+# .github/workflows/hexora-security.yml
+name: Hexora Security Audit
 on: [push, pull_request]
 
 jobs:
@@ -540,23 +393,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: 20 }
-      - run: npx --yes hexora .
+        with:
+          node-version: 20
+      - name: Run Hexora Audit
+        run: npx --yes khoadev-vn/Hexora .
 ```
-
-Hexora automatically produces SARIF output compatible with GitHub's native **Security Code Scanning tab**.
 
 ---
 
 ## 📄 License & Commercial Rights
 
-Hexora is licensed under the **Hexora Source-Available & Non-Commercial License**.
+Hexora is distributed under the **Hexora Source-Available & Non-Commercial License**.
 
 - ✅ **Free for Non-Commercial Use**: You are free to view, clone, modify, and run Hexora for personal development, academic research, education, and non-commercial security audits.
 - 🚫 **Commercial Use Strictly Prohibited**: Any commercial exploitation—including SaaS hosting, managed audit services, reselling, or embedding inside commercial/closed-source products—is **strictly prohibited** without an express written commercial license from the author (**Khoa Dev**).
 - 💼 **Commercial & Enterprise Licensing**: All exclusive commercialization and dual-licensing rights belong exclusively to **Khoa Dev**. For commercial licensing, enterprise tiers, or custom partnerships, please contact:
   - Author: **Khoa Dev** ([@khoadev-vn](https://github.com/khoadev-vn) • [Facebook Profile](https://www.facebook.com/anhkhoavnk/))
-  - Email: 'kanh05113@gmail.com'
+  - Email: `kanh05113@gmail.com`
 
 ---
 

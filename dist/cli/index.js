@@ -160,4 +160,5 @@ export async function runBenchmark() {
 }
 export { startWatchMode } from './watch.js';
 export { runUniversalSetup, installGitHook, runSkillCommand } from './setup.js';
+export { openInteractiveMenu } from './menu.js';
 //# sourceMappingURL=index.js.map
