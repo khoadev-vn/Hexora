@@ -24,7 +24,7 @@ function askLine(question, defaultVal = '') {
 function waitForReturn() {
     return new Promise((resolve) => {
         console.log(chalk.dim('\n  ─────────────────────────────────────────────────────────────'));
-        console.log(chalk.cyanBright('  ⏎ Nhấn [Enter] để quay lại Menu chính, hoặc [Ctrl+C] để thoát...'));
+        console.log(chalk.cyanBright('  ⏎ Press [Enter] to return to Main Menu, or [Ctrl+C] to exit...'));
         const onKey = (_chunk, key) => {
             if (key && (key.name === 'return' || key.name === 'enter' || key.name === 'escape' || (key.ctrl && key.name === 'c'))) {
                 if (process.stdin.isTTY) {
@@ -59,11 +59,11 @@ export async function openInteractiveMenu() {
             id: 'scan-cwd',
             key: '1',
             icon: '🛡️ ',
-            title: 'Quick Scan Workspace Hiện Tại',
-            desc: 'Quét toàn diện SAST + Adversarial Verification cho dự án này',
+            title: 'Quick Scan Current Workspace',
+            desc: 'Full SAST + Adversarial Verification with 0% false positives',
             action: async () => {
                 clearScreen();
-                console.log(chalk.bold.cyan('\n🚀 [Hexora] Đang khởi chạy Audit cho Workspace hiện tại...\n'));
+                console.log(chalk.bold.cyan('\n🚀 [Hexora] Launching security audit for current workspace...\n'));
                 await runScan('.', { verbose: false, noFail: true });
             },
         },
@@ -71,14 +71,14 @@ export async function openInteractiveMenu() {
             id: 'scan-custom',
             key: '2',
             icon: '📁',
-            title: 'Quét Dự Án Khác (Thư mục tùy chọn)',
-            desc: 'Nhập đường dẫn cục bộ (Local Path) để quét bảo mật',
+            title: 'Audit Custom Directory / File',
+            desc: 'Scan any target local folder or specific file path',
             action: async () => {
                 clearScreen();
-                console.log(chalk.bold.cyan('\n📁 [Hexora] Quét Thư Mục Tùy Chọn\n'));
-                const target = await askLine('👉 Nhập đường dẫn thư mục cần quét', '.');
+                console.log(chalk.bold.cyan('\n📁 [Hexora] Audit Custom Directory / File\n'));
+                const target = await askLine('👉 Enter path to scan', '.');
                 if (!fs.existsSync(path.resolve(target))) {
-                    console.log(chalk.red(`\n❌ Thư mục không tồn tại: ${target}`));
+                    console.log(chalk.red(`\n❌ Path does not exist: ${target}`));
                     return;
                 }
                 await runScan(target, { verbose: false, noFail: true });
@@ -88,12 +88,12 @@ export async function openInteractiveMenu() {
             id: 'scan-github',
             key: '3',
             icon: '🌐',
-            title: 'Quét Remote GitHub Repo',
-            desc: 'Tự động clone vào sandbox & audit (Ví dụ: expressjs/express)',
+            title: 'Audit Remote GitHub Repository',
+            desc: 'Auto-clones repo into sandbox & audits on-the-fly (e.g. expressjs/express)',
             action: async () => {
                 clearScreen();
-                console.log(chalk.bold.cyan('\n🌐 [Hexora] Quét Trực Tiếp Repository Từ GitHub\n'));
-                const repo = await askLine('👉 Nhập GitHub Repository (owner/repo)', 'khoadev-vn/Hexora');
+                console.log(chalk.bold.cyan('\n🌐 [Hexora] Audit Remote GitHub Repository\n'));
+                const repo = await askLine('👉 Enter GitHub repository (owner/repo)', 'khoadev-vn/Hexora');
                 await runScan(repo, { verbose: false, noFail: true });
             },
         },
@@ -101,11 +101,11 @@ export async function openInteractiveMenu() {
             id: 'watch',
             key: '4',
             icon: '⚡',
-            title: 'Chế Độ Live Watcher (Auto-audit khi Save)',
-            desc: 'Tự động quét lại mỗi khi Master nhấn Ctrl+S lưu file',
+            title: 'Real-Time Live Watcher (Auto-audit on Save)',
+            desc: 'Sub-20ms micro-scan triggered automatically on file save (Ctrl+S)',
             action: async () => {
                 clearScreen();
-                console.log(chalk.bold.yellow('\n⚡ [Hexora] Bắt đầu Watch Mode. Lưu file để auto audit!\n'));
+                console.log(chalk.bold.yellow('\n⚡ [Hexora] Starting Live Watch Mode. Save files to auto-audit!\n'));
                 startWatchMode('.');
                 await new Promise(() => { }); // Keep alive in watch mode
             },
@@ -114,11 +114,11 @@ export async function openInteractiveMenu() {
             id: 'setup-ai',
             key: '5',
             icon: '🛠️ ',
-            title: '1-Click Cài Đặt AI Agent & IDEs',
-            desc: 'Tự cấu hình MCP & Skills cho Antigravity, Cursor, Claude, Windsurf, VS Code',
+            title: '1-Click Setup AI Agents & IDEs',
+            desc: 'Auto-configures MCP & Skills for Antigravity, Cursor, Claude, Windsurf, VS Code',
             action: async () => {
                 clearScreen();
-                console.log(chalk.bold.magenta('\n🛠️  [Hexora] Cấu hình AI IDEs & Agent Ecosystem\n'));
+                console.log(chalk.bold.magenta('\n🛠️  [Hexora] Configuring AI IDEs & Agent Ecosystem\n'));
                 await runUniversalSetup({});
             },
         },
@@ -127,7 +127,7 @@ export async function openInteractiveMenu() {
             key: '6',
             icon: '🧠',
             title: 'Threat Intel & CVE Knowledge Vault',
-            desc: 'Xem cơ sở dữ liệu các lỗ hổng Zero-day, CVE và biến thể tấn công đã nạp',
+            desc: 'Inspect learned zero-days, attack variants, and vulnerability database',
             action: async () => {
                 clearScreen();
                 showThreatIntel();
@@ -137,14 +137,14 @@ export async function openInteractiveMenu() {
             id: 'learn-cve',
             key: '7',
             icon: '📚',
-            title: 'Học Báo Cáo Bảo Mật Mới (CVE / Writeup)',
-            desc: 'Nạp file .md, .pdf, .txt báo cáo bảo mật để huấn luyện Hexora',
+            title: 'Ingest New Threat Intelligence (CVE / Writeup)',
+            desc: 'Learn attack patterns and mitigations from .md, .pdf, or .txt writeups',
             action: async () => {
                 clearScreen();
-                console.log(chalk.bold.cyan('\n📚 [Hexora Knowledge Ingestion] Nạp Báo Cáo\n'));
-                const target = await askLine('👉 Nhập file hoặc thư mục báo cáo CVE/Writeup');
+                console.log(chalk.bold.cyan('\n📚 [Hexora Knowledge Ingestion] Ingest Security Report\n'));
+                const target = await askLine('👉 Enter path to report file or directory');
                 if (!target) {
-                    console.log(chalk.yellow('⚠️ Đã hủy bỏ thao tác.'));
+                    console.log(chalk.yellow('⚠️ Operation cancelled.'));
                     return;
                 }
                 await learnReport(target);
@@ -155,10 +155,10 @@ export async function openInteractiveMenu() {
             key: '8',
             icon: '📊',
             title: 'Vulnerability Benchmark Arena',
-            desc: 'Chạy bài test độ chính xác, tỷ lệ phát hiện và lọc False Positive',
+            desc: 'Run precision benchmarks across Web2, Web3, and AI agent targets',
             action: async () => {
                 clearScreen();
-                console.log(chalk.bold.green('\n📊 [Hexora] Khởi động Benchmark Arena Suite...\n'));
+                console.log(chalk.bold.green('\n📊 [Hexora] Launching Benchmark Arena Suite...\n'));
                 await runBenchmark();
             },
         },
@@ -166,11 +166,11 @@ export async function openInteractiveMenu() {
             id: 'mcp-server',
             key: '9',
             icon: '🔌',
-            title: 'Khởi Chạy MCP Server (Model Context Protocol)',
-            desc: 'Cung cấp 14 công cụ bảo mật Hexora cho AI Agents qua stdio',
+            title: 'Launch Hexora MCP Server (Model Context Protocol)',
+            desc: 'Expose 14 native deterministic security tools for AI agents via stdio',
             action: async () => {
                 clearScreen();
-                console.log(chalk.bold.blue('\n🔌 [Hexora] MCP Server đang khởi động qua stdio...\n'));
+                console.log(chalk.bold.blue('\n🔌 [Hexora] MCP Server running via stdio...\n'));
                 await startMcpServer();
             },
         },
@@ -178,8 +178,8 @@ export async function openInteractiveMenu() {
             id: 'git-hook',
             key: 'H',
             icon: '🔒',
-            title: 'Cài Đặt Git Pre-commit Hook',
-            desc: 'Tự động chặn git commit nếu phát hiện bí mật (secret) hoặc lỗ hổng nghiêm trọng',
+            title: 'Install Git Pre-commit Security Hook',
+            desc: 'Safeguard repo from secret leaks and critical vulnerabilities before commit',
             action: async () => {
                 clearScreen();
                 installGitHook('.');
@@ -189,11 +189,11 @@ export async function openInteractiveMenu() {
             id: 'exit',
             key: '0',
             icon: '❌',
-            title: 'Thoát Menu (Exit)',
-            desc: 'Đóng menu tương tác Hexora',
+            title: 'Exit Interactive Menu',
+            desc: 'Exit Hexora command center',
             action: async () => {
                 clearScreen();
-                console.log(chalk.magentaBright('\n  Tạm biệt Master! Hẹn gặp lại Master trong những lần Audit tiếp theo nha~! ✨💕\n'));
+                console.log(chalk.cyanBright('\n  Stay secure! Thank you for using Hexora. ✨🛡️\n'));
                 process.exit(0);
             },
         },
@@ -234,7 +234,7 @@ export async function openInteractiveMenu() {
         });
         console.log(chalk.cyanBright(`├${line}┤`));
         console.log(chalk.cyanBright('│') +
-            chalk.dim('  Phím: [↑/↓] Chọn  •  [Enter] Chạy  •  [0-9] Chọn nhanh  •  [q] Thoát  ') +
+            chalk.dim('  Keys: [↑/↓] Select  •  [Enter] Run  •  [0-9] Quick Jump  •  [q] Exit  ') +
             chalk.cyanBright('│'));
         console.log(chalk.cyanBright(`╰${line}╯`));
     }
@@ -295,7 +295,7 @@ export async function openInteractiveMenu() {
                 await item.action();
             }
             catch (err) {
-                console.error(chalk.red(`\n❌ Đã xảy ra lỗi khi thực thi: ${err?.message || err}`));
+                console.error(chalk.red(`\n❌ Error during execution: ${err?.message || err}`));
             }
             if (item.id !== 'exit' && item.id !== 'watch') {
                 await waitForReturn();

@@ -33,82 +33,82 @@
 <br/>
 
 ```text
-  [1] 🛡️  Quick Scan Workspace Hiện Tại       --> Full SAST + Dependency + Secret scan with 0% False Positives
-  [2] 📁 Quét Dự Án Khác (Thư mục tùy chọn)  --> Audit any local directory on your drive
-  [3] 🌐 Quét Remote GitHub Repo              --> Clones repo into sandbox and audits on-the-fly
-  [4] ⚡ Chế Độ Live Watcher                  --> Auto-scans sub-20ms every time you press Ctrl+S
-  [5] 🛠️  1-Click Cài Đặt AI Agent & IDEs      --> Auto-configures Antigravity, Cursor, Claude, Windsurf, VS Code
-  [6] 🧠 Threat Intel & CVE Knowledge Vault   --> Inspect learned CVEs, zero-days, and attack vectors
-  [7] 📚 Học Báo Cáo Bảo Mật Mới              --> Ingest CVEs, PDFs, and bug bounty writeups into memory
-  [8] 📊 Vulnerability Benchmark Arena        --> Run precision benchmark suite against industry targets
-  [9] 🔌 Khởi Chạy MCP Server                 --> Expose 14 native deterministic security tools for AI agents
-  [H] 🔒 Cài Đặt Git Pre-commit Hook          --> Prevent secret leaks and critical vulnerabilities before commit
-  [0] ❌ Thoát Menu (Exit)
+  [1] 🛡️  Quick Scan Current Workspace            --> Full SAST + Dependency + Secret scan with 0% False Positives
+  [2] 📁 Audit Custom Directory / File           --> Scan any local directory or file on your drive
+  [3] 🌐 Audit Remote GitHub Repository          --> Clones repo into sandbox and audits on-the-fly
+  [4] ⚡ Real-Time Live Watcher                  --> Auto-scans sub-20ms every time you press Ctrl+S
+  [5] 🛠️  1-Click Setup AI Agents & IDEs          --> Auto-configures Antigravity, Cursor, Claude, Windsurf, VS Code
+  [6] 🧠 Threat Intel & CVE Knowledge Vault      --> Inspect learned CVEs, zero-days, and attack vectors
+  [7] 📚 Ingest New Threat Intelligence          --> Ingest CVEs, PDFs, and bug bounty writeups into memory
+  [8] 📊 Vulnerability Benchmark Arena           --> Run precision benchmark suite against industry targets
+  [9] 🔌 Launch Hexora MCP Server                --> Expose 14 native deterministic security tools for AI agents
+  [H] 🔒 Install Git Pre-commit Security Hook     --> Prevent secret leaks and critical vulnerabilities before commit
+  [0] ❌ Exit Interactive Menu
 ```
 
 ---
 
 ## ⚡ Super Easy Quick Start
 
-Choose whichever method fits your setup best. All of them let you run Hexora with the ultra-concise **`hx`** command!
+Choose whichever method fits your workflow best. All of them let you run Hexora with the ultra-concise **`hx`** command!
 
-### 🌟 Cách 1: Git Clone về máy (Dành cho Developer & Contributors)
-Nếu bạn đã clone hoặc muốn clone mã nguồn về máy tính:
+### 🌟 Method 1: Git Clone (For Developers & Contributors)
+If you want to clone and develop Hexora locally:
 
 ```bash
 # 1. Clone repository
 git clone https://github.com/khoadev-vn/Hexora.git
 
-# 2. Di chuyển vào thư mục & cài đặt dependencies
+# 2. Navigate to directory & install dependencies
 cd Hexora
 npm install
 
-# 3. Build mã nguồn TypeScript
+# 3. Build TypeScript source
 npm run build
 
-# 4. Liên kết lệnh toàn cục (Global Link)
+# 4. Link global command
 npm link
 ```
 
-🎉 **Xong!** Từ giờ ở bất kỳ thư mục nào trên máy tính, bạn chỉ cần mở Terminal và gõ:
+🎉 **You're all set!** Anywhere on your machine, simply open a Terminal and run:
 ```bash
 hx
-# hoặc
+# or
 hexora
 ```
-Menu tương tác sẽ lập tức xuất hiện!
+The interactive command center will launch immediately!
 
 ---
 
-### 🚀 Cách 2: Cài Đặt Toàn Cầu 1 Lệnh (Global NPM via GitHub)
-Cài đặt một lần duy nhất, dùng được vĩnh viễn trên toàn bộ hệ điều hành:
+### 🚀 Method 2: Global Install via GitHub (1-Liner)
+Install once and use globally across your operating system:
 
 ```bash
 npm install -g khoadev-vn/Hexora
 ```
 
-Sau khi cài đặt xong, gõ ngay trong terminal:
+Once installed, simply run in your terminal:
 ```bash
 hx
 ```
 
 ---
 
-### ⚡ Cách 3: Chạy Tức Thì Không Cần Cài Đặt (Zero-Install NPX)
-Không cần tải hay lưu file vào máy, chạy trực tiếp từ đám mây:
+### ⚡ Method 3: Instant Run without Installation (Zero-Install NPX)
+Run directly from the cloud without keeping files locally:
 
 ```bash
-# Mở Interactive Menu:
+# Open interactive menu:
 npx khoadev-vn/Hexora
 
-# Hoặc quét trực tiếp thư mục hiện tại:
+# Or scan current workspace directly:
 npx khoadev-vn/Hexora .
 ```
 
 ---
 
-### 🎁 Cách 4: Script Tự Động 1 Dòng Lệnh (1-Line Automated Installer)
-Tự động kiểm tra Node.js và cấu hình môi trường trong vài giây:
+### 🎁 Method 4: 1-Line Automated Installer
+Automatically verifies Node.js and configures the environment in seconds:
 
 - **Linux / macOS**:
 ```bash
