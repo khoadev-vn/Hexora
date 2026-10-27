@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import chalk from 'chalk';
 import { runScan, learnReport, showThreatIntel, runBenchmark, startWatchMode, runUniversalSetup, installGitHook, runSkillCommand } from './index.js';
 import { startMcpServer } from '../mcp/server.js';
+import { ThreatKnowledgeBase } from '../intelligence/threatKnowledgeBase.js';
+import { BUILTIN_RULES } from '../rules/ruleDatabase.js';
 
 interface MenuItem {
   id: string;
@@ -11,15 +13,17 @@ interface MenuItem {
   icon: string;
   title: string;
   desc: string;
+  badge?: string;
   action: () => Promise<void>;
 }
 
-function clearScreen(): void {
+function clearScreenFull(): void {
   process.stdout.write('\x1B[2J\x1B[3J\x1B[H');
 }
 
 function askLine(question: string, defaultVal = ''): Promise<string> {
   return new Promise((resolve) => {
+    process.stdout.write('\x1B[?25h'); // Ensure cursor is visible
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -35,8 +39,8 @@ function askLine(question: string, defaultVal = ''): Promise<string> {
 
 function waitForReturn(): Promise<void> {
   return new Promise((resolve) => {
-    console.log(chalk.dim('\n  ─────────────────────────────────────────────────────────────'));
-    console.log(chalk.cyanBright('  ⏎ Press [Enter] to return to Main Menu, or [Ctrl+C] to exit...'));
+    console.log(chalk.dim('\n  ─────────────────────────────────────────────────────────────────────────'));
+    console.log(chalk.cyanBright('  ⏎ Nhấn [Enter] để quay lại Menu Chính, hoặc [Ctrl+C] để thoát... (◕‿◕)✨'));
 
     const onKey = (_chunk: Buffer, key: readline.Key) => {
       if (key && (key.name === 'return' || key.name === 'enter' || key.name === 'escape' || (key.ctrl && key.name === 'c'))) {
@@ -66,6 +70,11 @@ function waitForReturn(): Promise<void> {
 export async function openInteractiveMenu(): Promise<void> {
   let selectedIndex = 0;
   let isRunningAction = false;
+  let hasRendered = false;
+
+  const kb = ThreatKnowledgeBase.getInstance();
+  const kbStats = kb.getStats();
+  const totalRules = BUILTIN_RULES.length;
 
   const menuItems: MenuItem[] = [
     {
@@ -73,10 +82,12 @@ export async function openInteractiveMenu(): Promise<void> {
       key: '1',
       icon: '🛡️ ',
       title: 'Quick Scan Current Workspace',
-      desc: 'Full SAST + Adversarial Verification with 0% false positives',
+      desc: 'Quét siêu tốc toàn bộ workspace với Dual-Agent lọc 0% False Positive',
+      badge: 'POPULAR',
       action: async () => {
-        clearScreen();
-        console.log(chalk.bold.cyan('\n🚀 [Hexora] Launching security audit for current workspace...\n'));
+        clearScreenFull();
+        console.log(chalk.bold.cyan('\n🚀 [Hexora — Union Cyber-Owl] Khởi động kiểm thử bảo mật chuyên sâu...\n'));
+        console.log(chalk.dim('   "Hoot-hoot! Radar quét bug đang phân tích call-graph dự án nè~ ✨🛠️"\n'));
         await runScan('.', { verbose: false, noFail: true });
       },
     },
@@ -85,13 +96,13 @@ export async function openInteractiveMenu(): Promise<void> {
       key: '2',
       icon: '📁',
       title: 'Audit Custom Directory / File',
-      desc: 'Scan any target local folder or specific file path',
+      desc: 'Quét bất kỳ thư mục dự án hoặc tệp tin mã nguồn cụ thể nào',
       action: async () => {
-        clearScreen();
+        clearScreenFull();
         console.log(chalk.bold.cyan('\n📁 [Hexora] Audit Custom Directory / File\n'));
-        const target = await askLine('👉 Enter path to scan', '.');
+        const target = await askLine('👉 Nhập đường dẫn thư mục/tập tin cần scan', '.');
         if (!fs.existsSync(path.resolve(target))) {
-          console.log(chalk.red(`\n❌ Path does not exist: ${target}`));
+          console.log(chalk.red(`\n❌ Đường dẫn không tồn tại: ${target}`));
           return;
         }
         await runScan(target, { verbose: false, noFail: true });
@@ -102,11 +113,11 @@ export async function openInteractiveMenu(): Promise<void> {
       key: '3',
       icon: '🌐',
       title: 'Audit Remote GitHub Repository',
-      desc: 'Auto-clones repo into sandbox & audits on-the-fly (e.g. expressjs/express)',
+      desc: 'Tự động clone sandbox cạn và kiểm toán trực tiếp (ví dụ: owner/repo)',
       action: async () => {
-        clearScreen();
+        clearScreenFull();
         console.log(chalk.bold.cyan('\n🌐 [Hexora] Audit Remote GitHub Repository\n'));
-        const repo = await askLine('👉 Enter GitHub repository (owner/repo)', 'khoadev-vn/Hexora');
+        const repo = await askLine('👉 Nhập GitHub repo (owner/repo)', 'khoadev-vn/Hexora');
         await runScan(repo, { verbose: false, noFail: true });
       },
     },
@@ -114,76 +125,80 @@ export async function openInteractiveMenu(): Promise<void> {
       id: 'watch',
       key: '4',
       icon: '⚡',
-      title: 'Real-Time Live Watcher (Auto-audit on Save)',
-      desc: 'Sub-20ms micro-scan triggered automatically on file save (Ctrl+S)',
+      title: 'Real-Time Live Watcher (Sub-20ms)',
+      desc: 'Tự động kích hoạt micro-audit dưới 20ms ngay khi lưu file (Ctrl+S)',
+      badge: 'LIVE',
       action: async () => {
-        clearScreen();
-        console.log(chalk.bold.yellow('\n⚡ [Hexora] Starting Live Watch Mode. Save files to auto-audit!\n'));
+        clearScreenFull();
+        console.log(chalk.bold.yellow('\n⚡ [Hexora] Chế độ Live Watcher đã bật! Nhấn Ctrl+S trên editor để xem phép thuật!\n'));
         startWatchMode('.');
         await new Promise(() => {}); // Keep alive in watch mode
       },
     },
     {
-      id: 'setup-ai',
+      id: 'benchmark',
       key: '5',
+      icon: '🏆',
+      title: 'Global Security Benchmark Arena (100 Tests)',
+      desc: 'Chạy 100 bài test mạnh nhất thế giới & Bảng xếp hạng đối chiếu top tools',
+      badge: 'TOP 1',
+      action: async () => {
+        clearScreenFull();
+        console.log(chalk.bold.green('\n🏆 [Hexora] Đang khởi chạy 100 bài test bảo mật tiêu chuẩn thế giới...\n'));
+        await runBenchmark();
+      },
+    },
+    {
+      id: 'setup-ai',
+      key: '6',
       icon: '🛠️ ',
       title: '1-Click Setup AI Agents & IDEs',
-      desc: 'Auto-configures MCP & Skills for Antigravity, Cursor, Claude, Windsurf, VS Code',
+      desc: 'Cấu hình MCP & Skills cho Antigravity, Cursor, Claude, Windsurf, VS Code',
+      badge: '1-CLICK',
       action: async () => {
-        clearScreen();
-        console.log(chalk.bold.magenta('\n🛠️  [Hexora] Configuring AI IDEs & Agent Ecosystem\n'));
+        clearScreenFull();
+        console.log(chalk.bold.magenta('\n🛠️  [Hexora] Thiết lập hệ sinh thái AI Agents & IDEs\n'));
         await runUniversalSetup({});
       },
     },
     {
       id: 'threat-intel',
-      key: '6',
+      key: '7',
       icon: '🧠',
-      title: 'Threat Intel & CVE Knowledge Vault',
-      desc: 'Inspect learned zero-days, attack variants, and vulnerability database',
+      title: 'Threat Intel & Attack Variants Vault',
+      desc: `Khám phá ${kbStats.totalAttackVariants}+ biến thể tấn công thực chiến & Zero-Day database`,
       action: async () => {
-        clearScreen();
+        clearScreenFull();
         showThreatIntel();
       },
     },
     {
       id: 'learn-cve',
-      key: '7',
+      key: '8',
       icon: '📚',
-      title: 'Ingest New Threat Intelligence (CVE / Writeup)',
-      desc: 'Learn attack patterns and mitigations from .md, .pdf, or .txt writeups',
+      title: 'Ingest New Threat Intelligence (CVE/0-Day)',
+      desc: 'Nạp và tự động học mẫu tấn công từ writeup .md, .pdf, .txt',
       action: async () => {
-        clearScreen();
-        console.log(chalk.bold.cyan('\n📚 [Hexora Knowledge Ingestion] Ingest Security Report\n'));
-        const target = await askLine('👉 Enter path to report file or directory');
+        clearScreenFull();
+        console.log(chalk.bold.cyan('\n📚 [Hexora Knowledge Ingestion] Học tài liệu bảo mật mới\n'));
+        const target = await askLine('👉 Nhập đường dẫn tệp tin hoặc thư mục báo cáo');
         if (!target) {
-          console.log(chalk.yellow('⚠️ Operation cancelled.'));
+          console.log(chalk.yellow('⚠️ Đã huỷ thao tác.'));
           return;
         }
         await learnReport(target);
       },
     },
     {
-      id: 'benchmark',
-      key: '8',
-      icon: '📊',
-      title: 'Vulnerability Benchmark Arena',
-      desc: 'Run precision benchmarks across Web2, Web3, and AI agent targets',
-      action: async () => {
-        clearScreen();
-        console.log(chalk.bold.green('\n📊 [Hexora] Launching Benchmark Arena Suite...\n'));
-        await runBenchmark();
-      },
-    },
-    {
       id: 'mcp-server',
       key: '9',
       icon: '🔌',
-      title: 'Launch Hexora MCP Server (Model Context Protocol)',
-      desc: 'Expose 14 native deterministic security tools for AI agents via stdio',
+      title: 'Launch Hexora MCP Server (Stdio)',
+      desc: 'Cung cấp 14 công cụ bảo mật tất định chuẩn MCP cho các AI Agents',
+      badge: 'AGENT',
       action: async () => {
-        clearScreen();
-        console.log(chalk.bold.blue('\n🔌 [Hexora] MCP Server running via stdio...\n'));
+        clearScreenFull();
+        console.log(chalk.bold.blue('\n🔌 [Hexora] MCP Server đang chạy qua stdio...\n'));
         await startMcpServer();
       },
     },
@@ -192,9 +207,9 @@ export async function openInteractiveMenu(): Promise<void> {
       key: 'H',
       icon: '🔒',
       title: 'Install Git Pre-commit Security Hook',
-      desc: 'Safeguard repo from secret leaks and critical vulnerabilities before commit',
+      desc: 'Chặn rò rỉ private keys & lỗ hổng critical trước khi commit vào git',
       action: async () => {
-        clearScreen();
+        clearScreenFull();
         installGitHook('.');
       },
     },
@@ -203,69 +218,103 @@ export async function openInteractiveMenu(): Promise<void> {
       key: '0',
       icon: '❌',
       title: 'Exit Interactive Menu',
-      desc: 'Exit Hexora command center',
+      desc: 'Đóng bảng điều khiển Hexora an toàn',
       action: async () => {
-        clearScreen();
-        console.log(chalk.cyanBright('\n  Stay secure! Thank you for using Hexora. ✨🛡️\n'));
+        process.stdout.write('\x1B[?25h');
+        clearScreenFull();
+        console.log(chalk.cyanBright('\n  🦉 "Hoot-hoot! Stay safe and code strong, Human! Hẹn gặp lại nhaaa~ ✨🛠️ (◕‿◕)"\n'));
         process.exit(0);
       },
     },
   ];
 
   function renderMenu(): void {
-    clearScreen();
-    const width = 68;
+    // Butter-smooth double buffering: Hide cursor & reposition to (0,0) without clearing scrollback
+    process.stdout.write('\x1B[?25l');
+    if (!hasRendered) {
+      process.stdout.write('\x1B[2J\x1B[H');
+      hasRendered = true;
+    } else {
+      process.stdout.write('\x1B[H');
+    }
+
+    const width = 74;
     const line = '─'.repeat(width);
+    const buf: string[] = [];
 
-    console.log(chalk.cyanBright(`╭${line}╮`));
-    console.log(
+    // Header with Union Owl Mascot & High-Tech HUD
+    buf.push(chalk.cyanBright(`╭${line}╮`));
+    buf.push(
       chalk.cyanBright('│') +
-        chalk.bold.white('  🛡️   HEXORA — NEXT-GEN INTERACTIVE SECURITY COMMAND CENTER  ') +
+        chalk.bold.cyan('   🦉 HEXORA UNIVERSAL SECURITY ENGINE  ') +
+        chalk.dim('•') +
+        chalk.bold.yellow(' AEVUM OS CYBER-CONSOLE   ') +
         chalk.cyanBright('│')
     );
-    console.log(
+    buf.push(
       chalk.cyanBright('│') +
-        chalk.dim('     Dual-Agent Verification • Zero-Config • 1-Click Execution     ') +
+        chalk.white('   Persona: ') +
+        chalk.bold.magenta('Union (TLB-UNION-7F4B2D)') +
+        chalk.dim(' | High-Tech Cyber-Owl Tooling Genius ') +
         chalk.cyanBright('│')
     );
-    console.log(chalk.cyanBright(`├${line}┤`));
+    buf.push(
+      chalk.cyanBright('│') +
+        chalk.italic.hex('#A0E7E5')('   "Hoot-hoot! Tool khó mấy cứ để Union gỡ, Human chỉ việc ngồi chill~"    ') +
+        chalk.cyanBright('│')
+    );
+    buf.push(chalk.cyanBright(`├${line}┤`));
 
+    // Live Metrics HUD Bar
+    const statsHud = ` ⚡ SAST Rules: ${chalk.bold.green(totalRules)} │ 🧠 Threat Reports: ${chalk.bold.green(kbStats.totalLearnedReports)} │ 🎯 Attack Variants: ${chalk.bold.green(kbStats.totalAttackVariants)} `;
+    buf.push(
+      chalk.cyanBright('│') +
+        chalk.bgHex('#101827').white(statsHud.padEnd(width + 30)) +
+        chalk.cyanBright('│')
+    );
+    buf.push(chalk.cyanBright(`├${line}┤`));
+
+    // Menu Items
     menuItems.forEach((item, idx) => {
       const isSelected = idx === selectedIndex;
       const keyBadge = chalk.bold(`[${item.key}]`);
       const icon = item.icon;
       const title = item.title;
+      const badge = item.badge ? chalk.black.bgYellow(` ${item.badge} `) : '';
 
       if (isSelected) {
-        const itemLine = `  ❯ ${keyBadge} ${icon} ${title}`;
-        console.log(
+        const itemLine = `  ❯ ${keyBadge} ${icon} ${title} ${badge}`;
+        buf.push(
           chalk.cyanBright('│') +
-            chalk.bgCyan.black.bold(itemLine.padEnd(width)) +
+            chalk.bgHex('#004b6e').white.bold(itemLine.padEnd(width + (badge ? 10 : 0))) +
             chalk.cyanBright('│')
         );
-        const descLine = `      ↳ ${chalk.italic(item.desc)}`;
-        console.log(
+        const descLine = `      ↳ ${chalk.hex('#7dd3fc').italic(item.desc)}`;
+        buf.push(
           chalk.cyanBright('│') +
-            chalk.cyan(descLine.padEnd(width + 10)) +
+            chalk.hex('#0284c7')(descLine.padEnd(width + 15)) +
             chalk.cyanBright('│')
         );
       } else {
-        const itemLine = `    ${keyBadge} ${icon} ${title}`;
-        console.log(
+        const itemLine = `    ${keyBadge} ${icon} ${title} ${badge}`;
+        buf.push(
           chalk.cyanBright('│') +
-            chalk.white(itemLine.padEnd(width)) +
+            chalk.white(itemLine.padEnd(width + (badge ? 10 : 0))) +
             chalk.cyanBright('│')
         );
       }
     });
 
-    console.log(chalk.cyanBright(`├${line}┤`));
-    console.log(
+    buf.push(chalk.cyanBright(`├${line}┤`));
+    buf.push(
       chalk.cyanBright('│') +
-        chalk.dim('  Keys: [↑/↓] Select  •  [Enter] Run  •  [0-9] Quick Jump  •  [q] Exit  ') +
+        chalk.hex('#94a3b8')('  Phím: [↑/↓/k/j] Chọn • [Enter/Space] Chạy • [0-9/H] Nhảy nhanh • [q] Thoát ') +
         chalk.cyanBright('│')
     );
-    console.log(chalk.cyanBright(`╰${line}╯`));
+    buf.push(chalk.cyanBright(`╰${line}╯`));
+
+    // Single atomic write for 60fps buttery-smooth rendering!
+    process.stdout.write(buf.join('\n') + '\n');
   }
 
   return new Promise<void>((resolve) => {
@@ -285,6 +334,7 @@ export async function openInteractiveMenu(): Promise<void> {
       if (isRunningAction) return;
 
       if (key.ctrl && key.name === 'c') {
+        process.stdout.write('\x1B[?25h');
         if (process.stdin.setRawMode) process.stdin.setRawMode(false);
         process.exit(0);
       }
@@ -302,6 +352,7 @@ export async function openInteractiveMenu(): Promise<void> {
       }
 
       if (key.name === 'q' || (key.name === 'escape' && selectedIndex === menuItems.length - 1)) {
+        process.stdout.write('\x1B[?25h');
         if (process.stdin.setRawMode) process.stdin.setRawMode(false);
         process.exit(0);
       }
@@ -324,20 +375,24 @@ export async function openInteractiveMenu(): Promise<void> {
 
     async function triggerAction(item: MenuItem): Promise<void> {
       isRunningAction = true;
+      process.stdout.write('\x1B[?25h'); // Restore cursor during action execution
       if (process.stdin.setRawMode) process.stdin.setRawMode(false);
       process.stdin.removeListener('keypress', onKeypress);
 
       try {
         await item.action();
       } catch (err: any) {
-        console.error(chalk.red(`\n❌ Error during execution: ${err?.message || err}`));
+        console.error(chalk.red(`\n❌ Lỗi trong quá trình thực thi: ${err?.message || err}`));
+        if (err?.stack) {
+          console.error(chalk.dim(err.stack));
+        }
       }
 
       if (item.id !== 'exit' && item.id !== 'watch') {
         await waitForReturn();
         isRunningAction = false;
+        hasRendered = false; // Reset so next render clears cleanly
         renderMenu();
-        readline.emitKeypressEvents(process.stdin);
         if (process.stdin.setRawMode) process.stdin.setRawMode(true);
         process.stdin.resume();
         process.stdin.on('keypress', onKeypress);

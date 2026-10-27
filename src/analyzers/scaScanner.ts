@@ -408,7 +408,9 @@ export class ScaScanner {
         const fileContent = fs.readFileSync(manifestPath, 'utf-8');
         const relPath = path.relative(resolvedRoot, manifestPath).replace(/\\/g, '/');
         const manifestFindings = await this.scanManifestFile(manifestPath, relPath, fileContent);
-        findings.push(...manifestFindings);
+        for (const mf of manifestFindings) {
+          findings.push(mf);
+        }
       } catch {
         // Skip unreadable files
       }
@@ -429,20 +431,24 @@ export class ScaScanner {
     const fileName = path.basename(fullPath).toLowerCase();
     const parsedDeps: ParsedDependency[] = [];
 
+    const appendDeps = (deps: ParsedDependency[]) => {
+      for (const d of deps) parsedDeps.push(d);
+    };
+
     if (fileName === 'package.json') {
-      parsedDeps.push(...this.parsePackageJson(fullPath, relPath, content));
+      appendDeps(this.parsePackageJson(fullPath, relPath, content));
     } else if (fileName === 'package-lock.json') {
-      parsedDeps.push(...this.parsePackageLockJson(fullPath, relPath, content));
+      appendDeps(this.parsePackageLockJson(fullPath, relPath, content));
     } else if (fileName === 'requirements.txt') {
-      parsedDeps.push(...this.parseRequirementsTxt(fullPath, relPath, content));
+      appendDeps(this.parseRequirementsTxt(fullPath, relPath, content));
     } else if (fileName === 'cargo.toml') {
-      parsedDeps.push(...this.parseCargoToml(fullPath, relPath, content));
+      appendDeps(this.parseCargoToml(fullPath, relPath, content));
     } else if (fileName === 'go.mod') {
-      parsedDeps.push(...this.parseGoMod(fullPath, relPath, content));
+      appendDeps(this.parseGoMod(fullPath, relPath, content));
     } else if (fileName === 'pom.xml') {
-      parsedDeps.push(...this.parsePomXml(fullPath, relPath, content));
+      appendDeps(this.parsePomXml(fullPath, relPath, content));
     } else if (fileName === 'composer.json') {
-      parsedDeps.push(...this.parseComposerJson(fullPath, relPath, content));
+      appendDeps(this.parseComposerJson(fullPath, relPath, content));
     }
 
     for (const dep of parsedDeps) {
@@ -472,20 +478,24 @@ export class ScaScanner {
     const fileName = path.basename(fullPath).toLowerCase();
     const parsedDeps: ParsedDependency[] = [];
 
+    const appendDeps = (deps: ParsedDependency[]) => {
+      for (const d of deps) parsedDeps.push(d);
+    };
+
     if (fileName === 'package.json') {
-      parsedDeps.push(...this.parsePackageJson(fullPath, relPath, content));
+      appendDeps(this.parsePackageJson(fullPath, relPath, content));
     } else if (fileName === 'package-lock.json') {
-      parsedDeps.push(...this.parsePackageLockJson(fullPath, relPath, content));
+      appendDeps(this.parsePackageLockJson(fullPath, relPath, content));
     } else if (fileName === 'requirements.txt') {
-      parsedDeps.push(...this.parseRequirementsTxt(fullPath, relPath, content));
+      appendDeps(this.parseRequirementsTxt(fullPath, relPath, content));
     } else if (fileName === 'cargo.toml') {
-      parsedDeps.push(...this.parseCargoToml(fullPath, relPath, content));
+      appendDeps(this.parseCargoToml(fullPath, relPath, content));
     } else if (fileName === 'go.mod') {
-      parsedDeps.push(...this.parseGoMod(fullPath, relPath, content));
+      appendDeps(this.parseGoMod(fullPath, relPath, content));
     } else if (fileName === 'pom.xml') {
-      parsedDeps.push(...this.parsePomXml(fullPath, relPath, content));
+      appendDeps(this.parsePomXml(fullPath, relPath, content));
     } else if (fileName === 'composer.json') {
-      parsedDeps.push(...this.parseComposerJson(fullPath, relPath, content));
+      appendDeps(this.parseComposerJson(fullPath, relPath, content));
     }
 
     // Dynamic Online OSV Query fallback (with fast timeout)
@@ -878,10 +888,12 @@ export class ScaScanner {
   }
 
   /**
-   * Discovers all supported manifest files in the directory
+   * Discovers all supported manifest files in the directory iteratively and safely
    */
   private findManifestFiles(dir: string): string[] {
     const results: string[] = [];
+    if (!fs.existsSync(dir)) return results;
+
     const manifests = new Set([
       'package.json',
       'package-lock.json',
@@ -892,26 +904,91 @@ export class ScaScanner {
       'composer.json'
     ]);
 
-    const ignoreDirs = new Set(['node_modules', '.git', 'dist', 'build', '.hexora-results', 'coverage', '.benchmark_workspace']);
+    const ignoreDirs = new Set([
+      'node_modules',
+      '.git',
+      'dist',
+      'build',
+      'out',
+      '.hexora-results',
+      '.aevum-audit-results',
+      'coverage',
+      '.benchmark_workspace',
+      'AppData',
+      '.cache',
+      '.local',
+      '.vscode',
+      '.idea'
+    ]);
 
-    const traverse = (currentDir: string) => {
+    const visitedRealPaths = new Set<string>();
+    const stack: { dirPath: string; depth: number }[] = [{ dirPath: path.resolve(dir), depth: 0 }];
+    const maxDepth = 25;
+    const maxManifests = 1000;
+
+    try {
+      const initialReal = fs.realpathSync(dir);
+      visitedRealPaths.add(initialReal);
+    } catch {}
+
+    while (stack.length > 0) {
+      if (results.length >= maxManifests) break;
+
+      const current = stack.pop()!;
+      if (current.depth > maxDepth) continue;
+
+      let entries: fs.Dirent[];
       try {
-        const entries = fs.readdirSync(currentDir, { withFileTypes: true });
-        for (const entry of entries) {
-          if (entry.isDirectory()) {
-            if (!ignoreDirs.has(entry.name)) {
-              traverse(path.join(currentDir, entry.name));
-            }
-          } else if (entry.isFile()) {
-            if (manifests.has(entry.name.toLowerCase())) {
-              results.push(path.join(currentDir, entry.name));
-            }
+        entries = fs.readdirSync(current.dirPath, { withFileTypes: true });
+      } catch {
+        continue;
+      }
+
+      for (const entry of entries) {
+        const name = entry.name;
+        if (ignoreDirs.has(name) || name.startsWith('.') || name.startsWith('~')) {
+          continue;
+        }
+
+        const full = path.join(current.dirPath, name);
+
+        let isDir = false;
+        let isFile = false;
+
+        try {
+          if (entry.isSymbolicLink()) {
+            const real = fs.realpathSync(full);
+            if (visitedRealPaths.has(real)) continue;
+            visitedRealPaths.add(real);
+
+            const stat = fs.statSync(full);
+            isDir = stat.isDirectory();
+            isFile = stat.isFile();
+          } else {
+            isDir = entry.isDirectory();
+            isFile = entry.isFile();
+          }
+        } catch {
+          continue;
+        }
+
+        if (isDir) {
+          try {
+            const real = fs.realpathSync(full);
+            if (visitedRealPaths.has(real)) continue;
+            visitedRealPaths.add(real);
+          } catch {}
+
+          stack.push({ dirPath: full, depth: current.depth + 1 });
+        } else if (isFile) {
+          if (manifests.has(name.toLowerCase())) {
+            results.push(full);
+            if (results.length >= maxManifests) break;
           }
         }
-      } catch {}
-    };
+      }
+    }
 
-    traverse(dir);
     return results;
   }
 }

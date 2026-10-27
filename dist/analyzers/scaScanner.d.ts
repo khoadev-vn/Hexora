@@ -86,7 +86,7 @@ export declare class ScaScanner {
      */
     private queryOsvApi;
     /**
-     * Discovers all supported manifest files in the directory
+     * Discovers all supported manifest files in the directory iteratively and safely
      */
     private findManifestFiles;
 }

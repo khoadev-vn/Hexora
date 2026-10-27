@@ -29,15 +29,29 @@ export class SastScanner {
       '.git',
       'dist',
       'build',
+      'out',
       'coverage',
       '.next',
+      '.nuxt',
       '.turbo',
       'venv',
       '.venv',
+      'env',
       '__pycache__',
       '.benchmark_workspace',
       '.hexora-results',
+      '.aevum-audit-results',
       'reports',
+      'AppData',
+      '.cache',
+      '.local',
+      '.vscode',
+      '.idea',
+      'vendor',
+      'target',
+      '.cargo',
+      '.rustup',
+      '.gradle',
       ...(options.ignoreDirs || [])
     ]);
     this.maxFileSizeBytes = (options.maxFileSizeKb || 1024) * 1024;
@@ -46,7 +60,10 @@ export class SastScanner {
     this.scaScanner = new ScaScanner();
   }
 
-  public async scan(targetDir: string): Promise<{ findings: VulnerabilityFinding[]; coverage: CoverageLedger }> {
+  public async scan(
+    targetDir: string,
+    onProgress?: (scannedFiles: number, totalFiles: number, currentFile: string) => void
+  ): Promise<{ findings: VulnerabilityFinding[]; coverage: CoverageLedger }> {
     const resolvedRoot = path.resolve(targetDir);
     const analyzedFiles: string[] = [];
     const skippedFiles: { path: string; reason: string }[] = [];
@@ -54,9 +71,15 @@ export class SastScanner {
     const findings: VulnerabilityFinding[] = [];
 
     const allFiles = this.collectFiles(resolvedRoot, this.ignoreDirs);
+    const totalFiles = allFiles.length;
 
-    for (const filePath of allFiles) {
+    for (let i = 0; i < totalFiles; i++) {
+      const filePath = allFiles[i];
       const relPath = path.relative(resolvedRoot, filePath).replace(/\\/g, '/');
+
+      if (onProgress && (i % 5 === 0 || i === totalFiles - 1)) {
+        onProgress(i + 1, totalFiles, relPath);
+      }
 
       try {
         const stats = fs.statSync(filePath);
@@ -94,7 +117,9 @@ export class SastScanner {
         // 4. Semantic Business Logic & IDOR / BOLA Analysis
         if (['js', 'ts', 'jsx', 'tsx', 'py'].includes(ext)) {
           const bizFindings = this.businessLogicAnalyzer.analyze(relPath, content);
-          findings.push(...bizFindings);
+          for (const bf of bizFindings) {
+            findings.push(bf);
+          }
         }
       } catch (err: any) {
         skippedFiles.push({ path: relPath, reason: `Read error: ${err.message}` });
@@ -104,7 +129,9 @@ export class SastScanner {
     // 5. Software Composition Analysis (SCA) - Manifest Dependency & Plugin Auditing
     try {
       const scaFindings = await this.scaScanner.scanProject(resolvedRoot);
-      findings.push(...scaFindings);
+      for (const sf of scaFindings) {
+        findings.push(sf);
+      }
     } catch {
       // Gracefully continue
     }
@@ -143,7 +170,9 @@ export class SastScanner {
 
       if (['js', 'ts', 'jsx', 'tsx', 'py'].includes(ext)) {
         const bizFindings = this.businessLogicAnalyzer.analyze(relPath, content);
-        findings.push(...bizFindings);
+        for (const bf of bizFindings) {
+          findings.push(bf);
+        }
       }
 
       // Manifest dependency check
@@ -151,7 +180,9 @@ export class SastScanner {
       const isManifest = ['package.json', 'package-lock.json', 'requirements.txt', 'cargo.toml', 'go.mod', 'pom.xml', 'composer.json'].includes(baseName);
       if (isManifest) {
         const scaFindings = this.scaScanner.scanManifestFileSync(filePath, relPath, content);
-        findings.push(...scaFindings);
+        for (const sf of scaFindings) {
+          findings.push(sf);
+        }
       }
     } catch {
       // Ignore read errors
@@ -378,19 +409,90 @@ export class SastScanner {
     const results: string[] = [];
     if (!fs.existsSync(dir)) return results;
 
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      if (ignoreSet.has(entry.name) || entry.name.startsWith('.')) {
+    const visitedPaths = new Set<string>();
+    const stack: { dirPath: string; depth: number }[] = [{ dirPath: path.resolve(dir), depth: 0 }];
+    const maxDepth = 20;
+    const maxFiles = 30000;
+
+    visitedPaths.add(path.resolve(dir));
+
+    while (stack.length > 0) {
+      if (results.length >= maxFiles) break;
+
+      const current = stack.pop()!;
+      if (current.depth > maxDepth) continue;
+
+      let entries: fs.Dirent[];
+      try {
+        entries = fs.readdirSync(current.dirPath, { withFileTypes: true });
+      } catch {
         continue;
       }
-      const full = path.join(dir, entry.name);
-      if (entry.isDirectory()) {
-        results.push(...this.collectFiles(full, ignoreSet));
-      } else if (entry.isFile()) {
-        if (entry.name.endsWith('-report.html') || entry.name.endsWith('.log')) continue;
-        results.push(full);
+
+      for (const entry of entries) {
+        const name = entry.name;
+        if (ignoreSet.has(name) || name.startsWith('.') || name.startsWith('~')) {
+          continue;
+        }
+
+        const full = path.join(current.dirPath, name);
+
+        let isDir = false;
+        let isFile = false;
+
+        try {
+          if (entry.isSymbolicLink()) {
+            const real = fs.realpathSync(full);
+            if (visitedPaths.has(real)) continue;
+            visitedPaths.add(real);
+
+            const stat = fs.statSync(full);
+            isDir = stat.isDirectory();
+            isFile = stat.isFile();
+          } else {
+            isDir = entry.isDirectory();
+            isFile = entry.isFile();
+          }
+        } catch {
+          continue;
+        }
+
+        if (isDir) {
+          if (!visitedPaths.has(full)) {
+            visitedPaths.add(full);
+            stack.push({ dirPath: full, depth: current.depth + 1 });
+          }
+        } else if (isFile) {
+          const dotIdx = name.lastIndexOf('.');
+          if (dotIdx !== -1) {
+            const ext = name.slice(dotIdx + 1).toLowerCase();
+            const IGNORED_EXTS = new Set([
+              'png', 'jpg', 'jpeg', 'gif', 'bmp', 'ico', 'svg', 'webp', 'mp4', 'webm', 'mov', 'mp3', 'wav',
+              'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+              'zip', 'tar', 'gz', 'tgz', '7z', 'rar', 'iso',
+              'woff', 'woff2', 'ttf', 'eot', 'otf',
+              'exe', 'dll', 'so', 'dylib', 'bin', 'class', 'jar', 'pyc', 'wasm',
+              'map', 'lock'
+            ]);
+            if (IGNORED_EXTS.has(ext)) continue;
+          }
+          if (
+            name.endsWith('-report.html') ||
+            name.endsWith('-report.txt') ||
+            name.endsWith('-report.pdf') ||
+            name.endsWith('.log') ||
+            name.endsWith('.lock') ||
+            name.endsWith('.min.js') ||
+            name.endsWith('.bundle.js')
+          ) {
+            continue;
+          }
+          results.push(full);
+          if (results.length >= maxFiles) break;
+        }
       }
     }
+
     return results;
   }
 

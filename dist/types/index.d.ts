@@ -15,7 +15,7 @@ export interface TaintFlow {
     isTainted: boolean;
     flowPath: string[];
 }
-export type ThreatIntelSource = 'IMMUNEFI' | 'CODE4RENA' | 'SHERLOCK' | 'NVD_CVE' | 'GITHUB_ADVISORY' | 'OWASP' | 'CLOUDFLARE_RESEARCH' | 'TRAIL_OF_BITS' | 'COMMUNITY' | 'CUSTOM';
+export type ThreatIntelSource = 'IMMUNEFI' | 'CODE4RENA' | 'SHERLOCK' | 'NVD_CVE' | 'GITHUB_ADVISORY' | 'OWASP' | 'CLOUDFLARE_RESEARCH' | 'TRAIL_OF_BITS' | 'AEVUM_RESEARCH' | 'PARADIGM' | 'PROJECT_ZERO' | 'PORT_SWIGGER' | 'IETF' | 'COMMUNITY' | 'CUSTOM';
 export interface ThreatCorrelation {
     reportId: string;
     title: string;
@@ -80,7 +80,7 @@ export interface ThreatReport {
     date: string;
     severity: Severity;
     category: string;
-    targetEcosystem: 'WEB2' | 'WEB3_EVM' | 'WEB3_SOLANA' | 'AI_AGENT' | 'CLOUD' | 'GENERAL';
+    targetEcosystem: 'WEB2' | 'WEB3_EVM' | 'WEB3_SOLANA' | 'WEB3_CROSSCHAIN' | 'AI_AGENT' | 'CLOUD' | 'GENERAL' | 'CROSS_PLATFORM';
     vulnerabilityClass: string;
     attackVariants: string[];
     triggerPatterns: string[];

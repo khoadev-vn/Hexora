@@ -13,7 +13,7 @@ export declare class SastScanner {
     private businessLogicAnalyzer;
     private scaScanner;
     constructor(options?: Partial<ScannerOptions>);
-    scan(targetDir: string): Promise<{
+    scan(targetDir: string, onProgress?: (scannedFiles: number, totalFiles: number, currentFile: string) => void): Promise<{
         findings: VulnerabilityFinding[];
         coverage: CoverageLedger;
     }>;

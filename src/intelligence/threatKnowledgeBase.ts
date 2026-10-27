@@ -559,6 +559,563 @@ export const BUILTIN_THREAT_REPORTS: ThreatReport[] = [
     exploitMechanism: 'During a deposit or withdraw call, the contract transferred tokens to the attacker before decrementing the attacker debt, invoking the attacker `tokensReceived` hook which called `withdraw` again.',
     mitigation: 'Use OpenZeppelin `ReentrancyGuard` on all state-changing functions and adhere strictly to Checks-Effects-Interactions even for ERC-20/777 token operations.',
     referenceUrl: 'https://swcregistry.io/docs/SWC-107/'
+  },
+
+  // ==================== 5. NEXT-GEN ATTACK VARIANTS (100+ UPGRADE) ====================
+  // AI Agent & MCP Security
+  {
+    id: 'REP-AI-MCP-003',
+    title: 'Model Context Protocol (MCP) Shadow Tool Injection & Parameter Smuggling',
+    source: 'AEVUM_RESEARCH',
+    date: '2026-10-15',
+    severity: 'CRITICAL',
+    category: 'AI_AGENT',
+    targetEcosystem: 'AI_AGENT',
+    vulnerabilityClass: 'MCP Tool Injection / Agent Control Hijacking',
+    attackVariants: [
+      'MCP Stdio Tool Argument Prototype Pollution',
+      'Dynamic Schema Poisoning via Stdio Capability Advertisement',
+      'Shadow Tool Parameter Smuggling through JSON-RPC Delimiters',
+      'Subagent Impersonation via Crafted MCP Session Tokens',
+      'Agent Sandboxing Evasion via Unrestricted Spawn in MCP Server',
+      'Exfiltration of Environment Secrets through Tool Notification Payloads'
+    ],
+    triggerPatterns: [
+      'tools\/call',
+      'ServerCapabilities',
+      'StdioServerTransport',
+      'mcpServer\\.tool\\s*\\(',
+      'spawn\\s*\\(.*toolArgs'
+    ],
+    summary: 'Malicious prompts inject forged JSON-RPC payloads into MCP stdio communication channels, tricking LLM host orchestrators into executing unprivileged host commands or leaking environment variables.',
+    exploitMechanism: 'Attacker leverages loose schema validation in custom MCP tool declarations to inject nested bash command parameters or override system capabilities.',
+    mitigation: 'Enforce strict Zod schemas on all tool inputs, mandate capability whitelisting, and run MCP tool processes in gVisor sandboxes.',
+    referenceUrl: 'https://modelcontextprotocol.io/specification'
+  },
+  {
+    id: 'REP-AI-AGENT-004',
+    title: 'Multi-Agent Workspace Scratchpad Hijacking & Memory Poisoning',
+    source: 'AEVUM_RESEARCH',
+    date: '2026-10-20',
+    severity: 'HIGH',
+    category: 'AI_AGENT',
+    targetEcosystem: 'AI_AGENT',
+    vulnerabilityClass: 'Agent Memory Contamination / Goal Hijack',
+    attackVariants: [
+      'Memory Injection via Shared Scratchpad Files',
+      'Agent Goal Hijacking through Injected System Comments',
+      'Peer-to-Peer Agent Protocol Token Smuggling',
+      'Recursive Subagent Fork Bomb via Infinite Task Delegation',
+      'Cross-Agent Context Bleed through Unpartitioned Memory Banks',
+      'Synthetic Memory Hallucination Injection via Vector Store Writes'
+    ],
+    triggerPatterns: [
+      'invoke_subagent\\s*\\(',
+      'scratchpad\\.write',
+      'agent_memory\\.append',
+      'send_message\\s*\\(.*subagent'
+    ],
+    summary: 'When multi-agent systems share files, scratchpads, or memory logs without cryptographic isolation, compromised worker agents can poison parent supervisor goals.',
+    exploitMechanism: 'A subagent instructed with untrusted code writes special formatting tokens into shared scratchpads, causing the supervisor agent to bypass safety checks.',
+    mitigation: 'Implement immutable audit trails, sanitize inter-agent messages, and enforce strict execution budgets on recursive subagent delegation.',
+    referenceUrl: 'https://owasp.org/www-project-top-10-for-large-language-model-applications/'
+  },
+  {
+    id: 'REP-AI-RAG-005',
+    title: 'RAG Knowledge Base Document Poisoning & Latent Embedding Inversion',
+    source: 'AEVUM_RESEARCH',
+    date: '2026-10-22',
+    severity: 'HIGH',
+    category: 'AI_AGENT',
+    targetEcosystem: 'AI_AGENT',
+    vulnerabilityClass: 'RAG Poisoning / Knowledge Corruption',
+    attackVariants: [
+      'Invisible Unicode Zero-Width Instruction Smuggling in Markdown',
+      'Polyglot PDF Injection with Hidden OCR Layers',
+      'Vector Database Nearest-Neighbor Retrieval Collision Attack',
+      'Prompt Prepending via High-Similarity Noise Flooding',
+      'Latent Embedding Inversion to Reconstruct Private Knowledge Chunks'
+    ],
+    triggerPatterns: [
+      'embeddings\\.create',
+      'vectorStore\\.similaritySearch',
+      'retrieveContext',
+      'langchain.*retrievers'
+    ],
+    summary: 'Adversaries craft documents containing invisible zero-width unicode characters or adversarial embeddings designed to collide with top search queries in vector databases.',
+    exploitMechanism: 'Uploaded documentation contains hidden prompts that win cosine similarity calculations and force the LLM to deliver attacker-crafted answers.',
+    mitigation: 'Strip non-printable and zero-width unicode before tokenization, verify document signatures, and apply multi-perspective relevance scoring.',
+    referenceUrl: 'https://cwe.mitre.org/data/definitions/20.html'
+  },
+
+  // Web3 & Decentralized Finance
+  {
+    id: 'REP-WEB3-006',
+    title: 'ERC-4337 Account Abstraction Bundler Frontrunning & Paymaster Drain',
+    source: 'IMMUNEFI',
+    date: '2026-09-12',
+    severity: 'CRITICAL',
+    category: 'WEB3',
+    targetEcosystem: 'WEB3_EVM',
+    vulnerabilityClass: 'Account Abstraction Gas Drain / Bundler Frontrunning',
+    attackVariants: [
+      'UserOperation Simulation vs Execution State Desync',
+      'Paymaster Validation Gas Manipulation',
+      'Signature Malleability in validateUserOp',
+      'Storage Access Rule Violation in UserOp Validation Loop',
+      'Bundler Mempool Frontrunning via Gas Price Bumping'
+    ],
+    triggerPatterns: [
+      'validateUserOp',
+      'validatePaymasterUserOp',
+      'entryPoint\\.handleOps',
+      'IPaymaster'
+    ],
+    summary: 'ERC-4337 smart contract wallets and paymasters can be drained if validation functions access mutable storage slots or fail to prevent signature replay.',
+    exploitMechanism: 'Attacker creates a UserOperation that passes simulation but reverts in execution, forcing the paymaster or bundler to pay gas fees without compensation.',
+    mitigation: 'Adhere strictly to ERC-4337 storage access rules and verify nonces and signatures using canonical EntryPoint contracts.',
+    referenceUrl: 'https://eips.ethereum.org/EIPS/eip-4337'
+  },
+  {
+    id: 'REP-WEB3-007',
+    title: 'Read-Only Reentrancy across Curve & Uniswap V3 Price Oracles',
+    source: 'PARADIGM',
+    date: '2026-08-04',
+    severity: 'CRITICAL',
+    category: 'WEB3',
+    targetEcosystem: 'WEB3_EVM',
+    vulnerabilityClass: 'Oracle Manipulation via Read-Only Reentrancy',
+    attackVariants: [
+      'Curve remove_liquidity View Function Reentrancy',
+      'Uniswap V3 Flash Mint Callback Oracle Desynchronization',
+      'Balancer Pool onJoin/onExit Intermediate Balance Sniping',
+      'Staked Token (LST) Collateral Ratio Read-Only Inversion',
+      'Lending Protocol Bad Debt Minting during Oracle Settlement Window'
+    ],
+    triggerPatterns: [
+      'get_virtual_price',
+      'ICurvePool',
+      'uniswapV3Pool\\.slot0',
+      'balanceOf\\(address\\(this\\)\\)'
+    ],
+    summary: 'While state-modifying functions protect against reentrancy, view functions returning LP prices continue to report inflated rates during liquidity removal.',
+    exploitMechanism: 'Attacker removes liquidity from a pool, triggering a native token transfer callback where they borrow against the inflated LP token price before settlement.',
+    mitigation: 'Use nonReentrant guards on view functions or verify pool reentrancy status before querying virtual price.',
+    referenceUrl: 'https://chainsecurity.com/curve-lp-oracle-manipulation-post-mortem/'
+  },
+  {
+    id: 'REP-WEB3-008',
+    title: 'Permit2 Signature Replay & Nonce Collision in Cross-Chain Swaps',
+    source: 'IMMUNEFI',
+    date: '2026-07-28',
+    severity: 'HIGH',
+    category: 'WEB3',
+    targetEcosystem: 'WEB3_EVM',
+    vulnerabilityClass: 'Signature Replay / Allowance Hijacking',
+    attackVariants: [
+      'Cross-Chain Permit Signature Replay via Missing ChainID',
+      'Deadline Bypass via Zero-Timestamp Evaluation',
+      'Unchecked Dynamic Allowance Invalidation',
+      'Signature Malleability via High-S secp256k1 Curve Values',
+      'Permit Batch Order Frontrunning with Partial Signature Spoofing'
+    ],
+    triggerPatterns: [
+      'permit2\\.permit',
+      'permitWitnessTransferFrom',
+      'ISignatureTransfer',
+      'ecrecover\\('
+    ],
+    summary: 'Uniswap Permit2 and EIP-712 permits without domain separator chainId verification allow signatures created on one network to be replayed on forks or rollups.',
+    exploitMechanism: 'Attacker signs an off-chain permit on Ethereum mainnet, which the attacker re-submits on Arbitrum where the user also holds balance and has approved Permit2.',
+    mitigation: 'Always include chainId and verifyingContract in EIP-712 domain separators and verify nonces sequentially.',
+    referenceUrl: 'https://docs.uniswap.org/contracts/permit2/overview'
+  },
+  {
+    id: 'REP-WEB3-009',
+    title: 'Cross-Chain Bridge Merkle Tree Proof Forgery & Zero-Length Leaf Bypass',
+    source: 'TRAIL_OF_BITS',
+    date: '2026-06-19',
+    severity: 'CRITICAL',
+    category: 'WEB3',
+    targetEcosystem: 'WEB3_CROSSCHAIN',
+    vulnerabilityClass: 'Cryptographic Proof Forgery',
+    attackVariants: [
+      'Zero-Length Merkle Leaf Injection',
+      'Double-Spend via Relayer Message Sequence Desynchronization',
+      'Second-Preimage Attack on Multi-Level Merkle Trees',
+      'Incomplete Multi-Sig Validator Quorum Verification',
+      'Replay of Historic Finality Proofs on Forked State'
+    ],
+    triggerPatterns: [
+      'verifyProof\\s*\\(',
+      'MerkleProof\\.verify',
+      'keccak256\\s*\\(abi\\.encodePacked\\(',
+      'bridgeRelay'
+    ],
+    summary: 'Bridges using standard 64-byte `abi.encodePacked` in Merkle tree hashing are vulnerable to hash collision second-preimage attacks.',
+    exploitMechanism: 'Attacker pairs adjacent intermediate leaf hashes to form a fake leaf that satisfies the Merkle root, minting bridged assets out of thin air.',
+    mitigation: 'Use OpenZeppelin MerkleProof with leaf-prefix domain separators and enforce strict tree depth validation.',
+    referenceUrl: 'https://swcregistry.io/docs/SWC-117/'
+  },
+
+  // Cloud & Microservice Architecture
+  {
+    id: 'REP-CLOUD-010',
+    title: 'Cloud IMDSv2 Token Reflection & Hop-by-Hop Header Stripping',
+    source: 'PROJECT_ZERO',
+    date: '2026-05-14',
+    severity: 'HIGH',
+    category: 'CLOUD',
+    targetEcosystem: 'CLOUD',
+    vulnerabilityClass: 'SSRF / Cloud Credential Extraction',
+    attackVariants: [
+      'X-Forwarded-For Hop-by-Hop Header Stripping',
+      'Docker Bridge Container IMDSv2 Token Reflection',
+      'IPv6 Dual-Stack [fd00:ec2::254] Metadata Retrieval',
+      'DNS Rebinding to 169.254.169.254 via Custom Domain TTL 0',
+      'Cloud Run / Lambda Instance Identity Token Theft via Local UNIX Socket'
+    ],
+    triggerPatterns: [
+      '169\\.254\\.169\\.254',
+      'latest\/meta-data',
+      'X-aws-ec2-metadata-token',
+      'http:\/\/metadata\\.google\\.internal'
+    ],
+    summary: 'Even when cloud metadata is protected by IMDSv2 PUT token headers, SSRF vulnerabilities in reverse proxies that forward client headers allow attackers to forge tokens.',
+    exploitMechanism: 'Attacker leverages an HTTP proxy that allows header manipulation to execute the PUT request and extract IAM role temporary STS credentials.',
+    mitigation: 'Enforce hop limit = 1 on AWS IMDSv2, block 169.254.169.254 and IPv6 equivalents at the firewall or egress gateway.',
+    referenceUrl: 'https://cwe.mitre.org/data/definitions/918.html'
+  },
+  {
+    id: 'REP-CLOUD-011',
+    title: 'Serverless Shared Memory (/dev/shm) Snooping & Cross-Tenant Cold Start Leak',
+    source: 'AEVUM_RESEARCH',
+    date: '2026-04-11',
+    severity: 'HIGH',
+    category: 'CLOUD',
+    targetEcosystem: 'CLOUD',
+    vulnerabilityClass: 'Information Disclosure / MicroVM Leakage',
+    attackVariants: [
+      '/dev/shm Shared POSIX Memory Block Snooping',
+      'Persistent Global Variable Cross-Invocation Context Contamination',
+      'Database Connection Pool Reuse without Session Reset',
+      'Tmpfs Residual File Extraction across Warm Lambda Invocations',
+      'CPU Microarchitectural Side-Channel on Shared Virtualized Cores'
+    ],
+    triggerPatterns: [
+      '\/dev\/shm',
+      'global\\.[a-zA-Z0-9_]+\\s*=',
+      'shared_memory',
+      'global\\.tenantContext'
+    ],
+    summary: 'Serverless function handlers that store tenant data or secrets in global scope or `/dev/shm` leak sensitive data to subsequent invocations in warm containers.',
+    exploitMechanism: 'Attacker sends a request that fails authentication, but inspects global state or shared memory populated by a previous authenticated customer.',
+    mitigation: 'Clear tenant-specific state inside `finally` blocks, re-initialize database connections, and avoid module-level persistent stores.',
+    referenceUrl: 'https://cwe.mitre.org/data/definitions/200.html'
+  },
+
+  // Modern APIs & Protocols
+  {
+    id: 'REP-API-012',
+    title: 'GraphQL Alias Batching & Circular Fragment Recursive Denial-of-Service',
+    source: 'OWASP',
+    date: '2026-03-30',
+    severity: 'MEDIUM',
+    category: 'API',
+    targetEcosystem: 'WEB2',
+    vulnerabilityClass: 'Denial of Service / Rate Limit Bypass',
+    attackVariants: [
+      'Field Alias Multiplexing to Evade Rate Limits (10,000 queries in 1 payload)',
+      'Circular Fragment Recursive Depth Bomb',
+      'Directive Bypass for Field-Level Authentication',
+      'Batch Operation Array Flooding',
+      'Introspection Query Scraping to Map Hidden Mutation Endpoints'
+    ],
+    triggerPatterns: [
+      'createYoga',
+      'ApolloServer',
+      'buildSchema',
+      'graphqlHTTP'
+    ],
+    summary: 'GraphQL APIs that do not enforce query cost analysis or depth limits can be crippled by single HTTP requests containing thousands of aliased fields.',
+    exploitMechanism: 'Adversary crafts a request with 5,000 aliased database lookup fields, causing synchronous N+1 queries that saturate database connection pools.',
+    mitigation: 'Implement `graphql-depth-limit`, query complexity analysis, and disable schema introspection in production.',
+    referenceUrl: 'https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/12-API_Testing/01-Testing_GraphQL'
+  },
+  {
+    id: 'REP-API-013',
+    title: 'JWT Algorithm Confusion (HMAC vs RSA) & Key Confusion Attacks',
+    source: 'PROJECT_ZERO',
+    date: '2026-03-12',
+    severity: 'CRITICAL',
+    category: 'AUTH',
+    targetEcosystem: 'WEB2',
+    vulnerabilityClass: 'Authentication Bypass / Cryptographic Downgrade',
+    attackVariants: [
+      'HMAC Verification using RSA Public Key as Shared Secret',
+      'None Algorithm Header Bypass ("alg": "none")',
+      'Embedded JWK Public Key Injection ("jwk" Header Parameter)',
+      'JKU Header URL Spoofing via Open Redirect',
+      'KID Parameter SQL Injection / Path Traversal to Known Empty File'
+    ],
+    triggerPatterns: [
+      'jwt\\.verify\\s*\\(',
+      'jwt\\.decode\\s*\\(',
+      'jsonwebtoken',
+      'jose\\.jwtVerify'
+    ],
+    summary: 'When JWT libraries accept arbitrary algorithms specified in the token header, attackers can sign tokens using HS256 with the server public RSA key.',
+    exploitMechanism: 'Attacker downloads the server public RSA key, signs a forged JWT with role="admin" using HS256 and the public key string, which the server verifies successfully.',
+    mitigation: 'Explicitly enforce `algorithms: ["RS256"]` in verification options, forbid `alg: "none"`, and validate JWK/JKU sources strictly.',
+    referenceUrl: 'https://auth0.com/blog/critical-vulnerabilities-in-json-web-token-libraries/'
+  },
+  {
+    id: 'REP-API-014',
+    title: 'Fastify & Express Mass Assignment & Prototype Pollution Gadgets',
+    source: 'AEVUM_RESEARCH',
+    date: '2026-02-24',
+    severity: 'HIGH',
+    category: 'INJECTION',
+    targetEcosystem: 'WEB2',
+    vulnerabilityClass: 'Mass Assignment / Remote Code Execution',
+    attackVariants: [
+      'Hidden Admin Field Injection via Object Spread ({ ...req.body })',
+      'Array-to-Object Type Forgery bypassing schema validation',
+      'Prototype Pollution Gadget in Child Process spawn options',
+      'Template Engine Compilation Hook Hijacking via polluted prototype',
+      'Schema Stripping Evasion using Nested JSON Payloads',
+      'Session SessionID Overwrite via Parameter Smuggling'
+    ],
+    triggerPatterns: [
+      '\\{\\s*\\.\\.\\.req\\.body\\s*\\}',
+      'Object\\.assign\\s*\\(.*req\\.body',
+      'User\\.create\\s*\\(req\\.body',
+      'deepAssign'
+    ],
+    summary: 'Directly spreading or assigning `req.body` into database models or system objects allows attackers to overwrite internal properties such as `isAdmin` or `role`.',
+    exploitMechanism: 'Attacker appends `"isAdmin": true, "role": "superuser"` to a registration payload, which gets saved directly to the database.',
+    mitigation: 'Use strict DTOs (Data Transfer Objects) with whitelist validation libraries like Zod or TypeBox, explicitly picking permitted fields.',
+    referenceUrl: 'https://cwe.mitre.org/data/definitions/915.html'
+  },
+  {
+    id: 'REP-API-015',
+    title: 'HTTP Request Smuggling (TE.CL / CL.TE) & Reverse Proxy Cache Poisoning',
+    source: 'PORT_SWIGGER',
+    date: '2026-02-05',
+    severity: 'CRITICAL',
+    category: 'INJECTION',
+    targetEcosystem: 'WEB2',
+    vulnerabilityClass: 'Request Smuggling / Protocol Desync',
+    attackVariants: [
+      'TE.CL Discrepancy via Obfuscated Transfer-Encoding Header',
+      'CL.TE Discrepancy via Dual Content-Length Values',
+      'Transfer-Encoding Header Obfuscation (Chunked with Trailing Whitespace)',
+      'Reverse Proxy Cache Key Poisoning via Smuggled Response',
+      'Credential Interception of Next In-Flight HTTP Request on Keep-Alive Socket'
+    ],
+    triggerPatterns: [
+      'Transfer-Encoding',
+      'Content-Length',
+      'keep-alive',
+      'proxy_pass'
+    ],
+    summary: 'Discrepancies in how front-end load balancers and back-end servers parse conflicting Content-Length and Transfer-Encoding headers allow request smuggling.',
+    exploitMechanism: 'Attacker sends a malformed HTTP request where the back-end processes the remainder as the start of the next user request, hijacking sessions.',
+    mitigation: 'Use HTTP/2 or HTTP/3 end-to-end, normalize HTTP headers, and reject requests containing both Content-Length and Transfer-Encoding.',
+    referenceUrl: 'https://portswigger.net/web-security/request-smuggling'
+  },
+  {
+    id: 'REP-SEC-016',
+    title: 'Polyglot Deserialization Gadget Chains in Python, Java & Node.js',
+    source: 'OWASP',
+    date: '2026-01-19',
+    severity: 'CRITICAL',
+    category: 'INJECTION',
+    targetEcosystem: 'CROSS_PLATFORM',
+    vulnerabilityClass: 'Insecure Deserialization / Remote Code Execution',
+    attackVariants: [
+      'Python PyYAML yaml.load without SafeLoader',
+      'Python pickle.loads Unpickling Exploit with __reduce__ RCE Payload',
+      'Java Jackson Polymorphic Type Handling (enableDefaultTyping)',
+      'Fastjson AutoType Feature Sandbox Bypass',
+      'Node.js node-serialize eval() Gadget Injection'
+    ],
+    triggerPatterns: [
+      'yaml\\.load\\s*\\(.*Loader\\s*=\\s*yaml\\.Loader',
+      'pickle\\.loads\\s*\\(',
+      'node-serialize',
+      'enableDefaultTyping',
+      '_$$ND_FUNC$$_',
+      'JSON\\.parse\\s*\\(.*__proto__'
+    ],
+    summary: 'Deserializing untrusted data with formats supporting executable types or custom constructors triggers arbitrary code execution before type validation.',
+    exploitMechanism: 'Attacker supplies a serialized object containing a callable gadget chain (e.g. `subprocess.Popen`), executing shell commands upon deserialization.',
+    mitigation: 'Never deserialize data with pickle or raw yaml.load. Use json.loads, yaml.safe_load, or strict schema deserializers.',
+    referenceUrl: 'https://cwe.mitre.org/data/definitions/502.html'
+  },
+  {
+    id: 'REP-SUPPLY-017',
+    title: 'Software Supply Chain Dependency Confusion & Malicious Postinstall Hooks',
+    source: 'COMMUNITY',
+    date: '2026-01-08',
+    severity: 'CRITICAL',
+    category: 'SUPPLY_CHAIN',
+    targetEcosystem: 'CROSS_PLATFORM',
+    vulnerabilityClass: 'Supply Chain Hijack / Arbitrary Code Execution',
+    attackVariants: [
+      'Public npm/PyPI Registry Dependency Confusion Namespace Attack',
+      'Typosquatting Popular Packages (e.g. lo-dash, reqeusts)',
+      'Malicious postinstall / setup.py Shell Execution during CI/CD Build',
+      'Stolen CI/CD Token Stealing Artifact via Obfuscated install Script',
+      'Developer Machine SSH Key Exfiltration during Package Installation',
+      'Compromised Maintainer Account Credential Stuffing'
+    ],
+    triggerPatterns: [
+      '"postinstall"\\s*:',
+      'cmd\\.run\\s*\\(.*setup\\.py',
+      'curl.*\\|.*sh',
+      'wget.*\\|.*bash'
+    ],
+    summary: 'Internal un-scoped package names published on public registries take precedence over private feeds unless strict scoping is configured.',
+    exploitMechanism: 'Attacker registers an internal company package name on npmjs.org with version 99.9.9 and a postinstall script that exfiltrates `.env` secrets.',
+    mitigation: 'Scope all internal packages (@company/pkg), configure `.npmrc` with strict registries, and run `npm install --ignore-scripts` in CI.',
+    referenceUrl: 'https://cwe.mitre.org/data/definitions/829.html'
+  },
+  {
+    id: 'REP-SEC-018',
+    title: 'Cross-Site WebSocket Hijacking (CSWSH) & Binary Frame Desynchronization',
+    source: 'OWASP',
+    date: '2025-12-14',
+    severity: 'HIGH',
+    category: 'AUTH',
+    targetEcosystem: 'WEB2',
+    vulnerabilityClass: 'WebSocket Security / Session Hijacking',
+    attackVariants: [
+      'Missing Origin Header Validation during WebSocket Handshake',
+      'Cookie-Based Authentication Hijacking in WebSocket Upgrade',
+      'Binary Protobuf Frame Desynchronization',
+      'Unauthenticated Internal RPC Bridge Over WebSocket',
+      'State-Machine Injection via Interleaved WebSocket Messages'
+    ],
+    triggerPatterns: [
+      'new WebSocketServer',
+      'ws\\.on\\s*\\(\'connection\'',
+      'upgradeReq',
+      'socket\\.io'
+    ],
+    summary: 'WebSockets do not enforce Same-Origin Policy by default. Browsers send ambient cookies during the handshake, allowing malicious websites to open connections.',
+    exploitMechanism: 'Victim visits a malicious site, which initiates a WebSocket connection to `wss://bank.com/ws`. Because cookies are included, the attacker executes transactions.',
+    mitigation: 'Strictly validate the `Origin` header against an approved whitelist during the HTTP upgrade handshake and use anti-CSRF challenge tokens.',
+    referenceUrl: 'https://owasp.org/www-community/vulnerabilities/Cross-Site_WebSocket_Hijacking'
+  },
+  {
+    id: 'REP-SEC-019',
+    title: 'OAuth2 PKCE Downgrade & State Parameter CSRF Bypass',
+    source: 'IETF',
+    date: '2025-11-20',
+    severity: 'HIGH',
+    category: 'AUTH',
+    targetEcosystem: 'WEB2',
+    vulnerabilityClass: 'OAuth2 Authorization Code Interception',
+    attackVariants: [
+      'PKCE Downgrade via code_verifier Parameter Stripping',
+      'State Parameter Omission or Static Value CSRF Injection',
+      'Redirect URI Wildcard & Path Traversal Parameter Pollution',
+      'Implicit Grant Flow Token Leakage via Referrer Header',
+      'Token Exchange Replay across Identity Providers'
+    ],
+    triggerPatterns: [
+      'response_type=code',
+      'code_challenge',
+      'passport\\.use',
+      'redirect_uri'
+    ],
+    summary: 'Failing to enforce PKCE (RFC 7636) or omitting unpredictable `state` parameters in OAuth2 flows allows attackers to intercept authorization codes.',
+    exploitMechanism: 'Attacker tricks victim into clicking an authorization link with the attacker state parameter, binding the victim account to the attacker credentials.',
+    mitigation: 'Enforce PKCE with S256 challenge method, cryptographically sign state parameters with short TTLs, and use exact string matching for redirect URIs.',
+    referenceUrl: 'https://datatracker.ietf.org/doc/html/rfc7636'
+  },
+  {
+    id: 'REP-SEC-020',
+    title: 'DNS Rebinding for Intranet SSRF Defense Bypass',
+    source: 'AEVUM_RESEARCH',
+    date: '2025-10-18',
+    severity: 'HIGH',
+    category: 'INJECTION',
+    targetEcosystem: 'WEB2',
+    vulnerabilityClass: 'DNS Rebinding / SSRF Defense Evasion',
+    attackVariants: [
+      'Short-TTL (0s) DNS Flips from Public to 127.0.0.1',
+      'Hexadecimal / Decimal IPv4 Encoding Bypass (0x7f000001 / 2130706433)',
+      '0.0.0.0 IP Resolution Tricking Loopback Bindings',
+      'IPv6 Mapped IPv4 Loopback Addresses (::ffff:127.0.0.1)',
+      'Dual-A Record Round-Robin Resolution Race Condition'
+    ],
+    triggerPatterns: [
+      'dns\\.lookup',
+      'gethostbyname',
+      'axios\\.get\\s*\\(req\\.body',
+      'fetch\\s*\\(req\\.query'
+    ],
+    summary: 'Applications that validate hostnames via DNS lookup and then fetch the URL allow attackers to return a public IP first, followed by 127.0.0.1 on the second lookup.',
+    exploitMechanism: 'Attacker controls an authoritative DNS server with TTL=0. The app checks IP (public), but when downloading the content, the IP resolves to internal localhost.',
+    mitigation: 'Resolve DNS once, validate the resolved IP address against private subnet CIDRs, and pin the connection directly to the verified IP.',
+    referenceUrl: 'https://cwe.mitre.org/data/definitions/918.html'
+  },
+  {
+    id: 'REP-SEC-021',
+    title: 'Regular Expression Denial of Service (ReDoS) Catastrophic Backtracking',
+    source: 'OWASP',
+    date: '2025-09-05',
+    severity: 'MEDIUM',
+    category: 'DENIAL_OF_SERVICE',
+    targetEcosystem: 'CROSS_PLATFORM',
+    vulnerabilityClass: 'Algorithmic Complexity / Catastrophic Backtracking',
+    attackVariants: [
+      'Nested Quantifiers Exponential Explosion (e.g. (a+)+$)',
+      'Overlapping Alternation with Repetition (e.g. (a|a)+$)',
+      'Unanchored Dot-Star Greedy Matching on Long Inputs',
+      'Polynomial Backtracking in Email Validation Expressions',
+      'Event-Loop Starvation in Single-Threaded Node.js Runtimes'
+    ],
+    triggerPatterns: [
+      '\\([^)]*\\+\\)[+*]',
+      '\\([^)]*\\*\\)[+*]',
+      'new RegExp\\s*\\(.*req\\.',
+      'pattern\\.test\\('
+    ],
+    summary: 'Evaluating complex regular expressions with nested quantifiers against pathological input strings causes exponential CPU backtracking, halting execution.',
+    exploitMechanism: 'Attacker supplies a 50-character crafted input like `aaaaaaaaaaaaaaaaaaaaaaaaaaaa!`, causing regex engines to perform billions of comparisons and freeze the process.',
+    mitigation: 'Use non-backtracking regex engines like Google RE2, avoid nested quantifiers, and enforce strict length bounds before regex evaluation.',
+    referenceUrl: 'https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS'
+  },
+  {
+    id: 'REP-WEB3-022',
+    title: 'Flash Loan Spot Price Oracle Manipulation & AMM Pool Depletion',
+    source: 'IMMUNEFI',
+    date: '2025-08-11',
+    severity: 'CRITICAL',
+    category: 'WEB3',
+    targetEcosystem: 'WEB3_EVM',
+    vulnerabilityClass: 'Economic Exploit / Spot Price Manipulation',
+    attackVariants: [
+      'Instantaneous Spot Price Skew via Massive Uniswap V2 Swap',
+      'Flash Loan Borrowing paired with Collateral Valuation Inflate',
+      'DEX Pool Reserve Ratio Tampering during Lending Liquidation',
+      'Lack of Time-Weighted Average Price (TWAP) Protection',
+      'Sandwich Attack Exploiting Dynamic Fee Calculations',
+      'Multi-Pool Triangular Arbitrage Exploiting Slippage Bounds'
+    ],
+    triggerPatterns: [
+      'getReserves',
+      'balanceOf\\(address\\(this\\)\\)',
+      'flashLoan\\s*\\(',
+      'IUniswapV2Pair'
+    ],
+    summary: 'Using instantaneous `getReserves()` or `balanceOf()` from an AMM pool as a price oracle allows attackers to temporarily skew prices using uncollateralized flash loans.',
+    exploitMechanism: 'Attacker borrows 100M DAI via flash loan, dumps it into Uniswap to crash DAI price, deposits manipulated collateral, borrows assets, and repays flash loan with profit.',
+    mitigation: 'Never use spot reserves as price oracles. Use Chainlink decentralized oracles or Uniswap V3 TWAP with at least 30-minute observation windows.',
+    referenceUrl: 'https://samczsun.com/so-you-want-to-use-a-uniswap-oracle/'
   }
 ];
 
@@ -710,7 +1267,9 @@ export class ThreatKnowledgeBase {
 
     for (const r of all) {
       variantCount += r.attackVariants.length;
-      variants.push(...r.attackVariants);
+      for (const v of r.attackVariants) {
+        variants.push(v);
+      }
     }
 
     return {

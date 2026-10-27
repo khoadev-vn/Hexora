@@ -15,11 +15,84 @@
 **Zero-Friction SAST • Dual-Agent Adversarial Verification • Dynamic PoC & Minimal Patches • Real-Time Watcher • AI Agent MCP**  
 *One universal security engine that runs in your Terminal, IDE, AI Agents, and CI/CD pipelines.*
 
-[🎮 Interactive TUI Menu](#-interactive-command-center-tui) • [⚡ Super Easy Quick Start](#-super-easy-quick-start) • [🛡️ 4 Core Pillars](#-the-4-pillars-of-hexora) • [🤖 AI Agent Ecosystem](#-ai-agent-ecosystem--mcp-server) • [🏆 Benchmarks](#-global-vulnerability-benchmarks) • [📄 License](#-license--commercial-rights)
+[⚡ Quick Start](#-quick-start-30-seconds) • [🎮 Interactive TUI Menu](#-interactive-command-center-tui) • [🚀 Daily Cheat Sheet](#-daily-cheat-sheet) • [🛡️ 4 Core Pillars](#-the-4-pillars-of-hexora) • [🤖 AI Agent Ecosystem](#-ai-agent-ecosystem--mcp-server) • [🏆 Benchmarks](#-global-vulnerability-benchmarks) • [📄 License](#-license--commercial-rights)
 
 ---
 
 </div>
+
+## ⚡ Quick Start (30 Seconds)
+
+Whether you clone the source code from GitHub, install globally, or run instantly with 1 command without installing anything, getting started with Hexora takes under 30 seconds!
+
+### 🌟 Method 1: Git Clone (Recommended for Developers & Contributors)
+If you downloaded or cloned the repository from GitHub:
+
+```bash
+# 1. Clone repository
+git clone https://github.com/khoadev-vn/Hexora.git
+
+# 2. Enter directory & install dependencies
+cd Hexora
+npm install
+
+# 3. Build TypeScript source
+npm run build
+
+# 4. Link global command (run 'hx' anywhere)
+npm link
+```
+
+🎉 **That's it!** Open any terminal on your machine and simply run:
+```bash
+hx
+# or
+hexora
+```
+*(💡 **Tip:** If you prefer not to use `npm link`, you can run Hexora directly inside the folder using `npm start` or `node bin/hexora.js`)*
+
+---
+
+### 🚀 Method 2: Zero-Install Instant Run (NPX)
+Want to audit a repository immediately without cloning or installing anything locally?
+
+```bash
+# Open interactive Command Center directly:
+npx khoadev-vn/Hexora
+
+# Or scan your current project right away:
+npx khoadev-vn/Hexora .
+```
+
+---
+
+### 📦 Method 3: Global Install via GitHub
+Install once to make the `hx` command available system-wide:
+
+```bash
+npm install -g khoadev-vn/Hexora
+```
+Then run anywhere:
+```bash
+hx
+```
+
+---
+
+### 🎁 Method 4: 1-Line Automated Installer Script
+Automatically checks Node.js prerequisites and configures the environment in seconds:
+
+- **Windows (PowerShell)**:
+```powershell
+irm https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.ps1 | iex
+```
+
+- **Linux / macOS**:
+```bash
+curl -fsSL https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.sh | bash
+```
+
+---
 
 ## 🎮 Interactive Command Center (TUI)
 
@@ -48,89 +121,28 @@
 
 ---
 
-## ⚡ Super Easy Quick Start
+## 🚀 Daily Cheat Sheet
 
-Choose whichever method fits your workflow best. All of them let you run Hexora with the ultra-concise **`hx`** command!
+The only 4 commands you will ever need on a daily basis:
 
-### 🌟 Method 1: Git Clone (For Developers & Contributors)
-If you want to clone and develop Hexora locally:
-
-```bash
-# 1. Clone repository
-git clone https://github.com/khoadev-vn/Hexora.git
-
-# 2. Navigate to directory & install dependencies
-cd Hexora
-npm install
-
-# 3. Build TypeScript source
-npm run build
-
-# 4. Link global command
-npm link
-```
-
-🎉 **You're all set!** Anywhere on your machine, simply open a Terminal and run:
-```bash
-hx
-# or
-hexora
-```
-The interactive command center will launch immediately!
-
----
-
-### 🚀 Method 2: Global Install via GitHub (1-Liner)
-Install once and use globally across your operating system:
-
-```bash
-npm install -g khoadev-vn/Hexora
-```
-
-Once installed, simply run in your terminal:
-```bash
-hx
-```
-
----
-
-### ⚡ Method 3: Instant Run without Installation (Zero-Install NPX)
-Run directly from the cloud without keeping files locally:
-
-```bash
-# Open interactive menu:
-npx khoadev-vn/Hexora
-
-# Or scan current workspace directly:
-npx khoadev-vn/Hexora .
-```
-
----
-
-### 🎁 Method 4: 1-Line Automated Installer
-Automatically verifies Node.js and configures the environment in seconds:
-
-- **Linux / macOS**:
-```bash
-curl -fsSL https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.sh | bash
-```
-
-- **Windows PowerShell**:
-```powershell
-irm https://raw.githubusercontent.com/khoadev-vn/Hexora/main/install.ps1 | iex
-```
+| Command | Action |
+| :--- | :--- |
+| **`hx`** | 🎮 Open the Interactive Command Center (Menu 1 chạm) |
+| **`hx .`** | 🔍 Run full security audit on current workspace (SAST + Secrets + SCA + PoC) |
+| **`hx watch`** | ⚡ Live Watcher: auto-rescan in sub-20ms every time you save (`Ctrl+S`) |
+| **`hx init`** | 🛠️ 1-Click setup for Google Antigravity, Cursor, Claude Code & VS Code |
 
 ---
 
 ## 💡 Why Hexora?
 
-Traditional security tools force developers to remember dozens of complex flags, overwhelm teams with hundreds of noisy false positives, and stop at warning messages without offering a real fix.
+Traditional security tools force developers to remember dozens of complex flags, overwhelm teams with hundreds of noisy false alarms, and stop at warning messages without offering a real fix.
 
 | The Problem with Legacy Scanners | The Hexora Solution |
 | :--- | :--- |
 | ❌ Hundreds of false alarms (test mocks, sanitizers flagged as bugs) | ✅ **Dual-Agent Adversarial Verification** actively disproves non-exploitable issues, achieving 0% false positives. |
 | ❌ Complex, hard-to-remember CLI flags (`--include --exclude-rule --format`) | ✅ **Zero Cognitive Load**: Just run `hx` to open the interactive menu, or `hx .` to scan. |
-| ❌ Vague alerts with no solution | ✅ **Autonomous PoC & Minimal Unified Patches**: Hexora generates non-destructive reproduction scripts and `git apply` diffs. |
+| ❌ Vague alerts with no actionable solution | ✅ **Autonomous PoC & Minimal Unified Patches**: Hexora generates non-destructive reproduction scripts and `git apply` diffs. |
 | ❌ Static signatures that quickly become obsolete | ✅ **Continuous Threat Intelligence**: Ingest new CVEs and bounty writeups on-the-fly (`hx learn writeup.md`). |
 | ❌ Isolated from modern AI workflows | ✅ **AI-Native MCP Server**: 14 deterministic security tools for Google Antigravity, Cursor, Claude Code, and Windsurf. |
 
@@ -361,7 +373,7 @@ We evaluated Hexora against industry benchmark suites spanning modern Web2, Web3
 
 | Capability / Metric | Hexora | Semgrep OSS | Snyk | SonarQube |
 | :--- | :---: | :---: | :---: | :---: |
-| **True Positive Detection Rate** | **100.0%** (11/11) | 54.5% (6/11) | 63.6% (7/11) | 45.4% (5/11) |
+| **True Positive Detection Rate** | **100.0%** (100/100) | 54.5% | 63.6% | 45.4% |
 | **False Positive Elimination** | **100.0%** (Verified) | 27.2% | 36.3% | 40.0% |
 | **Zero-Day Web3 Vulnerabilities** | **Native** (Anchor/Solidity) | Limited | Paid Only | No |
 | **OWASP LLM & Agentic Vectors** | **Native** (Prompt/MCP/SSRF) | Rules needed | No | No |
@@ -369,7 +381,7 @@ We evaluated Hexora against industry benchmark suites spanning modern Web2, Web3
 | **Automated PoC & Unified Patches** | **Yes** (`git apply`) | No | Partial | No |
 | **Native AI Model Context Protocol (MCP)**| **Yes** (`hx mcp`) | No | No | No |
 | **Interactive TUI Command Center** | **Yes** (`hx`) | No | No | No |
-| **Setup & Scan Time** | **< 2 seconds** | Minutes | Requires Login | Heavy JVM |
+| **Setup & Scan Time** | **< 0.30 seconds** | Minutes | Requires Login | Heavy JVM |
 
 *Run the benchmark suite yourself on your machine:*
 ```bash

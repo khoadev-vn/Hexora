@@ -46,16 +46,17 @@ export class BusinessLogicAnalyzer {
     detectIdorBola(content, violations) {
         const lines = content.split('\n');
         // Pattern: Sensitive mutation or financial drain action with user ID parameter
-        const idorSensitiveActionPattern = /(?:withdraw|transfer|drain|payout|deleteAccount|updateBalance|sendMoney|updateUser|deleteWallet)\s*\([^)]*\)|(?:app|router)\.(?:post|put|patch|delete)\s*\(\s*['"][^'"]*:(?:userId|walletId|accountId|id)[^'"]*['"]/i;
+        const idorSensitiveActionPattern = /(?:withdraw|transfer|drain|payout|deleteAccount|updateBalance|sendMoney|updateUser|deleteWallet|transferFunds)\s*\([^)]*\)|(?:app|router)\.(?:post|put|patch|delete)\s*\(\s*['"][^'"]*(?:wallet|transfer|account|user|profile|balance|payout|withdraw|fund|:(?:userId|walletId|accountId|id))[^'"]*['"]/i;
         const match = idorSensitiveActionPattern.exec(content);
         if (match) {
             // Find the enclosing function body or context
             const matchIndex = match.index;
             const contextSlice = content.slice(Math.max(0, matchIndex - 100), Math.min(content.length, matchIndex + 1200));
             // Check if context pulls ID from untrusted client input
-            const hasClientSuppliedId = /req\.(?:params|query|body)\.(?:userId|walletId|accountId|id)|params\.(?:userId|walletId|accountId|id)/i.test(contextSlice);
+            const hasClientSuppliedId = /req\.(?:params|query|body)\.(?:userId|walletId|accountId|id|fromUser|user)|params\.(?:userId|walletId|accountId|id)|\{[^}]*(?:fromUser|userId|accountId|user)[^}]*\}\s*=\s*req\.(?:body|params|query)/i.test(contextSlice);
             // Semantic Check: Is there session authentication verification comparing caller identity against resource owner?
-            const hasOwnershipVerification = /(?:req\.user\.id|req\.auth\.userId|session\.userId|ctx\.user\.id)\s*===?\s*(?:req\.params|req\.body|req\.query|userId|walletId|accountId|id)/i.test(contextSlice) ||
+            const hasOwnershipVerification = /(?:req\.user\.id|req\.auth\.userId|session\.userId|req\.session\.userId|ctx\.user\.id)\s*===?\s*(?:req\.params|req\.body|req\.query|userId|walletId|accountId|id|fromUser)/i.test(contextSlice) ||
+                /(?:const|let|var)\s+fromUser\s*=\s*req\.session\.userId/i.test(contextSlice) ||
                 /(?:where\s*:\s*\{[^}]*(?:userId|ownerId)\s*:\s*(?:req\.user\.id|session\.userId)|ownerId\s*:\s*req\.user\.id)/i.test(contextSlice) ||
                 /(?:checkOwnership|verifyOwnership|isOwner|authorizeResource|requireOwnership)\s*\(/i.test(contextSlice);
             if (hasClientSuppliedId && !hasOwnershipVerification) {

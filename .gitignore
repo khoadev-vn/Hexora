@@ -16,3 +16,10 @@ bench_*.txt
 .benchmark_workspace/
 
 landing/
+test_*.js
+test_*.json
+check_*.js
+diag.*
+print_*.js
+run_node.ps1
+

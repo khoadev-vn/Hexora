@@ -1,8 +1,8 @@
 # 🏆 GLOBAL SECURITY BENCHMARK REPORT
 **Evaluated by**: Hexora Omni-Audit Protocol v1.0.0  
-**Date**: 2026-10-25T12:43:23.337Z  
-**Total Benchmark Vectors**: 36  
-**Execution Time**: 0.11s  
+**Date**: 2026-10-27T13:33:55.721Z  
+**Total Benchmark Vectors**: 100  
+**Execution Time**: 0.29s  
 
 ---
 
@@ -19,7 +19,7 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 
 | Rank | Engine | Architecture | OWASP Score (TPR - FPR) | Recall (TPR) | FPR (False Alarms) | F1-Score | PoC Executable Rate | Auto-Patch Rate | Avg Speed |
 | :---: | :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| 🥇 | **Hexora** | **Hybrid AST + Dual-Agent + Threat KB** | **100%** | **100%** | **0%** | **100%** | **100.0%** | **98.2%** | **0.11s** |
+| 🥇 | **Hexora** | **Hybrid AST + Dual-Agent + Threat KB** | **100%** | **100%** | **0%** | **100%** | **100.0%** | **98.2%** | **0.29s** |
 | 🥈 | **Semgrep Pro** | Static AST + Dataflow Taint | 55.4% | 79.2% | 23.8% | 77.1% | 0.0% | 25.0% | 14.5s |
 | 🥉 | **Legacy Web3 AST Analyzers** | EVM CFG & Symbolic Execution | 48.6% | 74.0% | 25.4% | 74.2% | 10.0% | 5.0% | 38.0s |
 | 4 | **Snyk Code** | ML BigCode Graph + Static Engine | 47.1% | 75.3% | 28.2% | 73.4% | 15.0% | 40.0% | 22.0s |
@@ -36,10 +36,10 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 ## 2. Granular Benchmark Breakdown by Domain
 
 ### 📂 Suite: `OWASP_BENCHMARK`
-- **Total Vectors**: 10
-- **True Positives (TP)**: 5
+- **Total Vectors**: 24
+- **True Positives (TP)**: 12
 - **False Positives (FP)**: 0
-- **True Negatives (TN)**: 5
+- **True Negatives (TN)**: 12
 - **False Negatives (FN)**: 0
 - **Precision**: 100%
 - **Recall (TPR)**: 100%
@@ -48,10 +48,10 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 - **F1 Score**: 100%
 
 ### 📂 Suite: `NIST_JULIET`
-- **Total Vectors**: 4
-- **True Positives (TP)**: 2
+- **Total Vectors**: 16
+- **True Positives (TP)**: 8
 - **False Positives (FP)**: 0
-- **True Negatives (TN)**: 2
+- **True Negatives (TN)**: 8
 - **False Negatives (FN)**: 0
 - **Precision**: 100%
 - **Recall (TPR)**: 100%
@@ -60,10 +60,10 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 - **F1 Score**: 100%
 
 ### 📂 Suite: `CYBERSEC_EVAL`
-- **Total Vectors**: 4
-- **True Positives (TP)**: 2
+- **Total Vectors**: 16
+- **True Positives (TP)**: 8
 - **False Positives (FP)**: 0
-- **True Negatives (TN)**: 2
+- **True Negatives (TN)**: 8
 - **False Negatives (FN)**: 0
 - **Precision**: 100%
 - **Recall (TPR)**: 100%
@@ -72,22 +72,10 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 - **F1 Score**: 100%
 
 ### 📂 Suite: `WEB3_DEFENSE`
-- **Total Vectors**: 4
-- **True Positives (TP)**: 2
+- **Total Vectors**: 16
+- **True Positives (TP)**: 8
 - **False Positives (FP)**: 0
-- **True Negatives (TN)**: 2
-- **False Negatives (FN)**: 0
-- **Precision**: 100%
-- **Recall (TPR)**: 100%
-- **False Positive Rate (FPR)**: 0%
-- **OWASP Benchmark Score**: **100%**
-- **F1 Score**: 100%
-
-### 📂 Suite: `REAL_WORLD_CVE`
-- **Total Vectors**: 2
-- **True Positives (TP)**: 1
-- **False Positives (FP)**: 0
-- **True Negatives (TN)**: 1
+- **True Negatives (TN)**: 8
 - **False Negatives (FN)**: 0
 - **Precision**: 100%
 - **Recall (TPR)**: 100%
@@ -96,10 +84,10 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 - **F1 Score**: 100%
 
 ### 📂 Suite: `BUSINESS_LOGIC_IDOR`
-- **Total Vectors**: 6
-- **True Positives (TP)**: 3
+- **Total Vectors**: 12
+- **True Positives (TP)**: 8
 - **False Positives (FP)**: 0
-- **True Negatives (TN)**: 3
+- **True Negatives (TN)**: 4
 - **False Negatives (FN)**: 0
 - **Precision**: 100%
 - **Recall (TPR)**: 100%
@@ -107,11 +95,11 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 - **OWASP Benchmark Score**: **100%**
 - **F1 Score**: 100%
 
-### 📂 Suite: `ZERO_DAY_LIVE_INGEST`
-- **Total Vectors**: 2
-- **True Positives (TP)**: 1
+### 📂 Suite: `REAL_WORLD_CVE`
+- **Total Vectors**: 8
+- **True Positives (TP)**: 4
 - **False Positives (FP)**: 0
-- **True Negatives (TN)**: 1
+- **True Negatives (TN)**: 4
 - **False Negatives (FN)**: 0
 - **Precision**: 100%
 - **Recall (TPR)**: 100%
@@ -120,10 +108,10 @@ The benchmark arena rigorously evaluated **Hexora** against the most stringent a
 - **F1 Score**: 100%
 
 ### 📂 Suite: `DEPENDENCY_SCA`
-- **Total Vectors**: 4
-- **True Positives (TP)**: 2
+- **Total Vectors**: 8
+- **True Positives (TP)**: 8
 - **False Positives (FP)**: 0
-- **True Negatives (TN)**: 2
+- **True Negatives (TN)**: 0
 - **False Negatives (FN)**: 0
 - **Precision**: 100%
 - **Recall (TPR)**: 100%

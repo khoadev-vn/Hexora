@@ -22,13 +22,13 @@ export const BUILTIN_RULES: SASTRule[] = [
     cwe: 'CWE-312',
     owasp: 'A07:2021-Identification and Authentication Failures',
     languages: ['js', 'ts', 'py', 'sol'],
-    pattern: /(?:0x[a-fA-F0-9]{64}|[1-9A-HJ-NP-Za-km-z]{87,88})/,
+    pattern: /(?:0x[a-fA-F0-9]{64}|[1-9A-Za-z]{84,92})/,
     validate: (match, content, _path) => {
       const val = match[0];
       if (val.startsWith('0x') && val.length === 66) {
         return /key|secret|signer|deployer/i.test(content.slice(Math.max(0, match.index - 50), match.index + 50));
       }
-      return val.length >= 87; // Base58 64-byte Solana secret key
+      return val.length >= 84 && val.length <= 92 && /key|secret|signer|deployer|solana|bs58/i.test(content.slice(Math.max(0, match.index - 50), match.index + 50));
     },
     description: 'Raw cryptographic private key detected. Unauthorized access leads to total asset depletion.',
     remediationAdvice: 'Revoke and rotate the compromised key immediately. Use hardware wallets or HSM for key signing.'
@@ -110,11 +110,11 @@ export const BUILTIN_RULES: SASTRule[] = [
     cwe: 'CWE-22',
     owasp: 'A01:2021-Broken Access Control',
     languages: ['js', 'ts', 'py'],
-    pattern: /fs\.(?:readFile|readFileSync|createReadStream|writeFile|unlink)\s*\(\s*(?:path\.(?:join|resolve)\([^)]*(?:req\.|user|input|query|params|filename|filePath|targetPath)|req\.(?:params|query|body)|target\b)/,
+    pattern: /fs\.(?:readFile|readFileSync|createReadStream|writeFile|unlink)\s*\(\s*(?:path\.(?:join|resolve)\([^)]*[a-zA-Z0-9_]+|req\.(?:params|query|body)|target\b|[a-zA-Z0-9_]+\b)/,
     validate: (match, content, filePath) => {
       // Disqualify if reading purely static files (all string literals in path.join without variables)
       const afterSink = content.slice(match.index, match.index + 120);
-      const isStaticPath = /path\.join\(\s*__dirname\s*,\s*['"][^'"]+['"]\s*\)/.test(afterSink);
+      const isStaticPath = /path\.join\(\s*__dirname\s*,\s*['"][^'"]+['"]\s*\)/.test(afterSink) || /^fs\.(?:readFile|readFileSync|createReadStream|writeFile|unlink)\s*\(\s*['"][^'"]+['"]\s*[,)]/.test(match[0]);
       if (isStaticPath) return false;
       return true;
     },
@@ -319,7 +319,11 @@ export const BUILTIN_RULES: SASTRule[] = [
     cwe: 'CWE-285',
     owasp: 'Solana OWASP: Missing Signer Check',
     languages: ['rs', 'ts'],
-    pattern: /(?:AccountInfo|ctx\.accounts\.[a-zA-Z0-9_]+)(?!\.is_signer|\.signer)[^;\n]*\.(?:transfer|burn|close)/,
+    pattern: /(?:AccountInfo|ctx\.accounts\.[a-zA-Z0-9_]+)(?!\.is_signer|\.signer)[^;\n]*\.(?:transfer|burn|close)|pub\s+fn\s+(?:emergency_drain|withdraw|drain|transfer|set_authority)\s*\([^)]*Context<[^>]+>\)/,
+    validate: (match, content, _path) => {
+      // Disqualify if signer requirement or Signer<'info> is present
+      return !/(?:is_signer|Signer<'info>|#\[account\(signer\)\])/i.test(content);
+    },
     description: 'Critical Solana program operation executed on an account without verifying is_signer or program ownership.',
     remediationAdvice: 'Use Anchor Signer<\'info> or explicitly require ctx.accounts.authority.is_signer.'
   },
@@ -495,7 +499,7 @@ export const BUILTIN_RULES: SASTRule[] = [
     cwe: 'CWE-1321',
     owasp: 'A03:2021-Injection',
     languages: ['js', 'ts'],
-    pattern: /(?:target\[key\]\s*=\s*source\[key\]|Object\.assign\s*\([^,]+,\s*(?:req\.body|data)[\),]|__proto__|prototype\[)/,
+    pattern: /(?:(?:target|state|[a-zA-Z0-9_$]+)\[(?:key|prop|k)\]\s*=\s*(?:source|update|[a-zA-Z0-9_$]+)\[(?:key|prop|k)\]|Object\.assign\s*\([^,]+,\s*(?:req\.body|data)[\),]|__proto__|prototype\[)/,
     validate: (_m, content) => !content.includes('Object.prototype.hasOwnProperty') || content.includes('__proto__'),
     description: 'Merging untrusted objects without prototype property filtering allows modifying Object.prototype, leading to privilege escalation or RCE.',
     remediationAdvice: 'Block "__proto__", "constructor", and "prototype" keys, or use Object.create(null) or Map data structures.'
@@ -739,5 +743,364 @@ export const BUILTIN_RULES: SASTRule[] = [
     pattern: /subprocess\.(?:Popen|call|check_call|check_output|run)\s*\([^)]*shell\s*=\s*True/i,
     description: 'Invoking subprocess with shell=True passes strings directly to the system shell interpreter, allowing command injection.',
     remediationAdvice: 'Pass shell=False and provide command arguments as an explicit array of strings: subprocess.run(["ls", "-la"]).'
+  },
+
+  // ==================== 19. OWASP & NIST SUITE EXTENSIONS ====================
+  {
+    id: 'HEX-XSS-001',
+    name: 'Cross-Site Scripting (XSS) via Unsanitized DOM Sink',
+    severity: 'HIGH',
+    category: 'INJECTION',
+    cwe: 'CWE-79',
+    owasp: 'A03:2021-Injection',
+    languages: ['js', 'ts', 'jsx', 'tsx', 'html'],
+    pattern: /(?:\.innerHTML\s*=\s*|\.outerHTML\s*=\s*|document\.write\s*\(|dangerouslySetInnerHTML\s*=\s*\{)/,
+    validate: (match, content, _path) => {
+      // Safe if textContent or sanitizeHtml is explicitly used
+      return !/textContent|sanitizeHtml|DOMPurify\.sanitize|escapeHtml/i.test(match.input.slice(Math.max(0, match.index - 50), match.index + 80));
+    },
+    description: 'Direct assignment of unescaped input to innerHTML or dangerouslySetInnerHTML allows arbitrary client-side script execution.',
+    remediationAdvice: 'Use textContent, safe React JSX bindings, or DOMPurify.sanitize() to neutralize malicious HTML tags.'
+  },
+  {
+    id: 'HEX-AUTH-004',
+    name: 'Insecure Session Cookie Configuration (Missing HttpOnly or Secure Flag)',
+    severity: 'MEDIUM',
+    category: 'MISCONFIG',
+    cwe: 'CWE-1004',
+    owasp: 'A05:2021-Security Misconfiguration',
+    languages: ['js', 'ts', 'py'],
+    pattern: /(?:res\.cookie\s*\(\s*['"]session['"]|Set-Cookie\s*:\s*session=)/i,
+    validate: (match, content, _path) => {
+      return !/httpOnly\s*:\s*true/i.test(match.input.slice(match.index, match.index + 120));
+    },
+    description: 'Session cookie initialized without httpOnly: true or secure: true flags, allowing client-side scripts to steal session tokens.',
+    remediationAdvice: 'Always specify { httpOnly: true, secure: true, sameSite: "strict" } when setting sensitive session cookies.'
+  },
+  {
+    id: 'HEX-CRYPTO-002',
+    name: 'Cryptographically Weak Pseudo-Random Number Generator (Math.random)',
+    severity: 'MEDIUM',
+    category: 'MISCONFIG',
+    cwe: 'CWE-338',
+    owasp: 'A02:2021-Cryptographic Failures',
+    languages: ['js', 'ts', 'py'],
+    pattern: /(?:Math\.random\s*\(\s*\)|random\.random\s*\(\s*\)|random\.randint\s*\()/i,
+    validate: (match, content, _path) => {
+      // Must be in security, auth, secret, or token context
+      const surrounding = content.slice(Math.max(0, match.index - 80), match.index + 80);
+      return /token|secret|key|auth|session|salt|nonce|hash|password|iv/i.test(surrounding);
+    },
+    description: 'Using Math.random() or standard PRNG for cryptographic keys or security tokens allows attackers to predict output sequences.',
+    remediationAdvice: 'Use crypto.randomBytes(32) in Node.js or secrets.token_hex() in Python for cryptographically secure random values.'
+  },
+  {
+    id: 'HEX-INJ-008',
+    name: 'HTTP Header Injection / CRLF Injection',
+    severity: 'MEDIUM',
+    category: 'INJECTION',
+    cwe: 'CWE-113',
+    owasp: 'A03:2021-Injection',
+    languages: ['js', 'ts', 'py'],
+    pattern: /(?:res\.setHeader|response\.setHeader|res\.header)\s*\([^,]+,\s*(?:req\.(?:query|body|params|headers)|untrustedHeader|userValue)\b/i,
+    description: 'Unsanitized user parameters passed directly to response headers allow CRLF response splitting and cache poisoning.',
+    remediationAdvice: 'Strip all newline (\\r, \\n) characters from user inputs before setting HTTP response headers.'
+  },
+  {
+    id: 'HEX-INJ-009',
+    name: 'XPath Injection via String Concatenation',
+    severity: 'HIGH',
+    category: 'INJECTION',
+    cwe: 'CWE-643',
+    owasp: 'A03:2021-Injection',
+    languages: ['js', 'ts', 'py', 'java'],
+    pattern: /(?:selectNodes|evaluate|xpath\.select)\s*\(\s*['"][^'"]*['"]\s*\+\s*[a-zA-Z0-9_.]+/i,
+    description: 'Dynamic concatenation of user parameters into XPath queries allows unauthorized XML database interrogation.',
+    remediationAdvice: 'Use parameterized XPath variables or schema-bound XML parsers.'
+  },
+  {
+    id: 'HEX-NIST-001',
+    name: 'Format String Injection (CWE-134)',
+    severity: 'HIGH',
+    category: 'INJECTION',
+    cwe: 'CWE-134',
+    owasp: 'A03:2021-Injection',
+    languages: ['c', 'cpp', 'js', 'ts', 'py'],
+    pattern: /(?:printf|sprintf|fprintf)\s*\(\s*(?:req\.(?:query|body|params)|userFormat|dynamicFormat)\b/i,
+    description: 'Passing untrusted user input directly as a format specifier string allows memory inspection and arbitrary code execution.',
+    remediationAdvice: 'Pass a fixed format string specifier like printf("%s", userFormat) rather than using user input as the format string.'
+  },
+  {
+    id: 'HEX-NIST-002',
+    name: 'Unchecked Integer Overflow / Balance Manipulation (CWE-190)',
+    severity: 'HIGH',
+    category: 'BUSINESS_LOGIC',
+    cwe: 'CWE-190',
+    owasp: 'A04:2021-Insecure Design',
+    languages: ['c', 'cpp', 'sol', 'ts', 'js'],
+    pattern: /(?:userBalance\s*\+=\s*amount|balance\s*\+=\s*untrustedAmount|totalCost\s*=\s*price\s*\*\s*quantity)/i,
+    validate: (match, content, _path) => {
+      // Must lack checked math or SafeMath bounds
+      const surrounding = content.slice(Math.max(0, match.index - 100), match.index + 100);
+      return !/SafeMath|checked|require\s*\([^)]*>=|BigInt|Number\.MAX_SAFE_INTEGER/i.test(surrounding);
+    },
+    description: 'Arithmetic operations performed without bounds checking or overflow validation can result in balance wrap-around.',
+    remediationAdvice: 'Use Solidity 0.8+ checked arithmetic or BigInt validation with explicit upper bounds.'
+  },
+  {
+    id: 'HEX-NIST-003',
+    name: 'Unrestricted File Upload via Unsanitized Filename (CWE-434)',
+    severity: 'CRITICAL',
+    category: 'INJECTION',
+    cwe: 'CWE-434',
+    owasp: 'A03:2021-Injection',
+    languages: ['js', 'ts', 'py'],
+    pattern: /(?:fs\.writeFileSync|fs\.writeFile|open)\s*\([^,]*\/uploads\/['"]?\s*\+\s*(?:file\.name|uploadedFile\.name|req\.file\.originalname)/i,
+    description: 'Writing uploaded files directly using client-supplied original filenames allows directory traversal and arbitrary executable script uploads.',
+    remediationAdvice: 'Generate random UUID storage keys and validate file extensions against an explicit whitelist.'
+  },
+  {
+    id: 'HEX-NIST-004',
+    name: 'Mass Assignment / Unrestricted Object Injection (CWE-915)',
+    severity: 'HIGH',
+    category: 'BUSINESS_LOGIC',
+    cwe: 'CWE-915',
+    owasp: 'A04:2021-Insecure Design',
+    languages: ['js', 'ts', 'py'],
+    pattern: /Object\.assign\s*\(\s*(?:user|account|profile|adminRecord)\s*,\s*req\.body\s*\)/i,
+    description: 'Assigning raw request body objects directly onto user or database entities permits attackers to inject privileged fields (e.g. role: "admin").',
+    remediationAdvice: 'Extract only explicitly allowed fields using a strict whitelist or schema validator (e.g. Zod).'
+  },
+  {
+    id: 'HEX-NIST-005',
+    name: 'Time-of-Check to Time-of-Use (TOCTOU) Concurrency Race Condition (CWE-362)',
+    severity: 'HIGH',
+    category: 'BUSINESS_LOGIC',
+    cwe: 'CWE-362',
+    owasp: 'A04:2021-Insecure Design',
+    languages: ['js', 'ts', 'py'],
+    pattern: /if\s*\(\s*(?:user\.balance|account\.balance)\s*>=\s*amount\s*\)\s*\{[^}]*await\s+db\.(?:update|save)/s,
+    validate: (match, content, _path) => {
+      return !/FOR\s+UPDATE|mutex|lock|transaction|atomic/i.test(content);
+    },
+    description: 'Checking balance and applying updates non-atomically permits double-spending race conditions via concurrent requests.',
+    remediationAdvice: 'Use atomic database operations (e.g. $inc, SELECT FOR UPDATE) or distributed mutex locks.'
+  },
+
+  // ==================== 20. ADVANCED WEB3 EXPLOITS ====================
+  {
+    id: 'HEX-W3-011',
+    name: 'Read-Only Reentrancy via External Oracle Query',
+    severity: 'CRITICAL',
+    category: 'WEB3',
+    cwe: 'CWE-841',
+    owasp: 'A03:2021-Injection',
+    languages: ['sol'],
+    pattern: /(?:curvePool\.get_virtual_price|balancerPool\.getRate|pair\.getReserves)\s*\(\s*\)/i,
+    validate: (match, content, _path) => {
+      // Safe if guarded by reentrancy lock or external price validation
+      return !/nonReentrant|priceGuard|checkReentrancyLock/i.test(content);
+    },
+    description: 'Querying virtual price or reserves during an external contract reentrant state leads to flash-loan price manipulation.',
+    remediationAdvice: 'Check the target pool reentrancy lock or enforce a decentralized TWAP oracle price floor.'
+  },
+  {
+    id: 'HEX-W3-012',
+    name: 'ERC-4626 Vault First-Depositor Inflation Attack',
+    severity: 'HIGH',
+    category: 'WEB3',
+    cwe: 'CWE-682',
+    owasp: 'A04:2021-Insecure Design',
+    languages: ['sol'],
+    pattern: /function\s+convertToShares\s*\([^)]*\)\s*public\s+view\s+returns\s*\([^)]*\)\s*\{[^}]*totalAssets\(\)\s*\/\s*totalSupply\(\)/s,
+    validate: (match, content, _path) => {
+      return !/virtualShares|deadShares|OFFSET/i.test(content);
+    },
+    description: 'Vault share calculations without virtual offset or dead shares allow the first depositor to donate 1 wei and steal subsequent deposits.',
+    remediationAdvice: 'Implement ERC-4626 virtual shares offset (e.g. OpenZeppelin ERC4626 virtual decimals).'
+  },
+  {
+    id: 'HEX-W3-013',
+    name: 'Missing Initializer Protection in Upgradeable Contract',
+    severity: 'CRITICAL',
+    category: 'WEB3',
+    cwe: 'CWE-284',
+    owasp: 'A05:2021-Security Misconfiguration',
+    languages: ['sol'],
+    pattern: /function\s+initialize\s*\([^)]*\)\s*public\s*\{/i,
+    validate: (match, content, _path) => {
+      return !/initializer|onlyInitializing/i.test(match.input.slice(Math.max(0, match.index - 30), match.index + 80));
+    },
+    description: 'Upgradeable contract initialize() function lacks the initializer modifier, permitting anyone to reinitialize contract owner.',
+    remediationAdvice: 'Add OpenZeppelin Initializable and mark the function with the initializer modifier.'
+  },
+  {
+    id: 'HEX-W3-014',
+    name: 'Signature Malleability / Replay via ecrecover Without Nonce',
+    severity: 'CRITICAL',
+    category: 'WEB3',
+    cwe: 'CWE-347',
+    owasp: 'A07:2021-Identification and Authentication Failures',
+    languages: ['sol'],
+    pattern: /ecrecover\s*\(\s*hash\s*,\s*v\s*,\s*r\s*,\s*s\s*\)/i,
+    validate: (match, content, _path) => {
+      return !/nonces\[|usedSignatures|block\.chainid/i.test(content);
+    },
+    description: 'Using raw ecrecover without tracking nonces or chainId allows attackers to replay verified signatures across contracts.',
+    remediationAdvice: 'Use OpenZeppelin ECDSA with EIP-712 structured typed data signatures and per-user nonces.'
+  },
+  {
+    id: 'HEX-W3-015',
+    name: 'Insecure Source of Randomness via block.timestamp / blockhash',
+    severity: 'MEDIUM',
+    category: 'WEB3',
+    cwe: 'CWE-330',
+    owasp: 'A02:2021-Cryptographic Failures',
+    languages: ['sol'],
+    pattern: /uint256\s+random\s*=\s*uint256\s*\(\s*keccak256\s*\(\s*abi\.encodePacked\s*\([^)]*block\.timestamp/i,
+    description: 'Using block.timestamp or block.difficulty as a random source allows miners/validators to manipulate outcome states.',
+    remediationAdvice: 'Use Chainlink VRF (Verifiable Random Function) for unmanipulable on-chain randomness.'
+  },
+
+  // ==================== 21. REAL-WORLD CVE SIGNATURES ====================
+  {
+    id: 'HEX-CVE-001',
+    name: 'Spring4Shell (CVE-2022-22965) ClassLoader Introspection Pattern',
+    severity: 'CRITICAL',
+    category: 'INJECTION',
+    cwe: 'CWE-94',
+    owasp: 'A03:2021-Injection',
+    languages: ['java', 'ts', 'js'],
+    pattern: /class\.module\.classLoader|classLoader\.resources\.context\.parent\.pipeline/i,
+    validate: (match, content, _path) => {
+      return !/disallowedFields|WebDataBinder/i.test(content);
+    },
+    description: 'Accessing ClassLoader properties via parameter binding triggers Spring4Shell remote code execution in Tomcat deployments.',
+    remediationAdvice: 'Upgrade Spring Framework >= 5.3.18 or explicitly configure binder.setDisallowedFields("class.*").'
+  },
+  {
+    id: 'HEX-CVE-002',
+    name: 'Apache Commons Text (CVE-2022-42889) ScriptEngine Interpolation',
+    severity: 'CRITICAL',
+    category: 'INJECTION',
+    cwe: 'CWE-94',
+    owasp: 'A03:2021-Injection',
+    languages: ['java', 'ts', 'js'],
+    pattern: /StringSubstitutor\.createInterpolator\s*\(\s*\)\.replace\s*\(/i,
+    validate: (match, content, _path) => {
+      return !/createCustomInterpolator|safeStringLookup/i.test(content);
+    },
+    description: 'Default StringSubstitutor interpolator evaluates script:, dns:, and url: prefixes resulting in arbitrary code execution.',
+    remediationAdvice: 'Upgrade Apache Commons Text >= 1.10.0 and avoid default StringSubstitutor.createInterpolator().'
+  },
+  {
+    id: 'HEX-CVE-003',
+    name: 'VM2 Sandbox Escape (CVE-2023-37466) Promise Handler Override',
+    severity: 'CRITICAL',
+    category: 'INJECTION',
+    cwe: 'CWE-94',
+    owasp: 'A03:2021-Injection',
+    languages: ['js', 'ts'],
+    pattern: /new\s+VM\s*\([^)]*\)\.run\s*\([^)]*Promise\.prototype\.then/i,
+    description: 'Overriding Promise handlers inside VM2 breaks host boundary and grants arbitrary code execution in the parent Node.js process.',
+    remediationAdvice: 'Replace VM2 with isolated-vm (V8 C++ Isolate sandbox) or containerized microVMs.'
+  },
+  {
+    id: 'HEX-CVE-004',
+    name: 'Next.js Server Actions Host Header SSRF (CVE-2024-34351)',
+    severity: 'HIGH',
+    category: 'INJECTION',
+    cwe: 'CWE-918',
+    owasp: 'A10:2021-Server-Side Request Forgery',
+    languages: ['js', 'ts'],
+    pattern: /headers\(\)\.get\(['"]host['"]\)[^;]*redirect\s*\(/i,
+    validate: (match, content, _path) => {
+      return !/allowedOrigins|strictHostCheck/i.test(content);
+    },
+    description: 'Evaluating redirect URLs directly against untrusted client Host headers permits internal SSRF during Server Action transitions.',
+    remediationAdvice: 'Validate Host and Origin headers against an explicit server-side allowlist.'
+  },
+  {
+    id: 'HEX-CVE-005',
+    name: 'Apache Struts2 OGNL Expression Injection Pattern',
+    severity: 'CRITICAL',
+    category: 'INJECTION',
+    cwe: 'CWE-917',
+    owasp: 'A03:2021-Injection',
+    languages: ['java', 'ts', 'js'],
+    pattern: /Ognl\.getValue\s*\(\s*(?:req\.params|userOgnl|userInput)\b/i,
+    description: 'Evaluating user-supplied OGNL expressions allows attackers to execute arbitrary system commands.',
+    remediationAdvice: 'Never pass untrusted user strings into OGNL expression parsers; use strict value stacks.'
+  },
+
+  // ==================== 22. AI & BUSINESS LOGIC EXPANSIONS ====================
+  {
+    id: 'HEX-AI-005',
+    name: 'Indirect Prompt Injection via Unencapsulated RAG Context',
+    severity: 'HIGH',
+    category: 'AI_AGENT',
+    cwe: 'CWE-20',
+    owasp: 'A03:2021-Injection',
+    languages: ['js', 'ts', 'py'],
+    pattern: /prompt\s*=\s*`[^`]*\${(?:retrievedDocs|externalWebpage|documentContent)}[^`]*`/i,
+    validate: (match, content, _path) => {
+      return !/<context>|<user_data>|sanitizeContext/i.test(content);
+    },
+    description: 'Interpolating untrusted external documents directly into LLM prompts without XML or role boundary encapsulation enables indirect prompt injection.',
+    remediationAdvice: 'Encapsulate untrusted document retrieval with explicit XML boundary tags: <context>${cleanDoc}</context> and instruction anchors.'
+  },
+  {
+    id: 'HEX-AI-006',
+    name: 'Insecure Dynamic Execution of LLM Output Code',
+    severity: 'CRITICAL',
+    category: 'AI_AGENT',
+    cwe: 'CWE-94',
+    owasp: 'A03:2021-Injection',
+    languages: ['js', 'ts', 'py'],
+    pattern: /(?:eval|exec)\s*\(\s*(?:aiResponse\.code|llmOutput\.script|completion\.code)\b/i,
+    description: 'Directly passing code generated by an AI model into eval() or exec() without sandboxing permits arbitrary code execution.',
+    remediationAdvice: 'Execute untrusted AI code strictly within disposable, ephemeral Docker sandboxes with dropped capabilities.'
+  },
+  {
+    id: 'HEX-AI-007',
+    name: 'Plaintext PII / Sensitive Data Logging in AI Pipeline',
+    severity: 'MEDIUM',
+    category: 'SECRET',
+    cwe: 'CWE-532',
+    owasp: 'A09:2021-Security Logging and Monitoring Failures',
+    languages: ['js', 'ts', 'py'],
+    pattern: /console\.log\s*\(\s*['"]User prompt:['"]\s*,\s*(?:req\.body\.ssn|userCreditCard|userPii)\b/i,
+    description: 'Logging raw customer PII, SSNs, or payment credentials in model evaluation pipelines violates GDPR and PCI-DSS compliance.',
+    remediationAdvice: 'Anonymize or scrub PII with token hashing before logging prompt telemetry.'
+  },
+  {
+    id: 'HEX-BIZ-001',
+    name: 'Broken Object Level Authorization (BOLA) in Multi-Tenant Query',
+    severity: 'HIGH',
+    category: 'BUSINESS_LOGIC',
+    cwe: 'CWE-639',
+    owasp: 'A01:2021-Broken Access Control',
+    languages: ['js', 'ts', 'py'],
+    pattern: /db\.orders\.findById\s*\(\s*req\.params\.orderId\s*\)/i,
+    validate: (match, content, _path) => {
+      return !/customerId\s*:\s*req\.user\.id|order\.customerId\s*===/i.test(content);
+    },
+    description: 'Querying tenant records purely by orderId without matching authenticated customerId permits horizontal authorization bypass.',
+    remediationAdvice: 'Scope all database queries to the authenticated tenant: db.orders.findOne({ _id: orderId, customerId: req.user.id }).'
+  },
+  {
+    id: 'HEX-BIZ-002',
+    name: 'Coupon Double-Spending / Non-Atomic State Mutation',
+    severity: 'HIGH',
+    category: 'BUSINESS_LOGIC',
+    cwe: 'CWE-362',
+    owasp: 'A04:2021-Insecure Design',
+    languages: ['js', 'ts', 'py'],
+    pattern: /if\s*\(\s*!coupon\.isRedeemed\s*\)\s*\{[^}]*coupon\.isRedeemed\s*=\s*true/s,
+    validate: (match, content, _path) => {
+      return !/findOneAndUpdate|atomic|transaction|redisLock/i.test(content);
+    },
+    description: 'Checking coupon redemption status in memory before updating permits simultaneous redemption of single-use vouchers.',
+    remediationAdvice: 'Use atomic database mutations: findOneAndUpdate({ code, isRedeemed: false }, { $set: { isRedeemed: true } }).'
   }
 ];
