@@ -52,6 +52,9 @@ async function main() {
     await learnReport(target);
   } else if (effectiveCommand === 'intel' || effectiveCommand === 'threats') {
     showThreatIntel();
+  } else if (effectiveCommand === '--version' || effectiveCommand === '-V') {
+    console.log('Hexora Universal Security Engine v1.0.0');
+    return;
   } else if (effectiveCommand === '--help' || effectiveCommand === '-h') {
     console.log(`
 🛡️  HEXORA — NEXT-GEN UNIVERSAL SECURITY & AI AGENT ENGINE

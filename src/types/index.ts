@@ -28,7 +28,7 @@ export type ThreatIntelSource =
   | 'OWASP'
   | 'CLOUDFLARE_RESEARCH'
   | 'TRAIL_OF_BITS'
-  | 'AEVUM_RESEARCH'
+  | 'HEXORA_RESEARCH'
   | 'PARADIGM'
   | 'PROJECT_ZERO'
   | 'PORT_SWIGGER'

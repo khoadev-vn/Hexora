@@ -844,7 +844,6 @@ export class ScaScanner {
             'build',
             'out',
             '.hexora-results',
-            '.aevum-audit-results',
             'coverage',
             '.benchmark_workspace',
             'AppData',

@@ -5,7 +5,7 @@
       "type": "local",
       "command": [
         "node",
-        "D:/aevum-audit/bin/hexora.js",
+        "bin/hexora.js",
         "mcp"
       ],
       "enabled": true

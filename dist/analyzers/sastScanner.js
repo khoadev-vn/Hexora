@@ -30,7 +30,6 @@ export class SastScanner {
             '__pycache__',
             '.benchmark_workspace',
             '.hexora-results',
-            '.aevum-audit-results',
             'reports',
             'AppData',
             '.cache',

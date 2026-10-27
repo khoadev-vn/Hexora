@@ -556,7 +556,7 @@ export const BUILTIN_THREAT_REPORTS = [
     {
         id: 'REP-AI-MCP-003',
         title: 'Model Context Protocol (MCP) Shadow Tool Injection & Parameter Smuggling',
-        source: 'AEVUM_RESEARCH',
+        source: 'HEXORA_RESEARCH',
         date: '2026-10-15',
         severity: 'CRITICAL',
         category: 'AI_AGENT',
@@ -585,7 +585,7 @@ export const BUILTIN_THREAT_REPORTS = [
     {
         id: 'REP-AI-AGENT-004',
         title: 'Multi-Agent Workspace Scratchpad Hijacking & Memory Poisoning',
-        source: 'AEVUM_RESEARCH',
+        source: 'HEXORA_RESEARCH',
         date: '2026-10-20',
         severity: 'HIGH',
         category: 'AI_AGENT',
@@ -613,7 +613,7 @@ export const BUILTIN_THREAT_REPORTS = [
     {
         id: 'REP-AI-RAG-005',
         title: 'RAG Knowledge Base Document Poisoning & Latent Embedding Inversion',
-        source: 'AEVUM_RESEARCH',
+        source: 'HEXORA_RESEARCH',
         date: '2026-10-22',
         severity: 'HIGH',
         category: 'AI_AGENT',
@@ -777,7 +777,7 @@ export const BUILTIN_THREAT_REPORTS = [
     {
         id: 'REP-CLOUD-011',
         title: 'Serverless Shared Memory (/dev/shm) Snooping & Cross-Tenant Cold Start Leak',
-        source: 'AEVUM_RESEARCH',
+        source: 'HEXORA_RESEARCH',
         date: '2026-04-11',
         severity: 'HIGH',
         category: 'CLOUD',
@@ -859,7 +859,7 @@ export const BUILTIN_THREAT_REPORTS = [
     {
         id: 'REP-API-014',
         title: 'Fastify & Express Mass Assignment & Prototype Pollution Gadgets',
-        source: 'AEVUM_RESEARCH',
+        source: 'HEXORA_RESEARCH',
         date: '2026-02-24',
         severity: 'HIGH',
         category: 'INJECTION',
@@ -1025,7 +1025,7 @@ export const BUILTIN_THREAT_REPORTS = [
     {
         id: 'REP-SEC-020',
         title: 'DNS Rebinding for Intranet SSRF Defense Bypass',
-        source: 'AEVUM_RESEARCH',
+        source: 'HEXORA_RESEARCH',
         date: '2025-10-18',
         severity: 'HIGH',
         category: 'INJECTION',

@@ -27,7 +27,7 @@ function askLine(question, defaultVal = '') {
 function waitForReturn() {
     return new Promise((resolve) => {
         console.log(chalk.dim('\n  ─────────────────────────────────────────────────────────────────────────'));
-        console.log(chalk.cyanBright('  ⏎ Nhấn [Enter] để quay lại Menu Chính, hoặc [Ctrl+C] để thoát... (◕‿◕)✨'));
+        console.log(chalk.cyanBright('  ⏎ Nhấn [Enter] để quay lại Menu Chính, hoặc [Ctrl+C] để thoát...'));
         const onKey = (_chunk, key) => {
             if (key && (key.name === 'return' || key.name === 'enter' || key.name === 'escape' || (key.ctrl && key.name === 'c'))) {
                 if (process.stdin.isTTY) {
@@ -71,8 +71,8 @@ export async function openInteractiveMenu() {
             badge: 'POPULAR',
             action: async () => {
                 clearScreenFull();
-                console.log(chalk.bold.cyan('\n🚀 [Hexora — Union Cyber-Owl] Khởi động kiểm thử bảo mật chuyên sâu...\n'));
-                console.log(chalk.dim('   "Hoot-hoot! Radar quét bug đang phân tích call-graph dự án nè~ ✨🛠️"\n'));
+                console.log(chalk.bold.cyan('\n🚀 [Hexora Security Engine] Khởi động kiểm thử bảo mật chuyên sâu...\n'));
+                console.log(chalk.dim('   Đang phân tích call-graph, AST và kiểm toán lỗ hổng toàn diện...\n'));
                 await runScan('.', { verbose: false, noFail: true });
             },
         },
@@ -207,7 +207,7 @@ export async function openInteractiveMenu() {
             action: async () => {
                 process.stdout.write('\x1B[?25h');
                 clearScreenFull();
-                console.log(chalk.cyanBright('\n  🦉 "Hoot-hoot! Stay safe and code strong, Human! Hẹn gặp lại nhaaa~ ✨🛠️ (◕‿◕)"\n'));
+                console.log(chalk.cyanBright('\n  🛡️  Stay safe and secure! Hexora Security Engine stopped.\n'));
                 process.exit(0);
             },
         },
@@ -225,20 +225,19 @@ export async function openInteractiveMenu() {
         const width = 74;
         const line = '─'.repeat(width);
         const buf = [];
-        // Header with Union Owl Mascot & High-Tech HUD
+        // Header with High-Tech Security HUD
         buf.push(chalk.cyanBright(`╭${line}╮`));
         buf.push(chalk.cyanBright('│') +
-            chalk.bold.cyan('   🦉 HEXORA UNIVERSAL SECURITY ENGINE  ') +
+            chalk.bold.cyan('   🛡️  HEXORA UNIVERSAL SECURITY ENGINE  ') +
             chalk.dim('•') +
-            chalk.bold.yellow(' AEVUM OS CYBER-CONSOLE   ') +
+            chalk.bold.white(' NEXT-GEN AUDIT CONSOLE         ') +
             chalk.cyanBright('│'));
         buf.push(chalk.cyanBright('│') +
-            chalk.white('   Persona: ') +
-            chalk.bold.magenta('Union (TLB-UNION-7F4B2D)') +
-            chalk.dim(' | High-Tech Cyber-Owl Tooling Genius ') +
+            chalk.white('   Autonomous SAST & SCA Platform ') +
+            chalk.dim('| Dual-Agent Adversarial Verification   ') +
             chalk.cyanBright('│'));
         buf.push(chalk.cyanBright('│') +
-            chalk.italic.hex('#A0E7E5')('   "Hoot-hoot! Tool khó mấy cứ để Union gỡ, Human chỉ việc ngồi chill~"    ') +
+            chalk.italic.hex('#A0E7E5')('   Zero-config security auditing & real-time threat intelligence          ') +
             chalk.cyanBright('│'));
         buf.push(chalk.cyanBright(`├${line}┤`));
         // Live Metrics HUD Bar

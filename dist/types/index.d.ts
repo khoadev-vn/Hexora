@@ -15,7 +15,7 @@ export interface TaintFlow {
     isTainted: boolean;
     flowPath: string[];
 }
-export type ThreatIntelSource = 'IMMUNEFI' | 'CODE4RENA' | 'SHERLOCK' | 'NVD_CVE' | 'GITHUB_ADVISORY' | 'OWASP' | 'CLOUDFLARE_RESEARCH' | 'TRAIL_OF_BITS' | 'AEVUM_RESEARCH' | 'PARADIGM' | 'PROJECT_ZERO' | 'PORT_SWIGGER' | 'IETF' | 'COMMUNITY' | 'CUSTOM';
+export type ThreatIntelSource = 'IMMUNEFI' | 'CODE4RENA' | 'SHERLOCK' | 'NVD_CVE' | 'GITHUB_ADVISORY' | 'OWASP' | 'CLOUDFLARE_RESEARCH' | 'TRAIL_OF_BITS' | 'HEXORA_RESEARCH' | 'PARADIGM' | 'PROJECT_ZERO' | 'PORT_SWIGGER' | 'IETF' | 'COMMUNITY' | 'CUSTOM';
 export interface ThreatCorrelation {
     reportId: string;
     title: string;
